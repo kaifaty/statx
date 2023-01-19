@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators/custom-element.js'
 import { state, computed } from '@statx/core'
-import { statableLit } from '../src/index.js'
+import { statableLit } from '../index.js'
 
 const v1 = state(1, { name: 'timer' })
 

@@ -21,25 +21,15 @@
   "license": "MIT",
   "author": "kaifaty",
   "type": "module",
-  "exports": {
-    "require": "./dist/index.cjs",
-    "default": "./dist/index.modern.js"
-  },
-  "module": "./dist/index.js",
-  "source": "src/index.ts",
-  "typesVersions": {
-    "<3.8": {
-      "*": [
-        "ts3.4/*"
-      ]
-    }
-  },
+  "main": "build/index.js",
+  "source": "./src/index.ts",
+  "types": "build/index.d.ts",
   "files": [
     "/demo/",
     "/src/"
   ],
   "scripts": {
-    "build": "microbundle --compress",
+    "build": "parcel build --target=build",
     "demo": "parcel serve --target=demo",
     "dev": "microbundle watch",
     "test": "jest"
@@ -52,10 +42,21 @@
     "lit": "^2.6.1"
   },
   "targets": {
+    "build": {
+      "context": "browser",
+      "distDir": "./build/",
+      "source": "./src/index.ts",
+      "isLibrary": true,
+      "optimize": true,
+      "includeNodeModules": {
+        "@statx/core": false
+      },
+      "outputFormat": "esmodule"
+    },
     "demo": {
       "context": "browser",
-      "distDir": "./demo/dist/",
-      "source": "./demo/index.html",
+      "distDir": "./build/demo/",
+      "source": "./src/demo/index.html",
       "isLibrary": false,
       "includeNodeModules": true,
       "scopeHoist": false

@@ -1,0 +1,42 @@
+{
+  "name": "@statx/utils",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Extry tiny smart statx manager",
+  "keywords": [
+    "statx",
+    "state",
+    "store",
+    "management",
+    "lit-element",
+    "lit",
+    "app",
+    "shared",
+    "global",
+    "observer",
+    "observable"
+  ],
+  "homepage": "https://github.com/kaifaty/statx/packages/utils",
+  "bugs": {
+    "url": "https://github.com/kaifaty/statx/issues"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "sideEffects": false,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "/package.json",
+    "/README.md",
+    "/src"
+  ],
+  "scripts": {
+    "test": "tsx src/index.test.ts",
+    "test:watch": "tsx watch src/index.test.ts"
+  },
+  "browserslist": [
+    "last 4 chrome versions"
+  ],
+  "dependencies": {}
+}

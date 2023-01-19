@@ -37,7 +37,7 @@
     "build:parcel": "parcel build",
     "build:types": "tsc",
     "dev": "parcel watch",
-    "test": "tsx src/core.test.ts"
+    "test": "tsx src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
