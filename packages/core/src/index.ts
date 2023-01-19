@@ -6,5 +6,5 @@ export {
   startRecord,
   flushStates,
   setContext,
-} from './core'
-export * from './types'
+} from './core.js'
+export * from './types.js'

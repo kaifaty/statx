@@ -17,7 +17,7 @@ import {
   Computed,
   Func,
   UnSubscribe,
-} from './types'
+} from './types.js'
 
 let cache = new WeakMap<StateVariants, StateType>()
 let isNotifying = false

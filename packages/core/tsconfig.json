@@ -1,4 +1,8 @@
 {
-  "exclude": ["./benchmark", "./experiments", "./tests"],
+  "compilerOptions": {
+    "declarationDir": "./build/",
+    "rootDir": "./src",
+    "baseUrl": "."
+  },
   "extends": "../../tsconfig.json"
 }

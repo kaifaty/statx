@@ -1,7 +1,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { state, computed, action } from './core'
+import { state, computed, action } from './core.js'
 
 const mockFn = () => {
   let calls = 0

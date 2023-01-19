@@ -2,32 +2,30 @@
   "name": "@statx/<%= name %>",
   "version": "1.0.0",
   "private": false,
-  "description": "Reatom for <%= name %>",
-  "homepage": "https://github.com/kaifaty/reatom/packages/<%= name %>",
+  "description": "Extry tiny smart statx manager",
+  "keywords": [
+    "statx",
+    "state",
+    "store",
+    "management",
+    "lit-element",
+    "lit",
+    "app",
+    "shared",
+    "global",
+    "observer",
+    "observable"
+  ],
+  "homepage": "https://github.com/kaifaty/statx/packages/<%= name %>",
   "bugs": {
-    "url": "https://github.com/kaifaty/reatom/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/kaifaty/reatom.git"
+    "url": "https://github.com/kaifaty/statx/issues"
   },
   "license": "MIT",
   "author": "kaifaty",
-  "maintainers": [
-    {
-      "name": "kaifaty",
-      "url": "https://github.com/kaifaty"
-    }
-  ],
   "sideEffects": false,
-  "exports": {
-    "require": "./build/index.js",
-    "default": "./build/index.module.js"
-  },
+  "type": "module",
   "main": "build/index.js",
-  "unpkg": "build/index.umd.js",
-  "module": "build/index.module.js",
-  "source": "src/index.ts",
+  "source": "./src/index.ts",
   "types": "build/index.d.ts",
   "files": [
     "/build",
@@ -36,8 +34,10 @@
     "/src"
   ],
   "scripts": {
-    "build": "microbundle",
-    "prepublishOnly": "npm run build && npm run test",
+    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
+    "build:parcel": "parcel build",
+    "build:types": "tsc",
+    "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },
@@ -46,5 +46,15 @@
   ],
   "dependencies": {
     "@statx/core": "*"
+  },
+  "targets": {
+    "build": {
+      "context": "browser",
+      "distDir": "./build/",
+      "source": "./src/index.ts",
+      "isLibrary": true,
+      "optimize": true,
+      "outputFormat": "esmodule"
+    }
   }
 }

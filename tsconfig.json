@@ -12,7 +12,9 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
-    "target": "ESNext"
+    "target": "ESNext",
+    "moduleDetection": "force",
+    "emitDeclarationOnly": true
   },
   "exclude": ["node_modules", "build"]
 }

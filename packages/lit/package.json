@@ -40,7 +40,7 @@
   ],
   "scripts": {
     "build": "microbundle --compress",
-    "demo": "microbundle -i ./demo/demo.ts -o ./dist/demo/",
+    "demo": "parcel serve --target=demo",
     "dev": "microbundle watch",
     "test": "jest"
   },

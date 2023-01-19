@@ -22,25 +22,34 @@
   "license": "MIT",
   "author": "kaifaty",
   "sideEffects": false,
-  "exports": {
-    "require": "./build/index.cjs",
-    "default": "./build/index.modern.js"
-  },
-  "main": "build/index.cjs",
-  "module": "build/index.js",
-  "source": "src/index.ts",
+  "type": "module",
+  "main": "build/index.js",
+  "source": "./src/index.ts",
   "types": "build/index.d.ts",
   "files": [
+    "/build",
     "/package.json",
-    "/build"
+    "/README.md",
+    "/src"
   ],
   "scripts": {
-    "build_p": "parcel build",
-    "build": "microbundle",
-    "dev": "microbundle watch",
+    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
+    "build:parcel": "parcel build",
+    "build:types": "tsc",
+    "dev": "parcel watch",
     "test": "tsx src/core.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
-  ]
+  ],
+  "targets": {
+    "build": {
+      "context": "browser",
+      "distDir": "./build/",
+      "source": "./src/index.ts",
+      "isLibrary": true,
+      "optimize": true,
+      "outputFormat": "esmodule"
+    }
+  }
 }
