@@ -1,0 +1,50 @@
+{
+  "name": "@statx/<%= name %>",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Reatom for <%= name %>",
+  "homepage": "https://github.com/kaifaty/reatom/packages/<%= name %>",
+  "bugs": {
+    "url": "https://github.com/kaifaty/reatom/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kaifaty/reatom.git"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "maintainers": [
+    {
+      "name": "kaifaty",
+      "url": "https://github.com/kaifaty"
+    }
+  ],
+  "sideEffects": false,
+  "exports": {
+    "require": "./build/index.js",
+    "default": "./build/index.module.js"
+  },
+  "main": "build/index.js",
+  "unpkg": "build/index.umd.js",
+  "module": "build/index.module.js",
+  "source": "src/index.ts",
+  "types": "build/index.d.ts",
+  "files": [
+    "/build",
+    "/package.json",
+    "/README.md",
+    "/src"
+  ],
+  "scripts": {
+    "build": "microbundle",
+    "prepublishOnly": "npm run build && npm run test",
+    "test": "tsx src/index.test.ts",
+    "test:watch": "tsx watch src/index.test.ts"
+  },
+  "browserslist": [
+    "last 4 chrome versions"
+  ],
+  "dependencies": {
+    "@statx/core": "*"
+  }
+}

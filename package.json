@@ -1,0 +1,62 @@
+{
+  "name": "statx",
+  "private": true,
+  "description": "Tiny and effective state manager",
+  "keywords": [
+    "state",
+    "store",
+    "state-manager",
+    "state manager",
+    "reactive",
+    "reactivity",
+    "flux",
+    "@statx",
+    "statx"
+  ],
+  "bugs": {
+    "url": "https://github.com/kaifaty/statx/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kaifaty/statx.git"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "new-package": "tsx tools/new-package/create.ts",
+    "prettify": "prettier --write **/*.json",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "@parcel/packager-ts": "^2.8.3",
+    "@parcel/transformer-typescript-types": "^2.8.3",
+    "lit": "^2.6.1",
+    "microbundle": "^0.15.1",
+    "parcel": "^2.8.3",
+    "tsx": "^3.12.2",
+    "turbo": "^1.7.0",
+    "typescript": "^4.9.4",
+    "uvu": "^0.5.6",
+    "zx": "^7.1.1"
+  },
+  "peerDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.3",
+    "prettier-plugin-packagejson": "^2.4.0",
+    "prettier-plugin-sort-json": "^1.0.0"
+  },
+  "engines": {
+    "npm": ">=8.0.0"
+  },
+  "readme": "README.md"
+}

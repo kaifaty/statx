@@ -1,0 +1,46 @@
+{
+  "name": "@statx/core",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Extry tiny smart state manager",
+  "keywords": [
+    "state",
+    "store",
+    "management",
+    "lit-element",
+    "lit",
+    "app",
+    "shared",
+    "global",
+    "observer",
+    "observable"
+  ],
+  "homepage": "https://github.com/kaifaty/state#readme",
+  "bugs": {
+    "url": "https://github.com/kaifaty/state/issues"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "sideEffects": false,
+  "exports": {
+    "require": "./build/index.cjs",
+    "default": "./build/index.modern.js"
+  },
+  "main": "build/index.cjs",
+  "module": "build/index.js",
+  "source": "src/index.ts",
+  "types": "build/index.d.ts",
+  "files": [
+    "/package.json",
+    "/build"
+  ],
+  "scripts": {
+    "build_p": "parcel build",
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "test": "tsx src/core.test.ts"
+  },
+  "browserslist": [
+    "last 4 chrome versions"
+  ]
+}

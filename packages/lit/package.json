@@ -1,0 +1,64 @@
+{
+  "name": "@statx/lit",
+  "version": "1.0.0",
+  "description": "Extry tiny smart state manager",
+  "keywords": [
+    "state",
+    "store",
+    "management",
+    "lit-element",
+    "lit",
+    "app",
+    "shared",
+    "global",
+    "observer",
+    "observable"
+  ],
+  "homepage": "https://github.com/kaifaty/state#readme",
+  "bugs": {
+    "url": "https://github.com/kaifaty/state/issues"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "type": "module",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
+  "module": "./dist/index.js",
+  "source": "src/index.ts",
+  "typesVersions": {
+    "<3.8": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
+  "files": [
+    "/demo/",
+    "/src/"
+  ],
+  "scripts": {
+    "build": "microbundle --compress",
+    "demo": "microbundle -i ./demo/demo.ts -o ./dist/demo/",
+    "dev": "microbundle watch",
+    "test": "jest"
+  },
+  "browserslist": [
+    "last 4 chrome versions"
+  ],
+  "dependencies": {
+    "@statx/core": "*",
+    "lit": "^2.6.1"
+  },
+  "targets": {
+    "demo": {
+      "context": "browser",
+      "distDir": "./demo/dist/",
+      "source": "./demo/index.html",
+      "isLibrary": false,
+      "includeNodeModules": true,
+      "scopeHoist": false
+    }
+  }
+}
