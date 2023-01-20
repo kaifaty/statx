@@ -29,20 +29,16 @@ const rl = createInterface({
   output: process.stdout,
 })
 
-rl.question(`What's a new package name?`, async (name) => {
+rl.question(`What's a new package name? `, async (name) => {
   console.log('name is', name)
 
   const newPackageLocation = path
     .join(process.cwd(), 'packages', name)
     .replace(/(\\)/g, '/')
 
-  console.log(newPackageLocation)
-
-  // TODO: https://nodejs.org/api/fs.html#fspromisescpsrc-dest-options
   await fs.cp(templateLocation, newPackageLocation, {
     recursive: true,
   })
-  // await $`cp -r ${templateLocation} ${newPackageLocation}`
 
   await personalizeTemplate(newPackageLocation, name)
 

@@ -1,13 +1,13 @@
 ## Installation
 
 ```sh
-npm i @reatom/<%= name %>
+npm i @statx/<%= name %>
 ```
 
 ## Usage
 
 ```ts
-import {} from '@reatom/<%= name %>'
+import {} from '@statx/<%= name %>'
 
 // ...
 ```

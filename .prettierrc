@@ -1,7 +1,17 @@
 {
   "singleQuote": true,
   "trailingComma": "all",
-  "max-len": ["error", 140, 2],
+  "printWidth": 110,
+  "max-len": ["error", 
+  {
+    "code": 110,
+    "tabWidth": 2,
+    "ignoreComments": true,
+    "ignoreUrls": true,
+    "ignoreStrings": true,
+    "ignoreTemplateLiterals": true
+  }
+],
   "tabWidth": 2,
   "semi": false
 }

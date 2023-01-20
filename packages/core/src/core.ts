@@ -32,15 +32,11 @@ const settings: Settings = {
   historyLength: 5,
 }
 // <T extends StateType>(state: StateVariants<T>
-const getCachValue = <T extends StateType, S = StateVariants<T>>(
-  state: S,
-): T => {
+const getCachValue = <T extends StateType, S = StateVariants<T>>(state: S): T => {
   return cache.get(state as any) as any
 }
-const setCacheValue = <T extends StateType, S = StateVariants<T>>(
-  state: S,
-  value: T,
-): void => {
+
+const setCacheValue = <T extends StateType, S = StateVariants<T>>(state: S, value: T): void => {
   cache.set(state as any, value)
 }
 
@@ -66,9 +62,7 @@ export const setContext = () => {
 const isUndefinedState = <T extends StateType>(state: ComputedInternal<T>) => {
   // Loop update
   if (state.isComputing) {
-    console.error(
-      `Loops don't allow in reducers. Name: ${state.name ?? 'Unnamed state'}`,
-    )
+    console.error(`Loops don't allow in reducers. Name: ${state.name ?? 'Unnamed state'}`)
     return true
   }
 
@@ -100,10 +94,7 @@ const notifySubscribers = <T extends StateType>(state: StateVariants<T>) => {
   state.childs.forEach((s) => states2notify.add(s))
 }
 
-const applyUpdates = <T extends StateType>(
-  state: StateVariants<T>,
-  value: T,
-): void => {
+const applyUpdates = <T extends StateType>(state: StateVariants<T>, value: T): void => {
   setCacheValue(state, value)
   updateHistory(state, value)
 
@@ -131,16 +122,11 @@ const applyUpdates = <T extends StateType>(
   }
 }
 
-const isDontNeedCacl = <T extends StateType>(
-  state: ComputedInternal<T>,
-  prevState: T,
-): boolean => {
+const isDontNeedCacl = <T extends StateType>(state: ComputedInternal<T>, prevState: T): boolean => {
   return state.hasParentUpdates === false && prevState !== undefined
 }
 
-const getComputedValue = <T extends StateType>(
-  state: ComputedInternal<T>,
-): T | undefined => {
+const getComputedValue = <T extends StateType>(state: ComputedInternal<T>): T | undefined => {
   try {
     const prevState = getCachValue<T>(state)
 
@@ -170,9 +156,7 @@ const getComputedValue = <T extends StateType>(
   }
 }
 
-const getValue = <T extends StateType>(
-  state: StateVariants<T>,
-): T | undefined => {
+const getValue = <T extends StateType>(state: StateVariants<T>): T | undefined => {
   try {
     const reducer = getReducer(state)
     if (reducer) {
@@ -190,21 +174,13 @@ const getValue = <T extends StateType>(
   }
 }
 
-const getValueOfSetterFunction = <T extends StateType>(
-  state: StateVariants<T>,
-  value: (v: T) => T,
-): T => {
+const getValueOfSetterFunction = <T extends StateType>(state: StateVariants<T>, value: (v: T) => T): T => {
   const prevValue = getCachValue<T>(state)
   return value(prevValue)
 }
 
-const setValue = <T extends StateType>(
-  state: StateVariants<T>,
-  value: SetValue<T>,
-): void => {
-  const nonFuncValue = isFunction(value)
-    ? getValueOfSetterFunction(state, value)
-    : value
+const setValue = <T extends StateType>(state: StateVariants<T>, value: SetValue<T>): void => {
+  const nonFuncValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
 
   state.childs.forEach((childState) => {
     childState.hasParentUpdates = true
@@ -265,10 +241,7 @@ const assert = (condtion: boolean, msg: string) => {
  * @param name - name of state. For loggin or easy debug
  * @returns State<T>
  */
-export function state<T extends StateType = StateType>(
-  value: T,
-  options?: Options,
-): State<T> {
+export function state<T extends StateType = StateType>(value: T, options?: Options): State<T> {
   assert(isFunction(value), 'Function not allowed in state')
 
   const data: StateInternal<T> = {
@@ -326,10 +299,7 @@ export const computed = <
  * @param value - Action function
  * @param name
  */
-export const action = <T extends unknown[]>(
-  value: (...args: T) => void,
-  name?: string,
-): Action<T> => {
+export const action = <T extends unknown[]>(value: (...args: T) => void, name?: string): Action<T> => {
   return {
     run: (...args: T) => {
       isActionNow = true

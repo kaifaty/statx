@@ -1,5 +1,5 @@
 {
-  "name": "@statx/utils",
+  "name": "@statx/react",
   "version": "1.0.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
@@ -16,7 +16,7 @@
     "observer",
     "observable"
   ],
-  "homepage": "https://github.com/kaifaty/statx/packages/utils",
+  "homepage": "https://github.com/kaifaty/statx/packages/react",
   "bugs": {
     "url": "https://github.com/kaifaty/statx/issues"
   },
@@ -27,23 +27,27 @@
   "main": "build/index.js",
   "source": "./src/index.ts",
   "types": "build/index.d.ts",
-
   "files": [
+    "/build",
     "/package.json",
     "/README.md",
     "/src"
   ],
   "scripts": {
-    
     "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
-    "build:parcel": "parcel build --target=build",
+    "build:parcel": "parcel build",
     "build:types": "tsc",
+    "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
   ],
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@statx/core": "*"
+  },
   "targets": {
     "build": {
       "context": "browser",

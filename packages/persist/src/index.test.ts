@@ -1,7 +1,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-test(`--`, async () => {
+test(`base API`, async () => {
   assert.ok(false, `You forgot test you code`)
 })
 
