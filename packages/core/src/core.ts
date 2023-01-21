@@ -16,13 +16,14 @@ import {
   Func,
   UnSubscribe,
   CommonInternal,
+  StateInternal,
   SetterFunc,
 } from './types.js'
 
 let cache = new WeakMap<StateVariants, StateType>()
 let isNotifying = false
 let isActionNow = false
-let recording: Set<StateVariants> | undefined
+let recording: Set<StateInternal> | undefined
 
 const defaultName = 'Unnamed state'
 const names = new Set()
@@ -193,9 +194,9 @@ export const startRecord = () => {
 }
 
 /**
- * Flush all collected states.
+ * Flush all collected non computed states.
  */
-export const flushStates = () => {
+export const flushStates = (): Set<StateInternal> => {
   const data = recording
   recording = undefined
   return data

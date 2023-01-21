@@ -1,9 +1,10 @@
 {
-  "name": "@statx/core",
+  "name": "@statx/async",
   "version": "1.0.0",
   "private": false,
-  "description": "Extry tiny smart state manager",
+  "description": "Extry tiny smart statx manager",
   "keywords": [
+    "statx",
     "state",
     "store",
     "management",
@@ -15,9 +16,9 @@
     "observer",
     "observable"
   ],
-  "homepage": "https://github.com/kaifaty/state#readme",
+  "homepage": "https://github.com/kaifaty/statx/packages/async",
   "bugs": {
-    "url": "https://github.com/kaifaty/state/issues"
+    "url": "https://github.com/kaifaty/statx/issues"
   },
   "license": "MIT",
   "author": "kaifaty",
@@ -38,11 +39,15 @@
     "build:types": "tsc",
     "demo": "parcel serve --target=demo",
     "dev": "parcel watch",
-    "test": "tsx src/index.test.ts"
+    "test": "tsx src/index.test.ts",
+    "test:watch": "tsx watch src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
   ],
+  "dependencies": {
+    "@statx/core": "*"
+  },
   "targets": {
     "build": {
       "context": "browser",

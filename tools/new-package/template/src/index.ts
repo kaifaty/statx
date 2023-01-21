@@ -1,4 +1,4 @@
-import {} from '@reatom/core'
+import {} from '@statx/core'
 
 export const <%= name %> = () => {
   
