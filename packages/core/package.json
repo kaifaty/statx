@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
-    "build:parcel": "parcel build",
+    "build:parcel": "parcel build --target=build",
+    "demo": "parcel serve --target=demo",
     "build:types": "tsc",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts"
@@ -50,6 +51,14 @@
       "isLibrary": true,
       "optimize": true,
       "outputFormat": "esmodule"
+    },
+    "demo": {
+      "context": "browser",
+      "distDir": "./build/demo/",
+      "source": "./src/demo/index.html",
+      "isLibrary": false,
+      "includeNodeModules": true,
+      "scopeHoist": false
     }
   }
 }

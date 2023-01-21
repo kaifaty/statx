@@ -8,16 +8,18 @@ export const throttled = /*#__PURE__*/ <F extends (...args: any[]) => any>(time:
   const f = ((...args) => {
     const currtime = Date.now()
     const diffTime = currtime - lastCall
-    if (diffTime < time) {
+    if (diffTime > time) {
       df(...args)
       lastCall = currtime
     } else {
       lastArgs = args
       if (!timer) {
         timer = setTimeout(() => {
-          df(lastArgs)
+          f(lastArgs)
           timer = null
         }, diffTime)
+      } else {
+        console.log('тротлим')
       }
     }
   }) as F

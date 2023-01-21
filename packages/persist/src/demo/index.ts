@@ -40,7 +40,7 @@ createWatcher(
 
 createWatcher(
   indexeddbStorage('initial', {
-    name: 'indexed',
+    name: 'idb',
     throttle: 500,
   }),
 )

@@ -17,27 +17,28 @@ import {
   Computed,
   Func,
   UnSubscribe,
+  CommonInternal,
 } from './types.js'
 
 let cache = new WeakMap<StateVariants, StateType>()
 let isNotifying = false
 let isActionNow = false
-let recording: Set<StateVariants<StateType>> | undefined
+let recording: Set<StateVariants> | undefined
 
 const defaultName = 'Unnamed state'
 const names = new Set()
-const requesters: ComputedInternal<StateType>[] = []
-const states2notify = new Set<StateVariants<StateType>>()
+const requesters: ComputedInternal[] = []
+const states2notify = new Set<StateVariants>()
 const settings: Settings = {
   historyLength: 5,
 }
 // <T extends StateType>(state: StateVariants<T>
-const getCachValue = <T extends StateType, S = StateVariants<T>>(state: S): T => {
-  return cache.get(state as any) as any
+export const getCachValue = (state: StateVariants): unknown => {
+  return cache.get(state)
 }
 
-const setCacheValue = <T extends StateType, S = StateVariants<T>>(state: S, value: T): void => {
-  cache.set(state as any, value)
+const setCacheValue = (state: StateVariants, value: StateType): void => {
+  cache.set(state, value)
 }
 
 const getName = (name?: string): string => {
@@ -59,7 +60,7 @@ export const setContext = () => {
   cache = new WeakMap<object, StateType>()
 }
 
-const isUndefinedState = <T extends StateType>(state: ComputedInternal<T>) => {
+const isUndefinedState = (state: ComputedInternal) => {
   // Loop update
   if (state.isComputing) {
     console.error(`Loops don't allow in reducers. Name: ${state.name ?? 'Unnamed state'}`)
@@ -69,7 +70,7 @@ const isUndefinedState = <T extends StateType>(state: ComputedInternal<T>) => {
   return false
 }
 
-const getReducer = <T extends StateType>(state: StateVariants<T>) => {
+const getReducer = (state: CommonInternal | ComputedInternal) => {
   if ('reducer' in state) {
     return state
   }
@@ -89,12 +90,80 @@ const updateHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
   state.historyCursor = (cursorHistory + 1) % state.history.length
 }
 
-const notifySubscribers = <T extends StateType>(state: StateVariants<T>) => {
-  states2notify.add(state as any)
-  state.childs.forEach((s) => states2notify.add(s))
+const isDontNeedCacl = (state: CommonInternal, prevState: unknown): boolean => {
+  return state.hasParentUpdates === false && prevState !== undefined
 }
 
-const applyUpdates = <T extends StateType>(state: StateVariants<T>, value: T): void => {
+const getComputedValue = (state: ComputedInternal): unknown => {
+  try {
+    const prevState = getCachValue(state)
+
+    if (isDontNeedCacl(state, prevState)) {
+      return prevState
+    }
+
+    if (isUndefinedState(state)) {
+      return undefined
+    }
+
+    requesters.push(state as any)
+
+    state.isComputing = true
+    const value = state.reducer(prevState ?? (state.initial as any))
+    state.isComputing = false
+    state.hasParentUpdates = false
+
+    applyUpdates(state as any, value)
+
+    return value as any
+  } catch (e) {
+    console.error((e as Error).message)
+    return undefined
+  }
+}
+
+const getValue = (state: CommonInternal) => {
+  try {
+    const lastRequester = requesters.pop()
+    if (lastRequester && !state.childs.has(lastRequester)) {
+      state.childs.add(lastRequester)
+      lastRequester.depends.add(state)
+    }
+    const reducer = getReducer(state)
+    if (reducer) {
+      return getComputedValue(reducer)
+    }
+    return getCachValue(state)
+  } finally {
+    if (recording) {
+      recording.add(state)
+    }
+  }
+}
+
+const getValueOfSetterFunction = (state: CommonInternal, value: (v: unknown) => unknown): unknown => {
+  const prevValue = getCachValue(state)
+  return value(prevValue)
+}
+
+const setValue = (state: CommonInternal, value: unknown): void => {
+  const nonFuncValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
+
+  applyUpdates(state, nonFuncValue)
+}
+
+const notifySubscribers = (state: CommonInternal) => {
+  const stack: CommonInternal[] = [state]
+
+  while (stack.length) {
+    const st = stack.pop()
+    st.childs.forEach((it) => stack.push(it))
+    st.hasParentUpdates = true
+    states2notify.add(state)
+  }
+}
+
+const applyUpdates = (state: CommonInternal, value: unknown): void => {
   setCacheValue(state, value)
   updateHistory(state, value)
 
@@ -122,73 +191,6 @@ const applyUpdates = <T extends StateType>(state: StateVariants<T>, value: T): v
   }
 }
 
-const isDontNeedCacl = <T extends StateType>(state: ComputedInternal<T>, prevState: T): boolean => {
-  return state.hasParentUpdates === false && prevState !== undefined
-}
-
-const getComputedValue = <T extends StateType>(state: ComputedInternal<T>): T | undefined => {
-  try {
-    const prevState = getCachValue<T>(state)
-
-    if (isDontNeedCacl(state, prevState)) {
-      return prevState
-    }
-
-    if (isUndefinedState(state)) {
-      return undefined
-    }
-
-    requesters.push(state as any)
-    state.childs.clear()
-
-    state.isComputing = true
-    const value = state.reducer(prevState ?? (state.initial as any))
-    state.isComputing = false
-    state.hasParentUpdates = false
-
-    applyUpdates(state as any, value)
-
-    return value as any
-  } catch (e) {
-    state.childs.clear()
-    console.error((e as Error).message)
-    return undefined
-  }
-}
-
-const getValue = <T extends StateType>(state: StateVariants<T>): T | undefined => {
-  try {
-    const reducer = getReducer(state)
-    if (reducer) {
-      return getComputedValue(reducer)
-    }
-    const lastRequester = requesters.pop()
-    if (lastRequester && !state.childs.has(lastRequester)) {
-      state.childs.add(lastRequester)
-    }
-    return getCachValue<T>(state)
-  } finally {
-    if (recording) {
-      recording.add(state as any)
-    }
-  }
-}
-
-const getValueOfSetterFunction = <T extends StateType>(state: StateVariants<T>, value: (v: T) => T): T => {
-  const prevValue = getCachValue<T>(state)
-  return value(prevValue)
-}
-
-const setValue = <T extends StateType>(state: StateVariants<T>, value: SetValue<T>): void => {
-  const nonFuncValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
-
-  state.childs.forEach((childState) => {
-    childState.hasParentUpdates = true
-  })
-
-  applyUpdates(state, nonFuncValue)
-}
-
 export const startRecord = () => {
   recording = new Set()
 }
@@ -199,12 +201,7 @@ export const flushStates = () => {
   return data
 }
 
-export const subscribe = <
-  T extends {
-    subscribes: Set<Listner>
-    reducer?: Func
-  },
->(
+export const subscribe = <T extends CommonInternal | ComputedInternal>(
   state: T,
   listner: Listner,
 ): UnSubscribe => {
@@ -212,21 +209,27 @@ export const subscribe = <
    * Если значение стейта ниразу не расчитывалось, его нужно обновить
    * Если подписываемся на вычисляемый стэйт, то нужно узнать всех родителей
    * Родители могут меняться, поэтому после каждого вычисления нужно обновлять зависимости дерева
+   *
+   * При отписке нужно оповестить всех на кого были опдписанты о том что мы отписались
+   *
    */
 
   if (state.subscribes.has(listner)) {
     return () => ({})
   }
 
-  const reducer = isComputed(state)
+  const reducer = isComputed(state as any)
   if (reducer) {
-    console.log('sub', getComputedValue(state as any))
+    getComputedValue(state as any)
   }
 
   state.subscribes.add(listner)
 
   return () => {
     state.subscribes.delete(listner)
+    if (state.subscribes.size === 0) {
+      state.depends.forEach((parent) => parent.childs.delete(state as any))
+    }
   }
 }
 
@@ -235,6 +238,7 @@ const assert = (condtion: boolean, msg: string) => {
     throw new Error(msg)
   }
 }
+
 /**
  *
  * @param value - Reducer or value
@@ -244,12 +248,14 @@ const assert = (condtion: boolean, msg: string) => {
 export function state<T extends StateType = StateType>(value: T, options?: Options): State<T> {
   assert(isFunction(value), 'Function not allowed in state')
 
-  const data: StateInternal<T> = {
-    name: getName(options?.name),
-    historyCursor: 0,
-    history: Array.from({ length: settings.historyLength }),
+  const data: CommonInternal = {
     childs: new Set(),
+    depends: new Set(),
+    history: Array.from({ length: settings.historyLength }),
+    historyCursor: 0,
+    name: getName(options?.name),
     subscribes: new Set(),
+    hasParentUpdates: undefined,
   }
 
   setValue(data, value)
@@ -261,8 +267,9 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
   Object.defineProperty(f, 'name', { value: data.name })
   f.subscribe = (listner: Listner) => subscribe(data, listner)
   f.set = (value: T) => setValue(data, value)
+  f._internal = data
 
-  return f
+  return f as State<T>
 }
 
 export const computed = <
@@ -273,24 +280,28 @@ export const computed = <
   value: GetStatlessFunc<T, S, O>,
   options?: O,
 ): Computed<T> => {
-  const data: ComputedInternal<T, GetStatlessFunc<T, S, O>> = {
+  const data: ComputedInternal = {
     childs: new Set(),
+    depends: new Set(),
     hasParentUpdates: true,
-    historyCursor: 0,
     history: Array.from({ length: settings.historyLength }),
+    historyCursor: 0,
     initial: options?.initial as ReturnType<typeof value> | undefined,
     isComputing: false,
+    name: getName(options?.name),
     reducer: value,
     subscribes: new Set(),
-    name: getName(options?.name),
   }
 
   const f = function () {
     return getValue(data)
   }
+
   Object.defineProperty(f, 'name', { value: data.name })
   f.subscribe = (listner: Listner) => subscribe(data, listner)
-  return f
+  f._internal = data
+
+  return f as Computed<T>
 }
 
 /**

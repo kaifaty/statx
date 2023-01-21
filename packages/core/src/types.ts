@@ -45,15 +45,27 @@ export type HistoryInternal = {
   history: unknown[]
 }
 
-export type CommonInternal<T extends StateType = StateType> =
-  HistoryInternal & {
-    childs: Set<ComputedInternal<StateType>>
-    subscribes: Set<Listner>
-    name: string
-    onUpdate?: IsFunction<T>
-  }
+export type CommonInternal = HistoryInternal & {
+  childs: Set<CommonInternal>
+  depends: Set<{
+    childs: Set<CommonInternal>
+  }>
+  subscribes: Set<Listner>
+  name: string
+  onUpdate?: IsFunction<T>
+  hasParentUpdates: boolean | undefined
+}
 
-export type StateInternal<T extends StateType> = CommonInternal<T>
+export type ComputedInternal<
+  T extends StateType = unknown,
+  R extends StatlessFunc = StatlessFunc,
+> = CommonInternal & {
+  initial?: unknown
+  isComputing: boolean
+  reducer: R
+}
+
+export type StateInternal = CommonInternal
 
 export type ComputedInternalOptions<T extends StateType = StateType> = {
   name?: string
@@ -74,22 +86,11 @@ export type GetStatlessFunc<
     : StatlessFunc<O['initial']>
   : StatlessFunc<T>
 
-export type ComputedInternal<
-  T extends StateType,
-  R extends StatlessFunc = StatlessFunc,
-> = CommonInternal<T> & {
-  hasParentUpdates: boolean
-  initial?: ReturnType<R>
-  isComputing: boolean
-  reducer: R
-}
-
-export type StateVariants<T extends StateType = StateType> =
-  | ComputedInternal<T>
-  | StateInternal<T>
+export type StateVariants = ComputedInternal | StateInternal
 
 export interface Common<T extends StateType> {
   (): T | undefined
+  _internal: CommonInternal
   name: string
   subscribe(listner: Listner): UnSubscribe
 }

@@ -10,10 +10,17 @@ import {
   SyncStorage,
 } from './types.js'
 
+const uniqNames = new Set<string>()
+
 export const persistState = <S extends PersistCreatorOptions, T extends StateType = StateType>(
   value: T,
   { name, storage }: S,
 ): S['storage'] extends AsyncStorage ? AsyncPersistState<T> : SyncPersistState<T> => {
+  if (uniqNames.has(name)) {
+    throw new Error(`Name: ${name} must be uniq`)
+  } else {
+    uniqNames.add(name)
+  }
   let afterClear = false
   let store: SyncPersistState<T>
   if (storage.isAsync) {

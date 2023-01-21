@@ -1,7 +1,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { state, computed, action } from './core.js'
+import { state, computed, action, getCachValue } from './core.js'
 
 const mockFn = () => {
   let calls = 0
@@ -89,6 +89,44 @@ test('Action', () => {
   sum.run()
 
   assert.is(v1(), 5 + (100 * 50) / 101)
+})
+
+test(`Recalculation of subscribers`, async () => {
+  const v = state(23)
+  const c = computed(() => v() * 100 + 20)
+
+  // No calculations if no subs
+  assert.is(getCachValue(c._internal), undefined)
+
+  const unsub = c.subscribe(() => {
+    1
+  })
+  // Recalc on subscribe
+  assert.is(getCachValue(c._internal), 23 * 100 + 20)
+
+  v.set(1)
+  await 1
+
+  assert.is(getCachValue(c._internal), 1 * 100 + 20)
+
+  // No recalc after unsub
+  unsub()
+  v.set(0)
+
+  assert.is(getCachValue(c._internal), 1 * 100 + 20)
+})
+
+test(`Recalculate all computed tree`, () => {
+  const v = state(0)
+  const c = computed(() => v() + 1, { name: 'c' })
+  const c2 = computed(() => c() + 2, { name: 'c2' })
+  const c3 = computed(() => c2() + 3, { name: 'c3' })
+
+  assert.is(c3(), 6)
+
+  v.set(1)
+
+  assert.is(c3(), 7)
 })
 
 /*
