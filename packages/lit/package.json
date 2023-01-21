@@ -29,10 +29,12 @@
     "/src/"
   ],
   "scripts": {
-    "build": "parcel build --target=build",
-    "demo": "parcel serve --target=demo",
+    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
+    "build:parcel": "parcel build --target=build",
+    "build:types": "tsc",
+    "demo": "parcel --target=demo",
     "dev": "microbundle watch",
-    "test": "jest"
+    "test": "tsx src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
