@@ -36,7 +36,7 @@
     "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
     "build:parcel": "parcel build --target=build",
     "build:types": "tsc",
-    "demo": "parcel serve --target=demo",
+    "demo": "parcel --target=demo",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts"
   },
