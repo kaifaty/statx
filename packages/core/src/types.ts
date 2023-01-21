@@ -1,4 +1,5 @@
-export type Func = (...args: any[]) => any
+export type Func = (...args: unknown[]) => unknown
+export type SetterFunc = (value: unknown) => unknown
 
 export type StateType<T extends unknown = unknown> = T extends number
   ? number
@@ -52,17 +53,14 @@ export type CommonInternal = HistoryInternal & {
   }>
   subscribes: Set<Listner>
   name: string
-  onUpdate?: IsFunction<T>
+  onUpdate?: SetterFunc
   hasParentUpdates: boolean | undefined
 }
 
-export type ComputedInternal<
-  T extends StateType = unknown,
-  R extends StatlessFunc = StatlessFunc,
-> = CommonInternal & {
+export type ComputedInternal = CommonInternal & {
   initial?: unknown
   isComputing: boolean
-  reducer: R
+  reducer: SetterFunc
 }
 
 export type StateInternal = CommonInternal

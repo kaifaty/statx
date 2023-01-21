@@ -3,13 +3,11 @@ import {
   Listner,
   StateType,
   Settings,
-  StateInternal,
   StateVariants,
   Action,
   Options,
   ComputedInternalOptions,
   Nullable,
-  SetValue,
   StatlessFunc,
   GetStatlessFunc,
   HistoryInternal,
@@ -18,6 +16,7 @@ import {
   Func,
   UnSubscribe,
   CommonInternal,
+  SetterFunc,
 } from './types.js'
 
 let cache = new WeakMap<StateVariants, StateType>()
@@ -60,24 +59,10 @@ export const setContext = () => {
   cache = new WeakMap<object, StateType>()
 }
 
-const isUndefinedState = (state: ComputedInternal) => {
-  // Loop update
-  if (state.isComputing) {
-    console.error(`Loops don't allow in reducers. Name: ${state.name ?? 'Unnamed state'}`)
-    return true
-  }
-
-  return false
-}
-
-const getReducer = (state: CommonInternal | ComputedInternal) => {
+const getComputed = (state: CommonInternal | ComputedInternal) => {
   if ('reducer' in state) {
     return state
   }
-}
-
-const isComputed = (state: { reducer?: Func }) => {
-  return state.reducer !== undefined
 }
 
 const isFunction = (v: unknown): v is Func => {
@@ -90,7 +75,7 @@ const updateHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
   state.historyCursor = (cursorHistory + 1) % state.history.length
 }
 
-const isDontNeedCacl = (state: CommonInternal, prevState: unknown): boolean => {
+const isDontNeedRecalc = (state: CommonInternal, prevState: unknown): boolean => {
   return state.hasParentUpdates === false && prevState !== undefined
 }
 
@@ -98,24 +83,24 @@ const getComputedValue = (state: ComputedInternal): unknown => {
   try {
     const prevState = getCachValue(state)
 
-    if (isDontNeedCacl(state, prevState)) {
+    if (isDontNeedRecalc(state, prevState)) {
       return prevState
     }
 
-    if (isUndefinedState(state)) {
-      return undefined
-    }
+    assert(state.isComputing, `Loops dosen't allows. Name: ${state.name ?? 'Unnamed state'}`)
 
-    requesters.push(state as any)
+    requesters.push(state)
 
     state.isComputing = true
-    const value = state.reducer(prevState ?? (state.initial as any))
+    const value = state.reducer(prevState ?? state.initial)
     state.isComputing = false
     state.hasParentUpdates = false
 
-    applyUpdates(state as any, value)
+    requesters.pop()
 
-    return value as any
+    applyUpdates(state, value)
+
+    return value
   } catch (e) {
     console.error((e as Error).message)
     return undefined
@@ -123,36 +108,44 @@ const getComputedValue = (state: ComputedInternal): unknown => {
 }
 
 const getValue = (state: CommonInternal) => {
+  const reducer = getComputed(state)
   try {
-    const lastRequester = requesters.pop()
+    const lastRequester = requesters.at(-1)
     if (lastRequester && !state.childs.has(lastRequester)) {
       state.childs.add(lastRequester)
       lastRequester.depends.add(state)
     }
-    const reducer = getReducer(state)
     if (reducer) {
       return getComputedValue(reducer)
     }
     return getCachValue(state)
   } finally {
-    if (recording) {
+    if (recording && !reducer) {
       recording.add(state)
     }
   }
 }
 
-const getValueOfSetterFunction = (state: CommonInternal, value: (v: unknown) => unknown): unknown => {
+const getValueOfSetterFunction = (state: CommonInternal, value: SetterFunc): unknown => {
   const prevValue = getCachValue(state)
   return value(prevValue)
 }
 
 const setValue = (state: CommonInternal, value: unknown): void => {
-  const nonFuncValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
+  const newValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
 
-  applyUpdates(state, nonFuncValue)
+  if (newValue !== getCachValue(state)) {
+    //return
+  }
+
+  applyUpdates(state, newValue)
 }
 
-const notifySubscribers = (state: CommonInternal) => {
+/**
+ * Mark all subtree is non actual.
+ * Collect all nodes to notify subscribers im microtask queue.
+ */
+const invalidateSubtree = (state: CommonInternal) => {
   const stack: CommonInternal[] = [state]
 
   while (stack.length) {
@@ -163,18 +156,10 @@ const notifySubscribers = (state: CommonInternal) => {
   }
 }
 
-const applyUpdates = (state: CommonInternal, value: unknown): void => {
-  setCacheValue(state, value)
-  updateHistory(state, value)
-
-  /**
-   * Notify all subtree
-   */
-  notifySubscribers(state)
-
-  /**
-   * Batching of subscribers in microtasks queue
-   */
+/**
+ * Notify all collected subscribers once in microtask queue
+ */
+const notifySubscribers = () => {
   if (isNotifying === false) {
     isNotifying = true
     queueMicrotask(() => {
@@ -191,20 +176,32 @@ const applyUpdates = (state: CommonInternal, value: unknown): void => {
   }
 }
 
+const applyUpdates = (state: CommonInternal, value: unknown): void => {
+  setCacheValue(state, value)
+  updateHistory(state, value)
+  invalidateSubtree(state)
+  notifySubscribers()
+}
+
+/**
+ * Start collecting all non computed states.
+ *
+ * Helper for render adapters.
+ */
 export const startRecord = () => {
   recording = new Set()
 }
 
+/**
+ * Flush all collected states.
+ */
 export const flushStates = () => {
   const data = recording
   recording = undefined
   return data
 }
 
-export const subscribe = <T extends CommonInternal | ComputedInternal>(
-  state: T,
-  listner: Listner,
-): UnSubscribe => {
+export const subscribe = (state: CommonInternal | CommonInternal, listner: Listner): UnSubscribe => {
   /**
    * Если значение стейта ниразу не расчитывалось, его нужно обновить
    * Если подписываемся на вычисляемый стэйт, то нужно узнать всех родителей
@@ -218,9 +215,9 @@ export const subscribe = <T extends CommonInternal | ComputedInternal>(
     return () => ({})
   }
 
-  const reducer = isComputed(state as any)
-  if (reducer) {
-    getComputedValue(state as any)
+  const computedState = getComputed(state)
+  if (computedState) {
+    getComputedValue(computedState)
   }
 
   state.subscribes.add(listner)
@@ -228,7 +225,7 @@ export const subscribe = <T extends CommonInternal | ComputedInternal>(
   return () => {
     state.subscribes.delete(listner)
     if (state.subscribes.size === 0) {
-      state.depends.forEach((parent) => parent.childs.delete(state as any))
+      state.depends.forEach((parent) => parent.childs.delete(state))
     }
   }
 }

@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert'
 
 import { state, computed, action, getCachValue } from './core.js'
 
-const mockFn = () => {
+const createMockFn = () => {
   let calls = 0
   const mock = function () {
     calls++
@@ -50,7 +50,7 @@ test('State may be reducer', () => {
 })
 
 test('Subscription of computable state', async () => {
-  const fn = mockFn()
+  const fn = createMockFn()
   const s1 = state(0)
   const s2 = state(2)
   const c2 = computed(() => s1() + 10)
@@ -127,6 +127,35 @@ test(`Recalculate all computed tree`, () => {
   v.set(1)
 
   assert.is(c3(), 7)
+})
+
+test('Check right dependencies of computed state', () => {
+  const v1 = state(1, { name: 'v1' })
+  const v2 = state(2, { name: 'v2' })
+  const v3 = state(3, { name: 'v3' })
+
+  const c = computed(() => v1() + v2() + v3(), { name: 'c' })
+
+  c()
+  assert.is(v1._internal.childs.has(c._internal), true)
+  assert.is(v2._internal.childs.has(c._internal), true)
+  assert.is(v3._internal.childs.has(c._internal), true)
+
+  assert.is(c._internal.depends.has(v1._internal), true)
+  assert.is(c._internal.depends.has(v2._internal), true)
+  assert.is(c._internal.depends.has(v3._internal), true)
+})
+
+test('Dont update if value not changed', () => {
+  const mock = createMockFn()
+  const v1 = state(0)
+  const c = computed(() => v1() + 1)
+  c.subscribe(() => {
+    mock()
+  })
+  for (let i = 0; i < 10; i++) v1.set(i)
+
+  assert.is(createMockFn.call, 0)
 })
 
 /*

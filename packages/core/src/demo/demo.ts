@@ -1,14 +1,14 @@
-import { state, getCachValue, computed } from '../core.js'
+import { state, computed } from '../core.js'
 
-const v = state(0)
-const c = computed(() => v() + 1, { name: 'c' })
-const c2 = computed(() => c() + 2, { name: 'c2' })
-const c3 = computed(() => c2() + 3, { name: 'c3' })
+const v1 = state(1, { name: 'v1' })
+const v2 = state(2, { name: 'v2' })
+const v3 = state(3, { name: 'v3' })
 
-console.log(c3())
+const c = computed(() => v1() + v2() + v3(), { name: 'c' })
 
-v.set(1)
+console.log(v1._internal)
+console.log(v2._internal)
+console.log(v3._internal)
+console.log(c._internal)
 
-console.log(c3())
-
-console.log(v._internal)
+c()
