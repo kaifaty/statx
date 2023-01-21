@@ -3,31 +3,22 @@ import * as assert from 'uvu/assert'
 
 import { state, computed, action, getCachValue } from './core.js'
 
-const createMockFn = () => {
+type Mock = {
+  (): void
+  calls: number
+}
+const createMockFn = (): Mock => {
   let calls = 0
   const mock = function () {
     calls++
   }
-  mock.calls = () => calls
-  return mock
+  Object.defineProperty(mock, 'calls', {
+    get() {
+      return calls
+    },
+  })
+  return mock as Mock
 }
-/*
-const v1 = state(10, 'v1')
-const v2 = state(10, 'v2')
-const v2_test = state<number>(10, 'v2')
-
-
-const v3 = state(() => {
-  console.log(v4.get())
-  return v1.get() * v2.get()
-}, 'v3')
-
-const v4 = state(() => `Result value = ${v3.get()}`, 'v4')
-
-for(let i = 0; i < 1000; i ++){
-  v1.set(i)
-}
-*/
 
 test('Defaul value', () => {
   assert.is(state(0)(), 0)
@@ -69,7 +60,7 @@ test('Subscription of computable state', async () => {
   // after all mictotasks
   await 1
   assert.is(test, 10 + (10 + 10) + 2)
-  assert.is(fn.calls(), 1)
+  assert.is(fn.calls, 1)
 })
 
 test('Action', () => {
@@ -155,7 +146,7 @@ test('Dont update if value not changed', () => {
   })
   for (let i = 0; i < 10; i++) v1.set(i)
 
-  assert.is(createMockFn.call, 0)
+  assert.is(mock.calls, 0)
 })
 
 /*

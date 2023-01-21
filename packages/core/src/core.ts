@@ -134,8 +134,8 @@ const getValueOfSetterFunction = (state: CommonInternal, value: SetterFunc): unk
 const setValue = (state: CommonInternal, value: unknown): void => {
   const newValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
 
-  if (newValue !== getCachValue(state)) {
-    //return
+  if (newValue === getCachValue(state)) {
+    return
   }
 
   applyUpdates(state, newValue)
