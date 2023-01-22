@@ -1,7 +1,7 @@
-import { test } from 'uvu'
+import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { state, computed, action, getCachValue } from './core.js'
+import {state, computed, action, getCachValue} from './core.js'
 
 type Mock = {
   (): void
@@ -25,12 +25,12 @@ test('Defaul value', () => {
 })
 
 test('Name is settable', () => {
-  assert.is(state(0, { name: 'name' }).name, 'name')
+  assert.is(state(0, {name: 'name'}).name, 'name')
 })
 
 test('State may be reducer', () => {
   const v = state(0)
-  const reducer = computed(() => v() + 10, { initial: 10 })
+  const reducer = computed(() => v() + 10, {initial: 10})
 
   v.set(1)
   v.set(2)
@@ -39,6 +39,14 @@ test('State may be reducer', () => {
 
   assert.is(reducer(), 20)
 })
+const s1 = state(0)
+const c1 = computed(() => s1() + 10)
+
+c1.subscribe((v) => {
+  console.log(v)
+})
+s1.set(10)
+// 20
 
 test('Subscription of computable state', async () => {
   const fn = createMockFn()
@@ -109,9 +117,9 @@ test(`Recalculation of subscribers`, async () => {
 
 test(`Recalculate all computed tree`, () => {
   const v = state(0)
-  const c = computed(() => v() + 1, { name: 'c' })
-  const c2 = computed(() => c() + 2, { name: 'c2' })
-  const c3 = computed(() => c2() + 3, { name: 'c3' })
+  const c = computed(() => v() + 1, {name: 'c'})
+  const c2 = computed(() => c() + 2, {name: 'c2'})
+  const c3 = computed(() => c2() + 3, {name: 'c3'})
 
   assert.is(c3(), 6)
 
@@ -121,11 +129,11 @@ test(`Recalculate all computed tree`, () => {
 })
 
 test('Check right dependencies of computed state', () => {
-  const v1 = state(1, { name: 'v1' })
-  const v2 = state(2, { name: 'v2' })
-  const v3 = state(3, { name: 'v3' })
+  const v1 = state(1, {name: 'v1'})
+  const v2 = state(2, {name: 'v2'})
+  const v3 = state(3, {name: 'v3'})
 
-  const c = computed(() => v1() + v2() + v3(), { name: 'c' })
+  const c = computed(() => v1() + v2() + v3(), {name: 'c'})
 
   c()
   assert.is(v1._internal.childs.has(c._internal), true)

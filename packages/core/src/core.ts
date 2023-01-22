@@ -249,7 +249,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
   const data: CommonInternal = {
     childs: new Set(),
     depends: new Set(),
-    history: Array.from({ length: settings.historyLength }),
+    history: Array.from({length: settings.historyLength}),
     historyCursor: 0,
     name: getName(options?.name),
     subscribes: new Set(),
@@ -258,16 +258,16 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
   setValue(data, value)
 
-  const f = function () {
+  const publicApi = function () {
     return getValue(data)
   }
 
-  Object.defineProperty(f, 'name', { value: data.name })
-  f.subscribe = (listner: Listner) => subscribe(data, listner)
-  f.set = (value: T) => setValue(data, value)
-  f._internal = data
+  Object.defineProperty(publicApi, 'name', {value: data.name})
+  publicApi.subscribe = (listner: Listner) => subscribe(data, listner)
+  publicApi.set = (value: T) => setValue(data, value)
+  publicApi._internal = data
 
-  return f as State<T>
+  return publicApi as State<T>
 }
 
 export const computed = <
@@ -282,7 +282,7 @@ export const computed = <
     childs: new Set(),
     depends: new Set(),
     hasParentUpdates: true,
-    history: Array.from({ length: settings.historyLength }),
+    history: Array.from({length: settings.historyLength}),
     historyCursor: 0,
     initial: options?.initial as ReturnType<typeof value> | undefined,
     isComputing: false,
@@ -291,15 +291,15 @@ export const computed = <
     subscribes: new Set(),
   }
 
-  const f = function () {
+  const publicApi = function () {
     return getValue(data)
   }
 
-  Object.defineProperty(f, 'name', { value: data.name })
-  f.subscribe = (listner: Listner) => subscribe(data, listner)
-  f._internal = data
+  Object.defineProperty(publicApi, 'name', {value: data.name})
+  publicApi.subscribe = (listner: Listner) => subscribe(data, listner)
+  publicApi._internal = data
 
-  return f as Computed<T>
+  return publicApi as Computed<T>
 }
 
 /**

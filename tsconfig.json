@@ -16,21 +16,5 @@
     "moduleDetection": "force",
     "emitDeclarationOnly": true
   },
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "build", "dist"]
 }
-
-/*
-
-    "moduleResolution": "node",
-    "target": "esnext",
-    "module": "esnext",
-    "declaration": true,
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "noUncheckedIndexedAccess": true,
-    "lib": [
-      "es6"
-    ]
-    
-*/
