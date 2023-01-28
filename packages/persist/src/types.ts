@@ -1,4 +1,4 @@
-import type { StateType, State } from '@statx/core'
+import type {StateType, State} from '@statx/core'
 
 interface Storage {
   set(value: unknown): void

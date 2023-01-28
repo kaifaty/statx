@@ -1,4 +1,4 @@
-import { subscribe, flushStates, startRecord, CommonInternal } from '@statx/core'
+import {subscribe, flushStates, startRecord, CommonInternal} from '@statx/core'
 
 const DEFAULT_OPTIONS: Options = {
   interval: 0,
@@ -13,7 +13,7 @@ type NotifyOption = 'isFetching' | 'isLoading' | 'data'
 interface Options {
   interval?: number
   notify?: Array<NotifyOption>
-  cacheLocal?: false | { name: string }
+  cacheLocal?: false | {name: string}
 }
 type Suspense<T> = {
   readonly data: T

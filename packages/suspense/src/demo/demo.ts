@@ -1,5 +1,5 @@
-import { state } from '@statx/core'
-import { suspenseState } from '../suspense.js'
+import {state} from '@statx/core'
+import {suspenseState} from '../suspense.js'
 
 const url = `https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits`
 
@@ -11,11 +11,11 @@ const fetchCommits = async () => {
   return res
 }
 
-const commits = suspenseState(fetchCommits, { cacheLocal: { name: 'commits' } })
+const commits = suspenseState(fetchCommits, {cacheLocal: {name: 'commits'}})
 
 console.log('initial', commits.isFetching, commits.isLoading, commits.data)
 
-commits.subscribe(({ isFetching, isLoading, data }) => {
+commits.subscribe(({isFetching, isLoading, data}) => {
   console.log('updated', isFetching, isLoading, data)
 })
 

@@ -2,28 +2,19 @@ import 'zx/globals'
 import prettier from 'prettier'
 import path from 'path'
 import fs from 'fs/promises'
-import { createInterface } from 'readline'
+import {createInterface} from 'readline'
 
 const updateFramework = async () => {
-  const packageJson: { version: string; dependencies: Record<string, string> } =
-    JSON.parse(
-      await fs.readFile(
-        path.join(process.cwd(), 'packages', 'framework', 'package.json'),
-        'utf8',
-      ),
-    )
-  const { dependencies } = packageJson
+  const packageJson: {version: string; dependencies: Record<string, string>} = JSON.parse(
+    await fs.readFile(path.join(process.cwd(), 'packages', 'framework', 'package.json'), 'utf8'),
+  )
+  const {dependencies} = packageJson
   let isChanged = false
 
   for (const name in dependencies) {
-    const { version }: { version: string } = JSON.parse(
+    const {version}: {version: string} = JSON.parse(
       await fs.readFile(
-        path.join(
-          process.cwd(),
-          'packages',
-          name.replace('@statx/', ''),
-          'package.json',
-        ),
+        path.join(process.cwd(), 'packages', name.replace('@statx/', ''), 'package.json'),
         'utf8',
       ),
     )
@@ -38,9 +29,7 @@ const updateFramework = async () => {
   const [major, minor, patch] = packageJson.version.split('.')
   packageJson.version = [major, minor, Number(patch) + 1].join('.')
 
-  const prettierConfig = await prettier.resolveConfig(
-    path.join(process.cwd(), '.prettierrc'),
-  )
+  const prettierConfig = await prettier.resolveConfig(path.join(process.cwd(), '.prettierrc'))
   await fs.writeFile(
     path.join(process.cwd(), 'packages', 'framework', 'package.json'),
     prettier.format(JSON.stringify(packageJson), {
@@ -75,15 +64,11 @@ const main = async () => {
 
     let npmVersion = '-1'
     try {
-      npmVersion = (
-        await $`npm view @statx/${packageName} version`
-      ).stdout.trim()
+      npmVersion = (await $`npm view @statx/${packageName} version`).stdout.trim()
     } catch (error) {
       console.warn(`"${packageName}" is not published yet`)
 
-      let answer = await new Promise((r) =>
-        rl.question('continue?(y/n = y)', r),
-      )
+      let answer = await new Promise((r) => rl.question('continue?(y/n = y)', r))
       answer ||= 'y'
       if (answer !== 'y') continue
     }

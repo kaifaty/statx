@@ -1,6 +1,6 @@
-import type { LitElement, PropertyValueMap } from 'lit'
-import { flushStates, startRecord, subscribe } from '@statx/core'
-import type { CommonInternal, UnSubscribe, Value } from '@statx/core'
+import type {LitElement, PropertyValueMap} from 'lit'
+import {flushStates, startRecord, subscribe} from '@statx/core'
+import type {CommonInternal, UnSubscribe, Value} from '@statx/core'
 
 type Constructor<T> = new (...args: any[]) => T
 type Subs<T extends Value = Value> = Set<CommonInternal>

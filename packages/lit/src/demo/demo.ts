@@ -1,13 +1,13 @@
-import { LitElement, html } from 'lit'
-import { customElement } from 'lit/decorators/custom-element.js'
-import { state, computed } from '@statx/core'
-import { statableLit } from '../index.js'
+import {LitElement, html} from 'lit'
+import {customElement} from 'lit/decorators/custom-element.js'
+import {state, computed} from '@statx/core'
+import {statableLit} from '../index.js'
 
-const v1 = state(1, { name: 'timer' })
+const v1 = state(1, {name: 'timer'})
 
-const s3 = computed(() => s1() + s2() + v1(), { name: 's3' })
-const s2 = computed(() => s1() - 5, { name: 's2' })
-const s1 = computed(() => v1() * 10, { name: 's1' })
+const s3 = computed(() => s1() + s2() + v1(), {name: 's3'})
+const s2 = computed(() => s1() - 5, {name: 's2'})
+const s1 = computed(() => v1() * 10, {name: 's1'})
 
 setTimeout(() => {
   for (let i = 0; i < 1000; i++) {

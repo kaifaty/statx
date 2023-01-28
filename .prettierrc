@@ -3,16 +3,17 @@
   "trailingComma": "all",
   "printWidth": 110,
   "bracketSpacing": false,
+  "endOfLine": "crlf",
   "max-len": ["error", 
-  {
-    "code": 110,
-    "tabWidth": 2,
-    "ignoreComments": true,
-    "ignoreUrls": true,
-    "ignoreStrings": true,
-    "ignoreTemplateLiterals": true
-  }
-],
+    {
+      "code": 110,
+      "tabWidth": 2,
+      "ignoreComments": true,
+      "ignoreUrls": true,
+      "ignoreStrings": true,
+      "ignoreTemplateLiterals": true
+    }
+  ],
   "tabWidth": 2,
   "semi": false
 }

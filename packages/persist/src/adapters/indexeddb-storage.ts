@@ -1,6 +1,6 @@
-import { throttled } from '@statx/utils'
-import { NOT_ALLOWED_TYPES } from '../consts.js'
-import type { AsyncStorage } from '../types.js'
+import {throttled} from '@statx/utils'
+import {NOT_ALLOWED_TYPES} from '../consts.js'
+import type {AsyncStorage} from '../types.js'
 
 const DB_NAME = 'statx-store'
 const STORE_NAME = 'key-val'
@@ -21,7 +21,7 @@ const openDb = async (): Promise<IDBDatabase> => {
   return new Promise((r, j) => {
     db.onupgradeneeded = () => {
       if (!db.result.objectStoreNames.contains(STORE_NAME)) {
-        db.result.createObjectStore(STORE_NAME, { keyPath: 'key' })
+        db.result.createObjectStore(STORE_NAME, {keyPath: 'key'})
       }
       return r(db.result)
     }
@@ -64,7 +64,7 @@ export const indexedDBAdapter = (name: string, throttle: number): AsyncStorage =
         const transaction = db.transaction(STORE_NAME, 'readwrite')
         const store = transaction.objectStore(STORE_NAME)
 
-        store.put({ key: name, value: JSON.stringify({ value }) })
+        store.put({key: name, value: JSON.stringify({value})})
       })
     }),
     clear(): void {

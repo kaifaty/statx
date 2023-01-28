@@ -1,7 +1,7 @@
 import 'zx/globals'
 import path from 'path'
 import fs from 'fs/promises'
-import { createInterface } from 'readline'
+import {createInterface} from 'readline'
 
 const templateLocation = 'tools/new-package/template'
 
@@ -32,9 +32,7 @@ const rl = createInterface({
 rl.question(`What's a new package name? `, async (name) => {
   console.log('name is', name)
 
-  const newPackageLocation = path
-    .join(process.cwd(), 'packages', name)
-    .replace(/(\\)/g, '/')
+  const newPackageLocation = path.join(process.cwd(), 'packages', name).replace(/(\\)/g, '/')
 
   await fs.cp(templateLocation, newPackageLocation, {
     recursive: true,
