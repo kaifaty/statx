@@ -99,7 +99,8 @@ const getComputedValue = (state: ComputedInternal): unknown => {
 
     requesters.pop()
 
-    applyUpdates(state, value)
+    setCacheValue(state, value)
+    updateHistory(state, value)
 
     return value
   } catch (e) {
@@ -138,7 +139,6 @@ const setValue = (state: CommonInternal, value: unknown): void => {
   if (newValue === getCachValue(state)) {
     return
   }
-
   applyUpdates(state, newValue)
 }
 
@@ -153,7 +153,9 @@ const invalidateSubtree = (state: CommonInternal) => {
     const st = stack.pop()
     st.childs.forEach((it) => stack.push(it))
     st.hasParentUpdates = true
-    states2notify.add(state)
+    if (st.subscribes.size) {
+      states2notify.add(st)
+    }
   }
 }
 
@@ -164,9 +166,12 @@ const notifySubscribers = () => {
   if (isNotifying === false) {
     isNotifying = true
     queueMicrotask(() => {
+      // Нужно обновить дерево
       states2notify.forEach((state) => {
         try {
-          state.subscribes.forEach((listner) => listner(getValue(state)))
+          state.subscribes.forEach((listner) => {
+            return listner(getValue(state))
+          })
         } catch (e) {
           console.error('Error in subscriber function of:', state.name)
         }

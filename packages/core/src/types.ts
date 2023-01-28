@@ -87,7 +87,7 @@ export type GetStatlessFunc<
 export type StateVariants = ComputedInternal | StateInternal
 
 export interface Common<T extends StateType> {
-  (): T | undefined
+  (): T
   _internal: CommonInternal
   name: string
   subscribe(listner: Listner): UnSubscribe
