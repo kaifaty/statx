@@ -28,6 +28,45 @@ test('Name is settable', () => {
   assert.is(state(0, {name: 'name'}).name, 'name')
 })
 
+test('Computation test', async () => {
+  const entry = state(0)
+  const a = computed(() => entry())
+  const b = computed(() => a() + 1)
+  const c = computed(() => a() + 1)
+  const d = computed(() => b() + c())
+  const e = computed(() => d() + 1)
+  const f = computed(() => d() + e())
+  const g = computed(() => d() + e())
+  const h = computed(() => f() + g())
+  const _a = () => entry()
+  const _b = () => _a() + 1
+  const _c = () => _a() + 1
+  const _d = () => _b() + _c()
+  const _e = () => _d() + 1
+  const _f = () => _d() + _e()
+  const _g = () => _d() + _e()
+  const _h = () => _f() + _g()
+
+  const results = {
+    b: 0,
+    c: 0,
+    h: 0,
+  }
+  b.subscribe((v: any) => (results.b = v))
+  c.subscribe((v: any) => (results.c = v))
+  h.subscribe((v: any) => (results.h = v))
+
+  for (let i = -10; i < 20; i++) {
+    entry.set(i)
+    await 1
+    console.log()
+    assert.is(results.h, _h())
+  }
+
+  //assert.is(results.c, _c())
+  //assert.is(results.h, _h())
+})
+
 test('State may be reducer', () => {
   const v = state(0)
   const reducer = computed(() => v() + 10, {initial: 10})
@@ -39,22 +78,13 @@ test('State may be reducer', () => {
 
   assert.is(reducer(), 20)
 })
-const s1 = state(0)
-const c1 = computed(() => s1() + 10)
-
-c1.subscribe((v) => {
-  console.log(v)
-})
-s1.set(10)
-// 20
-
 test('Subscription of computable state', async () => {
   const fn = createMockFn()
   const s1 = state(0)
   const s2 = state(2)
   const c2 = computed(() => s1() + 10)
   const c3 = computed(() => s1() + c2() + s2())
-
+  const _c3 = () => s1() + s1() + 10 + s2()
   let test = 0
   c3.subscribe(() => {
     test = c3()
@@ -67,10 +97,9 @@ test('Subscription of computable state', async () => {
   assert.is(test, 0)
   // after all mictotasks
   await 1
-  assert.is(test, 10 + (10 + 10) + 2)
+  assert.is(test, _c3())
   assert.is(fn.calls, 1)
 })
-
 test('Action', () => {
   const v1 = state(5)
   const v2 = state(4)
@@ -89,7 +118,6 @@ test('Action', () => {
 
   assert.is(v1(), 5 + (100 * 50) / 101)
 })
-
 test(`Recalculation of subscribers`, async () => {
   const v = state(23)
   const c = computed(() => v() * 100 + 20)
@@ -114,7 +142,6 @@ test(`Recalculation of subscribers`, async () => {
 
   assert.is(getCachValue(c._internal), 1 * 100 + 20)
 })
-
 test(`Recalculate all computed tree`, () => {
   const v = state(0)
   const c = computed(() => v() + 1, {name: 'c'})
