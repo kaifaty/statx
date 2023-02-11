@@ -1,6 +1,6 @@
 {
   "name": "@statx/react",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -45,8 +45,8 @@
     "last 4 chrome versions"
   ],
   "peerDependencies": {
-    "react": "^18.2.0",
-    "@statx/core": "*"
+    "@statx/core": "*",
+    "react": "^18.2.0"
   },
   "targets": {
     "build": {
