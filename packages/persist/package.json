@@ -69,5 +69,6 @@
       "includeNodeModules": true,
       "scopeHoist": false
     }
-  }
+  },
+  "gitHead": "2c896e73dae56ee1765f67ab997339be2a6e8e1d"
 }
