@@ -90,7 +90,7 @@ export interface Common<T extends StateType> {
   (): T
   _internal: CommonInternal
   name: string
-  subscribe(listner: Listner): UnSubscribe
+  subscribe(listner: Listner<T>): UnSubscribe
 }
 export interface State<T extends StateType> extends Common<T> {
   set: (value: T) => void

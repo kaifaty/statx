@@ -48,6 +48,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "lerna": "^6.4.1",
     "lit": "^2.6.1",
+    "microbundle": "^0.15.1",
     "parcel": "^2.8.3",
     "parcel-resolver-fix-ts-esm-shit": "^0.0.1",
     "parcel-resolver-typescript-esm": "^1.0.1",

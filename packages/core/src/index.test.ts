@@ -184,6 +184,57 @@ test('Dont update if value not changed', () => {
   assert.is(mock.calls, 0)
 })
 
+test('karl test', async () => {
+  // https://github.com/kaifaty/statx
+
+  const res: number[] = []
+  const numbers = Array.from({length: 5}, (_, i) => i)
+
+  const fib = (n: number): number => (n < 2 ? 1 : fib(n - 1) + fib(n - 2))
+  const hard = (n: number, l: string) => {
+    // console.log(l)
+    return n + fib(16)
+  }
+
+  const A = state(0)
+  const B = state(0)
+  const C = computed(() => (A() % 2) + (B() % 2))
+  const D = computed(() => numbers.map((i) => ({x: i + (A() % 2) - (B() % 2)})))
+  const E = computed(() => hard(C() + A() + D()[0].x, '\nE'))
+  const F = computed(() => hard(D()[2].x || B(), 'F'))
+  const G = computed(() => C() + (C() || E() % 2) + D()[4].x + F())
+
+  G.subscribe((v) => res.push(hard(v, 'H')))
+  G.subscribe((v) => res.push(v))
+  F.subscribe((v) => res.push(hard(v, 'J')))
+
+  const _C = () => (A() % 2) + (B() % 2)
+  const _D = () => numbers.map((i) => ({x: i + (A() % 2) - (B() % 2)}))
+  const _E = () => hard(_C() + A() + _D()[0].x, '\nE')
+  const _F = () => hard(_D()[2].x || B(), 'F')
+  const _G = () => _C() + (_C() || _E() % 2) + _D()[4].x + _F()
+
+  const run = async (value: number) => {
+    res.length = 0
+    B.set(1)
+    A.set(1 + value * 2) // H
+
+    A.set(2 + value * 2)
+    B.set(2) // EH
+
+    await 1
+    assert.is(C(), _C())
+    assert.is(D().toString(), _D().toString())
+    assert.is(E().toString(), _E().toString())
+    assert.is(F().toString(), _F().toString())
+    assert.is(G().toString(), _G().toString())
+
+    assert.is(res.toString(), [3196, 3201, 1604].toString())
+  }
+
+  await run(15)
+})
+
 /*
 const seconds = state(0, 'name12')
 const time = state(v => v + 1, 'name12', seconds.get())

@@ -1,6 +1,6 @@
 {
   "name": "@statx/core",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "private": false,
   "description": "Extry tiny smart state manager",
   "keywords": [
@@ -22,10 +22,14 @@
   "license": "MIT",
   "author": "kaifaty",
   "sideEffects": false,
-  "type": "module",
-  "main": "build/index.js",
-  "source": "./src/index.ts",
-  "types": "build/index.d.ts",
+  "exports": {
+    "require": "./build/index.js",
+    "default": "./build/index.modern.mjs"
+  },
+  "main": "./build/index.js",
+  "module": "./build/index.module.js",
+  "unpkg": "./build/index.umd.js",
+  "types": "./build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
@@ -33,8 +37,9 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
+    "build": "rimraf ./build/ && npm run build:mb && npm run build:types",
     "build:parcel": "parcel build --target=build",
+    "build:mb": "microbundle",
     "build:types": "tsc",
     "demo": "parcel --target=demo",
     "dev": "parcel watch",

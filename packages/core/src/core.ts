@@ -98,9 +98,7 @@ const getComputedValue = (state: ComputedInternal): unknown => {
     state.hasParentUpdates = false
 
     requesters.pop()
-
-    setCacheValue(state, value)
-    updateHistory(state, value)
+    applyUpdates(state, value)
 
     return value
   } catch (e) {
@@ -140,6 +138,8 @@ const setValue = (state: CommonInternal, value: unknown): void => {
     return
   }
   applyUpdates(state, newValue)
+  invalidateSubtree(state)
+  notifySubscribers()
 }
 
 /**
@@ -185,8 +185,6 @@ const notifySubscribers = () => {
 const applyUpdates = (state: CommonInternal, value: unknown): void => {
   setCacheValue(state, value)
   updateHistory(state, value)
-  invalidateSubtree(state)
-  notifySubscribers()
 }
 
 /**
@@ -301,7 +299,7 @@ export const computed = <
   }
 
   Object.defineProperty(publicApi, 'name', {value: data.name})
-  publicApi.subscribe = (listner: Listner) => subscribe(data, listner)
+  publicApi.subscribe = (listner: Listner<T>) => subscribe(data, listner as Listner)
   publicApi._internal = data
 
   return publicApi as Computed<T>
