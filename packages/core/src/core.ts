@@ -275,7 +275,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
 export const computed = <
   T extends StateType = -1,
-  S extends StatlessFunc = StatlessFunc,
+  S extends StatlessFunc<T> = StatlessFunc<T>,
   O extends Nullable<ComputedInternalOptions> = Nullable<ComputedInternalOptions>,
 >(
   value: GetStatlessFunc<T, S, O>,

@@ -23,11 +23,10 @@
   "author": "kaifaty",
   "sideEffects": false,
   "exports": {
-    "require": "./build/index.js",
     "types": "./build/index.d.ts",
     "default": "./build/index.js"
   },
-  "main": "./build/index.js",
+  "type": "module",
   "module": "./build/index.js",
   "types": "./build/index.d.ts",
   "files": [
