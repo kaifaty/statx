@@ -1,12 +1,13 @@
 import type {LitElement, PropertyValueMap} from 'lit'
 import {flushStates, startRecord, subscribe} from '@statx/core'
-import type {CommonInternal, UnSubscribe, Value} from '@statx/core'
+import type {CommonInternal, UnSubscribe} from '@statx/core'
 
 type Constructor<T> = new (...args: any[]) => T
-type Subs<T extends Value = Value> = Set<CommonInternal>
+type Subs = Set<CommonInternal>
 
 const isEqual = (current: Subs, prev?: Subs) => {
   if (!prev) return false
+  if (current.size !== prev.size) return false
   for (const state of prev) {
     if (!current.has(state)) {
       return false
@@ -22,9 +23,6 @@ export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T
     private _unsubAll() {
       this._subs.forEach((unsub) => unsub())
       this._subs.length = 0
-    }
-    private _startrec() {
-      startRecord()
     }
     private _updater = () => this.requestUpdate()
 
@@ -42,7 +40,7 @@ export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T
     }
     willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
       super.willUpdate(_changedProperties)
-      this._startrec()
+      startRecord()
     }
     disconnectedCallback(): void {
       super.disconnectedCallback()

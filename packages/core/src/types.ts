@@ -50,9 +50,7 @@ export type HistoryInternal = {
 
 export type CommonInternal = HistoryInternal & {
   childs: Set<CommonInternal>
-  depends: Set<{
-    childs: Set<CommonInternal>
-  }>
+  depends: Set<CommonInternal>
   subscribes: Set<Listner>
   name: string
   onUpdate?: SetterFunc

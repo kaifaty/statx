@@ -85,6 +85,9 @@ const getComputedValue = (state: ComputedInternal): unknown => {
     const prevState = getCachValue(state)
 
     if (isDontNeedRecalc(state, prevState)) {
+      state.depends.forEach((item) => {
+        recording.add(item)
+      })
       return prevState
     }
 
