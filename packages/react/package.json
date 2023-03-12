@@ -44,8 +44,10 @@
   "browserslist": [
     "last 4 chrome versions"
   ],
+  "dependencies": {
+    "@statx/core": "*"
+  },
   "peerDependencies": {
-    "@statx/core": "*",
     "react": "^18.2.0"
   },
   "targets": {
