@@ -96,7 +96,10 @@ const getComputedValue = (state: ComputedInternal): unknown => {
     assert(state.isComputing, `Loops dosen't allows. Name: ${state.name ?? 'Unnamed state'}`)
 
     requesters.push(state)
-
+    state.depends.forEach((item) => {
+      item.childs.delete(state)
+    })
+    state.depends.clear()
     state.isComputing = true
     const value = state.reducer(prevState ?? state.initial)
     state.isComputing = false
@@ -233,9 +236,9 @@ export const subscribe = (state: CommonInternal | CommonInternal, listner: Listn
 
   return () => {
     state.subscribes.delete(listner)
-    if (state.subscribes.size === 0) {
-      state.depends.forEach((parent) => parent.childs.delete(state))
-    }
+    //if (state.subscribes.size === 0) {
+    //  state.depends.forEach((parent) => parent.childs.delete(state))
+    //}
   }
 }
 
