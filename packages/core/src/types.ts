@@ -3,6 +3,8 @@ export type SetterFunc = (value: unknown) => unknown
 
 export type StateType<T extends unknown = unknown> = T extends number
   ? number
+  : T extends boolean
+  ? boolean
   : T extends bigint
   ? bigint
   : T extends null
@@ -70,19 +72,19 @@ export type ComputedInternalOptions<T extends StateType = StateType> = {
   initial?: T
 }
 
-export type StatlessFunc<T extends StateType = StateType> = (v?: T) => T
+export type StatlessFunc<T extends StateType> = (v?: T) => T
 
 export type GetStatlessFunc<
   T extends StateType,
-  S extends StatlessFunc,
+  S extends StatlessFunc<T>,
   O extends Nullable<ComputedInternalOptions>,
 > = T extends -1
   ? S extends () => infer K
     ? () => K
     : O['initial'] extends undefined
     ? (v: unknown) => unknown
-    : StatlessFunc<O['initial']>
-  : StatlessFunc<T>
+    : StatlessFunc<StateType<O['initial']>>
+  : StatlessFunc<StateType<T>>
 
 export type StateVariants = ComputedInternal | StateInternal
 

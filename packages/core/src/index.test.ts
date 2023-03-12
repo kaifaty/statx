@@ -3,6 +3,7 @@ import * as assert from 'uvu/assert'
 
 import {state, computed, action, getCachValue} from './core.js'
 
+const t = computed<boolean>(() => true)
 type Mock = {
   (): void
   calls: number
