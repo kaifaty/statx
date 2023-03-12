@@ -21,13 +21,20 @@
   },
   "license": "MIT",
   "author": "kaifaty",
-  "type": "module",
-  "main": "build/index.js",
-  "source": "./src/index.ts",
-  "types": "build/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    "require": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "default": "./build/index.js"
+  },
+  "main": "./build/index.js",
+  "module": "./build/index.js",
+  "types": "./build/index.d.ts",
   "files": [
-    "/demo/",
-    "/src/"
+    "/build",
+    "/package.json",
+    "/README.md",
+    "/src"
   ],
   "scripts": {
     "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
