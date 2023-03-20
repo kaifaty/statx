@@ -18,9 +18,9 @@ import {
   CommonInternal,
   StateInternal,
   SetterFunc,
+  ActionOptions,
 } from './types.js'
 
-let cache = new WeakMap<StateVariants, StateType>()
 let isNotifying = false
 let isActionNow = false
 let recording: Set<StateInternal> | undefined
@@ -32,13 +32,14 @@ const states2notify = new Set<StateVariants>()
 const settings: Settings = {
   historyLength: 5,
 }
-// <T extends StateType>(state: StateVariants<T>
-export const getCachValue = (state: StateVariants): unknown => {
-  return cache.get(state)
-}
 
-const setCacheValue = (state: StateVariants, value: StateType): void => {
-  cache.set(state, value)
+export const getHistoryValue = (state: StateVariants): unknown => {
+  return state.history[state.historyCursor]
+}
+const pushHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
+  const cursorHistory = state.historyCursor
+  state.history[cursorHistory] = value
+  state.historyCursor = (cursorHistory + 1) % state.history.length
 }
 
 const getName = (name?: string): string => {
@@ -56,10 +57,6 @@ export const setSetting = (data: Partial<Settings>) => {
   Object.assign(settings, data)
 }
 
-export const setContext = () => {
-  cache = new WeakMap<object, StateType>()
-}
-
 const getComputed = (state: CommonInternal | ComputedInternal) => {
   if ('reducer' in state) {
     return state
@@ -70,19 +67,13 @@ const isFunction = (v: unknown): v is Func => {
   return typeof v === 'function'
 }
 
-const updateHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
-  const cursorHistory = state.historyCursor
-  state.history[cursorHistory] = value
-  state.historyCursor = (cursorHistory + 1) % state.history.length
-}
-
 const isDontNeedRecalc = (state: CommonInternal, prevState: unknown): boolean => {
   return state.hasParentUpdates === false && prevState !== undefined
 }
 
 const getComputedValue = (state: ComputedInternal): unknown => {
   try {
-    const prevState = getCachValue(state)
+    const prevState = getHistoryValue(state)
 
     if (isDontNeedRecalc(state, prevState)) {
       if (recording) {
@@ -106,7 +97,7 @@ const getComputedValue = (state: ComputedInternal): unknown => {
     state.hasParentUpdates = false
 
     requesters.pop()
-    applyUpdates(state, value)
+    pushHistory(state, value)
 
     return value
   } catch (e) {
@@ -126,7 +117,7 @@ const getValue = (state: CommonInternal) => {
     if (reducer) {
       return getComputedValue(reducer)
     }
-    return getCachValue(state)
+    return getHistoryValue(state)
   } finally {
     if (recording && !reducer) {
       recording.add(state)
@@ -135,17 +126,17 @@ const getValue = (state: CommonInternal) => {
 }
 
 const getValueOfSetterFunction = (state: CommonInternal, value: SetterFunc): unknown => {
-  const prevValue = getCachValue(state)
+  const prevValue = getHistoryValue(state)
   return value(prevValue)
 }
 
 const setValue = (state: CommonInternal, value: unknown): void => {
   const newValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
 
-  if (newValue === getCachValue(state)) {
+  if (newValue === getHistoryValue(state)) {
     return
   }
-  applyUpdates(state, newValue)
+  pushHistory(state, newValue)
   invalidateSubtree(state)
   notifySubscribers()
 }
@@ -188,11 +179,6 @@ const notifySubscribers = () => {
       isNotifying = false
     })
   }
-}
-
-const applyUpdates = (state: CommonInternal, value: unknown): void => {
-  setCacheValue(state, value)
-  updateHistory(state, value)
 }
 
 /**
@@ -316,7 +302,10 @@ export const computed = <
  * @param value - Action function
  * @param name
  */
-export const action = <T extends unknown[]>(value: (...args: T) => void, name?: string): Action<T> => {
+export const action = <T extends unknown[]>(
+  value: (...args: T) => void,
+  options?: ActionOptions,
+): Action<T> => {
   return {
     run: (...args: T) => {
       isActionNow = true
@@ -324,7 +313,7 @@ export const action = <T extends unknown[]>(value: (...args: T) => void, name?: 
       isActionNow = false
       return this
     },
-    name: getName(name),
-    onAction: undefined,
+    name: getName(options.name),
+    onAction: options.onAction,
   }
 }

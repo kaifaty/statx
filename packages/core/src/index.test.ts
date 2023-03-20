@@ -1,7 +1,7 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {state, computed, action, getCachValue} from './core.js'
+import {state, computed, action, getHistoryValue} from './core.js'
 
 type Mock = {
   (): void
@@ -123,24 +123,24 @@ test(`Recalculation of subscribers`, async () => {
   const c = computed(() => v() * 100 + 20)
 
   // No calculations if no subs
-  assert.is(getCachValue(c._internal), undefined)
+  assert.is(getHistoryValue(c._internal), undefined)
 
   const unsub = c.subscribe(() => {
     1
   })
   // Recalc on subscribe
-  assert.is(getCachValue(c._internal), 23 * 100 + 20)
+  assert.is(getHistoryValue(c._internal), 23 * 100 + 20)
 
   v.set(1)
   await 1
 
-  assert.is(getCachValue(c._internal), 1 * 100 + 20)
+  assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
 
   // No recalc after unsub
   unsub()
   v.set(0)
 
-  assert.is(getCachValue(c._internal), 1 * 100 + 20)
+  assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
 })
 test(`Recalculate all computed tree`, () => {
   const v = state(0)
