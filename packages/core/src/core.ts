@@ -302,8 +302,7 @@ export const computed = <
 }
 
 /**
- * ## Action state
- *
+ * Action state
  * @param value - Action function
  * @param name
  */
