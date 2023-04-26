@@ -214,14 +214,19 @@ export const subscribe = (state: CommonInternal | CommonInternal, listner: Listn
   }
 
   const computedState = getComputed(state)
+  // Нужно актуализировать в родилеях зависимость
   if (computedState) {
     getComputedValue(computedState)
+    state.depends.forEach((parent) => parent.childs.add(state))
   }
 
   state.subscribes.add(listner)
 
   return () => {
     state.subscribes.delete(listner)
+    if (state.subscribes.size === 0) {
+      state.depends.forEach((parent) => parent.childs.delete(state))
+    }
   }
 }
 
