@@ -1,13 +1,13 @@
 ## Installation
 
 ```sh
-npm i @reatom/utils
+npm i @statx/utils
 ```
 
 ## Usage
 
 ```ts
-import {} from '@reatom/utils'
+import {} from '@statx/utils'
 
 // ...
 ```

@@ -1,13 +1,13 @@
 ## Installation
 
 ```sh
-npm i @reatom/persist
+npm i @statx/persist
 ```
 
 ## Usage
 
 ```ts
-import {} from '@reatom/persist'
+import {} from '@statx/persist'
 
 // ...
 ```

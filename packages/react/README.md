@@ -1,13 +1,13 @@
 ## Installation
 
 ```sh
-npm i @reatom/react
+npm i @statx/react
 ```
 
 ## Usage
 
 ```ts
-import {} from '@reatom/react'
+import {} from '@statx/react'
 
 // ...
 ```
