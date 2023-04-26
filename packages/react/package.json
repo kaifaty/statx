@@ -23,10 +23,15 @@
   "license": "MIT",
   "author": "kaifaty",
   "sideEffects": false,
-  "type": "module",
-  "main": "build/index.js",
-  "source": "./src/index.ts",
-  "types": "build/index.d.ts",
+  "exports": {
+    "require": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "default": "./build/index.modern.mjs"
+  },
+  "main": "./build/index.js",
+  "module": "./build/index.module.js",
+  "unpkg": "./build/index.umd.js",
+  "types": "./build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
@@ -34,8 +39,9 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
+    "build": "rimraf ./build/ && npm run build:mb && npm run build:types",
     "build:parcel": "parcel build",
+    "build:mb": "microbundle",
     "build:types": "tsc",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
