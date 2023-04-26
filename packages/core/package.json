@@ -42,7 +42,7 @@
     "build:parcel": "parcel build --target=build",
     "build:mb": "microbundle",
     "build:types": "tsc",
-    "demo": "parcel --target=demo",
+    "demo": "parcel --target=demo --port=4444",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts"
   },

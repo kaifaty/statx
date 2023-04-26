@@ -36,21 +36,6 @@ const computations = async () => {
 }
 
 const subscriptions = async () => {
-  const s1 = state(0, {name: 's1'})
-  const s2 = state(2, {name: 's2'})
-  const c2 = computed(() => s1() + 10, {name: 'c2'})
-  const c3 = computed(() => s1() + c2() + s2(), {name: 'c3'})
-  const _c3 = () => s1() + s1() + 10 + s2()
-  let test = 0
-  c3.subscribe((v) => {
-    console.log('Значение при подписке', v)
-    test = v
-  })
-  s1.set(10)
-  s2.set(6)
-  s2.set(1)
-  s2.set(2)
-  await 1
-  console.log(c3, test, c3(), c3() === _c3())
+  console.log(state(0)())
 }
 subscriptions()

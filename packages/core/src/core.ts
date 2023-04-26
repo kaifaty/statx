@@ -38,8 +38,8 @@ export const getHistoryValue = (state: StateVariants): unknown => {
 }
 const pushHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
   const cursorHistory = state.historyCursor
-  state.history[cursorHistory] = value
   state.historyCursor = (cursorHistory + 1) % state.history.length
+  state.history[state.historyCursor] = value
 }
 
 const getName = (name?: string): string => {
@@ -249,7 +249,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
     childs: new Set(),
     depends: new Set(),
     history: Array.from({length: settings.historyLength}),
-    historyCursor: 0,
+    historyCursor: -1,
     name: getName(options?.name),
     subscribes: new Set(),
     hasParentUpdates: undefined,
@@ -282,7 +282,7 @@ export const computed = <
     depends: new Set(),
     hasParentUpdates: true,
     history: Array.from({length: settings.historyLength}),
-    historyCursor: 0,
+    historyCursor: -1,
     initial: options?.initial as ReturnType<typeof value> | undefined,
     isComputing: false,
     name: getName(options?.name),
@@ -318,7 +318,7 @@ export const action = <T extends unknown[]>(
       isActionNow = false
       return this
     },
-    name: getName(options.name),
-    onAction: options.onAction,
+    name: getName(options?.name),
+    onAction: options?.onAction,
   }
 }
