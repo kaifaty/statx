@@ -26,7 +26,7 @@
   "exports": {
     "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.modern.mjs"
+    "default": "./build/index.module.js"
   },
   "main": "./build/index.js",
   "module": "./build/index.module.js",
@@ -51,7 +51,7 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.0.27",
+    "@statx/core": "*",
     "react": "^18.2.0"
   },
   "targets": {

@@ -25,10 +25,10 @@
   "exports": {
     "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.modern.mjs"
+    "default": "./build/index.modern.js"
   },
   "main": "./build/index.js",
-  "module": "./build/index.module.js",
+  "module": "./build/index.modern.js",
   "unpkg": "./build/index.umd.js",
   "types": "./build/index.d.ts",
   "files": [

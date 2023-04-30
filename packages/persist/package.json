@@ -1,6 +1,6 @@
 {
   "name": "@statx/persist",
-  "version": "1.0.27",
+  "version": "1.0.31",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -26,7 +26,7 @@
   "exports": {
     "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.modern.mjs"
+    "default": "./build/index.module.js"
   },
   "main": "./build/index.js",
   "module": "./build/index.module.js",
@@ -52,8 +52,8 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.0.27",
-    "@statx/utils": "^1.0.27"
+    "@statx/core": "*",
+    "@statx/utils": "*"
   },
   "targets": {
     "build": {

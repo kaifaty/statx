@@ -14,14 +14,16 @@ export interface AsyncStorage extends Storage {
   isAsync: true
 }
 
-export interface PersistOptions {
+export type PersistOptions<T extends StateType> = {
   name: string
   throttle: number
+  onInitRestore?: (value: T) => void
 }
 
-export interface PersistCreatorOptions {
+export type PersistCreatorOptions<T extends StateType> = {
   name: string
   storage: Storage | AsyncStorage
+  onInitRestore?: (value: T) => void
 }
 
 export type SyncPersistState<T extends StateType> = State<T> & {

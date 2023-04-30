@@ -15,9 +15,9 @@ import {
 
 const uniqNames = new Set<string>()
 
-export const persistState = <S extends PersistCreatorOptions, T extends StateType = StateType>(
+export const persistState = <S extends PersistCreatorOptions<T>, T extends StateType = StateType>(
   value: T,
-  {name, storage}: S,
+  {name, onInitRestore, storage}: S,
 ): S['storage'] extends AsyncStorage ? AsyncPersistState<T> : SyncPersistState<T> => {
   if (uniqNames.has(name)) {
     throw new Error(`Name: ${name} must be uniq`)
@@ -30,14 +30,15 @@ export const persistState = <S extends PersistCreatorOptions, T extends StateTyp
   let store: SyncPersistState<T>
 
   if (storage.isAsync) {
-    store = state(value, {name}) as SyncPersistState<T>
+    store = state(value, {name}) as AsyncPersistState<T>
 
     let isLoading = true
 
     ;(storage as AsyncStorage).get().then((r) => {
       if (r !== undefined) {
-        store.set(r as T)
-
+        const current = r as T
+        store.set(current)
+        onInitRestore?.(current)
         isLoading = false
       }
     })
@@ -49,8 +50,10 @@ export const persistState = <S extends PersistCreatorOptions, T extends StateTyp
     })
   } else {
     const storeValue = (storage as SyncStorage).get()
+    const current = (storeValue ?? value) as T
 
     store = state(storeValue ?? value, {name}) as SyncPersistState<T>
+    onInitRestore?.(current)
   }
 
   store.subscribe((v: any) => {
@@ -75,33 +78,33 @@ export const persistState = <S extends PersistCreatorOptions, T extends StateTyp
 
 export const stateLocalStorage = <T extends StateType = StateType>(
   value: T,
-  {name, throttle}: PersistOptions,
+  {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistState(value, {
     name,
-
+    onInitRestore,
     storage: localStorageAdapter(name, throttle),
   })
 }
 
 export const stateSessionStorage = <T extends StateType = StateType>(
   value: T,
-  {name, throttle}: PersistOptions,
+  {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistState(value, {
     name,
-
+    onInitRestore,
     storage: localStorageAdapter(name, throttle, true),
   })
 }
 
 export const indexeddbStorage = <T extends StateType = StateType>(
   value: T,
-  {name, throttle}: PersistOptions,
+  {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistState(value, {
     name,
-
+    onInitRestore,
     storage: indexedDBAdapter(name, throttle),
   })
 }
