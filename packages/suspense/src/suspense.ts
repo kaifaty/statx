@@ -49,7 +49,7 @@ export const suspenseState = <T extends unknown = unknown>(
   const notifyOption = options?.notify ?? DEFAULT_OPTIONS.notify
   const cacheLocalName = options?.cacheLocal && options?.cacheLocal.name
 
-  let data: T = cacheLocalName ? getFromStorage<T>(cacheLocalName) : undefined
+  const data: T = cacheLocalName ? getFromStorage<T>(cacheLocalName) : undefined
   let isLoading = true
   let isFetching = true
   let isRequsted = false
@@ -107,8 +107,7 @@ export const suspenseState = <T extends unknown = unknown>(
       notifyListners()
     }
 
-    request().then((r) => {
-      data = r
+    request().then((data) => {
       isFetching = false
       isLoading = false
       if (cacheLocalName) {

@@ -55,6 +55,7 @@ export const persistState = <S extends PersistCreatorOptions, T extends StateTyp
 
   store.subscribe((v: any) => {
     if (afterClear) {
+      afterClear = false
       return
     }
 

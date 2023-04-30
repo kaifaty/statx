@@ -1,5 +1,3 @@
-export const createMockFn = () => {}
-
 export const throttled = /*#__PURE__*/ <F extends (...args: any[]) => any>(time: number, df: F): F => {
   let timer: any
   let lastArgs: any[]
@@ -18,8 +16,6 @@ export const throttled = /*#__PURE__*/ <F extends (...args: any[]) => any>(time:
           f(lastArgs)
           timer = null
         }, diffTime)
-      } else {
-        console.log('тротлим')
       }
     }
   }) as F

@@ -18,6 +18,7 @@ export const localStorageAdapter = <T extends StateType>(
       const v = storage.getItem(PREFIX.localStorage + name)
       if (!v) return undefined
       const data = JSON.parse(v)
+
       return data.value
     },
     set: throttled(throttle, (value: T) => {
@@ -28,7 +29,9 @@ export const localStorageAdapter = <T extends StateType>(
       storage.setItem(
         PREFIX.localStorage + name,
         JSON.stringify({
-          value: value,
+          value,
+          timestamp: Date.now(),
+          version: 1,
         }),
       )
     }),
