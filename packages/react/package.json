@@ -51,7 +51,7 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.0.22",
+    "@statx/core": "^1.0.27",
     "react": "^18.2.0"
   },
   "targets": {

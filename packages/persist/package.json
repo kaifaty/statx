@@ -1,6 +1,6 @@
 {
   "name": "@statx/persist",
-  "version": "1.0.24",
+  "version": "1.0.27",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -52,8 +52,8 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.0.22",
-    "@statx/utils": "^1.0.24"
+    "@statx/core": "^1.0.27",
+    "@statx/utils": "^1.0.27"
   },
   "targets": {
     "build": {
