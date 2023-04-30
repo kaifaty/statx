@@ -1,6 +1,6 @@
 {
   "name": "@statx/persist",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -53,7 +53,7 @@
   ],
   "dependencies": {
     "@statx/core": "^1.1.0",
-    "@statx/utils": "^1.1.0"
+    "@statx/utils": "^1.1.1"
   },
   "targets": {
     "build": {
