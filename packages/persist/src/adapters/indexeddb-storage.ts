@@ -55,7 +55,7 @@ export const indexedDBAdapter = (name: string, throttle: number): AsyncStorage =
       }
     },
 
-    set: throttled(throttle, (value: unknown) => {
+    set: throttled(throttle ?? 0, (value: unknown) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')

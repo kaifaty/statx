@@ -16,7 +16,7 @@ export interface AsyncStorage extends Storage {
 
 export type PersistOptions<T extends StateType> = {
   name: string
-  throttle: number
+  throttle?: number
   onInitRestore?: (value: T) => void
 }
 
