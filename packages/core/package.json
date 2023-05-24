@@ -1,6 +1,6 @@
 {
   "name": "@statx/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "Extry tiny smart state manager",
   "keywords": [
@@ -23,14 +23,9 @@
   "author": "kaifaty",
   "sideEffects": false,
   "exports": {
-    "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.modern.js"
+    "default": "./build/index.js"
   },
-  "main": "./build/index.js",
-  "module": "./build/index.modern.js",
-  "unpkg": "./build/index.umd.js",
-  "types": "./build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
@@ -38,34 +33,13 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:mb && npm run build:types",
-    "build:parcel": "parcel build --target=build",
-    "build:mb": "microbundle",
-    "build:types": "tsc",
-    "demo": "parcel --target=demo --port=4444",
-    "dev": "parcel watch",
+    "build": "rimraf ./build/ && npm run build:tsc",
+    "build:tsc": "tsc",
+    "dev": "tsc watch",
     "test": "tsx src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
   ],
-  "targets": {
-    "build": {
-      "context": "browser",
-      "distDir": "./build/",
-      "source": "./src/index.ts",
-      "isLibrary": true,
-      "optimize": true,
-      "outputFormat": "esmodule"
-    },
-    "demo": {
-      "context": "browser",
-      "distDir": "./build/demo/",
-      "source": "./src/demo/index.html",
-      "isLibrary": false,
-      "includeNodeModules": true,
-      "scopeHoist": false
-    }
-  },
   "gitHead": "7499f9feeba7c5d3f2181ee76c8cf06370cab2e0"
 }

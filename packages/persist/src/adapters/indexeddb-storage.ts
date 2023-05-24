@@ -36,7 +36,7 @@ export const removeIDB = () => {
   indexedDB.deleteDatabase(DB_NAME)
 }
 
-export const indexedDBAdapter = (name: string, throttle: number): AsyncStorage => {
+export const indexedDBAdapter = (name: string, throttle = 0): AsyncStorage => {
   return {
     isAsync: true,
     async get() {

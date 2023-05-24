@@ -63,7 +63,7 @@ export type ComputedInternal = CommonInternal & {
 
 export type StateInternal = CommonInternal
 
-export type ComputedInternalOptions<T extends StateType = StateType> = {
+export type ComputedInternalOptions<T extends StateType> = {
   name?: string
   initial?: T
 }
@@ -73,13 +73,15 @@ export type StatlessFunc<T extends StateType> = (v?: T) => T
 export type GetStatlessFunc<
   T extends StateType,
   S extends StatlessFunc<T>,
-  O extends Nullable<ComputedInternalOptions>,
+  O extends Nullable<ComputedInternalOptions<T>>,
 > = T extends -1
-  ? S extends () => infer K
+  ? O extends undefined
+    ? StatlessFunc<StateType<T>>
+    : S extends () => infer K
     ? () => K
-    : O['initial'] extends undefined
+    : NonNullable<O>['initial'] extends undefined
     ? (v: unknown) => unknown
-    : StatlessFunc<StateType<O['initial']>>
+    : StatlessFunc<StateType<NonNullable<O>['initial']>>
   : StatlessFunc<StateType<T>>
 
 export type StateVariants = ComputedInternal | StateInternal

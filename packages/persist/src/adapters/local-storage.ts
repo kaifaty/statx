@@ -5,7 +5,7 @@ import {SyncStorage} from '../types.js'
 
 export const localStorageAdapter = <T extends StateType>(
   name: string,
-  throttle?: number,
+  throttle = 0,
   isSession = false,
 ): SyncStorage => {
   const storage = isSession ? sessionStorage : localStorage
@@ -14,14 +14,14 @@ export const localStorageAdapter = <T extends StateType>(
     clear() {
       storage.removeItem(PREFIX.localStorage + name)
     },
-    get(): T {
+    get(): T | undefined {
       const v = storage.getItem(PREFIX.localStorage + name)
       if (!v) return undefined
       const data = JSON.parse(v)
 
       return data.value
     },
-    set: throttled(throttle ?? 0, (value: T) => {
+    set: throttled(throttle, (value: T) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')

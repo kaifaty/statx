@@ -19,7 +19,7 @@ import {
   StateInternal,
   SetterFunc,
   ActionOptions,
-} from './types.js'
+} from './types'
 
 let isNotifying = false
 let isActionNow = false
@@ -150,6 +150,9 @@ const invalidateSubtree = (state: CommonInternal) => {
 
   while (stack.length) {
     const st = stack.pop()
+    if (!st) {
+      continue
+    }
     st.childs.forEach((it) => stack.push(it))
     st.hasParentUpdates = true
     if (st.subscribes.size) {
@@ -193,7 +196,7 @@ export const startRecord = () => {
 /**
  * Flush all collected non computed states.
  */
-export const flushStates = (): Set<StateInternal> => {
+export const flushStates = (): Set<StateInternal> | undefined => {
   const data = recording
   recording = undefined
   return data
@@ -272,7 +275,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 export const computed = <
   T extends StateType = -1,
   S extends StatlessFunc<T> = StatlessFunc<T>,
-  O extends Nullable<ComputedInternalOptions> = Nullable<ComputedInternalOptions>,
+  O extends Nullable<ComputedInternalOptions<T>> = Nullable<ComputedInternalOptions<T>>,
 >(
   value: GetStatlessFunc<T, S, O>,
   options?: O,
