@@ -24,14 +24,10 @@
   "author": "kaifaty",
   "sideEffects": false,
   "exports": {
-    "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.module.js"
+    "default": "./build/index.js"
   },
-  "main": "./build/index.js",
-  "module": "./build/index.module.js",
-  "unpkg": "./build/index.umd.js",
-  "types": "./build/index.d.ts",
+  "type": "module",
   "source": "./src/index.ts",
   "files": [
     "/build",
@@ -40,10 +36,8 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:mb",
-    "build:parcel": "parcel build --target=build",
-    "build:mb": "microbundle",
-    "build:types": "tsc",
+    "build": "rimraf ./build/ && npm run build:tsc",
+    "build:tsc": "tsc",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },

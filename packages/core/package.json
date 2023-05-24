@@ -1,6 +1,6 @@
 {
   "name": "@statx/core",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": false,
   "description": "Extry tiny smart state manager",
   "keywords": [
@@ -26,6 +26,8 @@
     "types": "./build/index.d.ts",
     "default": "./build/index.js"
   },
+  "type": "module",
+  "source": "./src/index.ts",
   "files": [
     "/build",
     "/package.json",

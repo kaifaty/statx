@@ -13,7 +13,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "module": "ESNext",
-    "moduleResolution": "node16",
+    "moduleResolution": "nodenext",
     "noLib": false,
     "removeComments": false,
     "sourceMap": true,

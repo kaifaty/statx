@@ -19,7 +19,7 @@ const isEqual = (current: Subs, prev?: Subs) => {
 export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T => {
   return class StatableLit extends superClass {
     private _subs: UnSubscribe[] = []
-    private _prevSnapshot: Subs
+    private _prevSnapshot?: Subs
     private _unsubAll() {
       this._subs.forEach((unsub) => unsub())
       this._subs.length = 0
@@ -29,12 +29,12 @@ export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T
     protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
       super.updated(_changedProperties)
       const data = flushStates()
-      if (isEqual(data, this._prevSnapshot)) {
+      if (data && isEqual(data, this._prevSnapshot)) {
         return
       }
       this._prevSnapshot = data
       this._unsubAll()
-      data.forEach((state) => {
+      data?.forEach((state) => {
         this._subs.push(subscribe(state, this._updater))
       })
     }

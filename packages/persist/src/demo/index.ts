@@ -14,7 +14,7 @@ const createWatcher = (storage: SyncPersistState<string> | AsyncPersistState<str
 
   storage.subscribe((v) => {
     element.value = v as any
-    logElement.insertAdjacentText(
+    logElement?.insertAdjacentText(
       'beforeend',
       'Subscription of ' + storage.name + `. Value: ${v}. IsLoading: ` + storage.isLoading + '\n',
     )

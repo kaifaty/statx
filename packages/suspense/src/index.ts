@@ -1,1 +1,1 @@
-export * from './suspense'
+export * from './suspense.js'

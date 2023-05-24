@@ -21,7 +21,11 @@ const getKey = (name: string) => {
 }
 const getFromLocal = (name: string) => {
   try {
-    return JSON.parse(localStorage.getItem(getKey(name))).value
+    const key = getKey(name)
+    const value = localStorage.getItem(key)
+    if (value) {
+      return JSON.parse(value).value
+    }
   } catch {
     return
   }

@@ -1,6 +1,6 @@
 {
   "name": "@statx/react",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -24,14 +24,11 @@
   "author": "kaifaty",
   "sideEffects": false,
   "exports": {
-    "require": "./build/index.js",
     "types": "./build/index.d.ts",
-    "default": "./build/index.module.js"
+    "default": "./build/index.js"
   },
-  "main": "./build/index.js",
-  "module": "./build/index.module.js",
-  "unpkg": "./build/index.umd.js",
-  "types": "./build/index.d.ts",
+  "type": "module",
+  "source": "./src/index.ts",
   "files": [
     "/build",
     "/package.json",
@@ -39,10 +36,8 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:mb && npm run build:types",
-    "build:parcel": "parcel build",
-    "build:mb": "microbundle",
-    "build:types": "tsc",
+    "build": "rimraf ./build/ && npm run build:tsc",
+    "build:tsc": "tsc",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
@@ -53,16 +48,6 @@
   "dependencies": {
     "@statx/core": "^1.1.0",
     "react": "^18.2.0"
-  },
-  "targets": {
-    "build": {
-      "context": "browser",
-      "distDir": "./build/",
-      "source": "./src/index.ts",
-      "isLibrary": true,
-      "optimize": true,
-      "outputFormat": "esmodule"
-    }
   },
   "gitHead": "7499f9feeba7c5d3f2181ee76c8cf06370cab2e0"
 }

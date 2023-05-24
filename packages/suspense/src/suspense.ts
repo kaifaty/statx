@@ -16,7 +16,7 @@ interface Options {
   cacheLocal?: false | {name: string}
 }
 type Suspense<T> = {
-  readonly data: T
+  readonly data: T | undefined
   isFetching: boolean
   isLoading: boolean
 }
@@ -49,7 +49,7 @@ export const suspenseState = <T extends unknown = unknown>(
   const notifyOption = options?.notify ?? DEFAULT_OPTIONS.notify
   const cacheLocalName = options?.cacheLocal && options?.cacheLocal.name
 
-  const data: T = cacheLocalName ? getFromStorage<T>(cacheLocalName) : undefined
+  const data: T | undefined = cacheLocalName ? getFromStorage<T>(cacheLocalName) : undefined
   let isLoading = true
   let isFetching = true
   let isRequsted = false
@@ -66,9 +66,9 @@ export const suspenseState = <T extends unknown = unknown>(
     },
   }
 
-  const subscribe2States = (states: Set<CommonInternal>) => {
+  const subscribe2States = (states: Set<CommonInternal> | undefined) => {
     queueMicrotask(() => {
-      states.forEach((state) => {
+      states?.forEach((state) => {
         statesUnsubs.add(subscribe(state, stateListener))
       })
     })
@@ -103,7 +103,7 @@ export const suspenseState = <T extends unknown = unknown>(
     unsubscribe()
     statesUnsubs.clear()
 
-    if (notifyOption.includes('isFetching')) {
+    if (notifyOption?.includes('isFetching')) {
       notifyListners()
     }
 

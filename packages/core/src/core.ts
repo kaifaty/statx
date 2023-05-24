@@ -19,7 +19,7 @@ import {
   StateInternal,
   SetterFunc,
   ActionOptions,
-} from './types'
+} from './types.js'
 
 let isNotifying = false
 let isActionNow = false
