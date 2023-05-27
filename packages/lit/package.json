@@ -27,6 +27,7 @@
     "default": "./build/index.js"
   },
   "type": "module",
+  "module": "./build/index.js",
   "source": "./src/index.ts",
   "files": [
     "/build",
