@@ -55,6 +55,7 @@
     "parcel-resolver-typescript-esm": "^1.0.1",
     "prettier": "^2.8.3",
     "prettier-plugin-sort-json": "^1.0.0",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "rimraf": "^4.1.1",
     "tsx": "^3.12.2",

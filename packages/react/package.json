@@ -40,7 +40,7 @@
   "scripts": {
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
-    "dev": "parcel watch",
+    "demo": "parcel serve",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },
@@ -49,7 +49,21 @@
   ],
   "dependencies": {
     "@statx/core": "^1.1.7",
-    "react": "^18.2.0"
+    "react": "^16.0.0"
   },
-  "gitHead": "5380557359b61c2a26603869a555e10b7e2a0d12"
+  "targets": {
+    "build": {
+      "context": "browser",
+      "distDir": "./build/demo",
+      "source": "./src/demo/index.html",
+      "isLibrary": false,
+      "optimize": false,
+      "outputFormat": "esmodule"
+    }
+  },
+  "gitHead": "5380557359b61c2a26603869a555e10b7e2a0d12",
+  "devDependencies": {
+    "@types/react-dom": "^18.2.4",
+    "react-dom": "^18.2.0"
+  }
 }
