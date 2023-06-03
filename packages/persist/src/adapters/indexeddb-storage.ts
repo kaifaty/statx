@@ -1,4 +1,4 @@
-import {throttled} from '@statx/utils'
+import {throttle} from '@statx/utils'
 import {NOT_ALLOWED_TYPES} from '../consts.js'
 import type {AsyncStorage} from '../types.js'
 
@@ -55,7 +55,7 @@ export const indexedDBAdapter = (name: string, throttle = 0): AsyncStorage => {
       }
     },
 
-    set: throttled(throttle ?? 0, (value: unknown) => {
+    set: throttle(throttle ?? 0, (value: unknown) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')

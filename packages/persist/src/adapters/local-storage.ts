@@ -1,5 +1,5 @@
 import type {StateType} from '@statx/core'
-import {throttled} from '@statx/utils'
+import {throttle} from '@statx/utils'
 import {PREFIX, NOT_ALLOWED_TYPES} from '../consts.js'
 import {SyncStorage} from '../types.js'
 
@@ -21,7 +21,7 @@ export const localStorageAdapter = <T extends StateType>(
 
       return data.value
     },
-    set: throttled(throttle, (value: T) => {
+    set: throttle(throttle, (value: T) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')

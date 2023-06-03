@@ -1,24 +1,37 @@
-export const throttled = /*#__PURE__*/ <F extends (...args: any[]) => any>(time: number, df: F): F => {
-  let timer: any
-  let lastArgs: any[]
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+type Func = (...args: any[]) => any
+type Promises<T> = (value: PromiseLike<T>) => void
+
+export const throttle = <F extends Func>(
+  f: F,
+  time: number,
+): ((...args: Parameters<F>) => Promise<ReturnType<F>>) => {
   let lastCall = 0
+  let timer: NodeJS.Timeout | number = 0
 
-  const f = ((...args) => {
-    const currtime = Date.now()
-    const diffTime = currtime - lastCall
-    if (diffTime > time) {
-      df(...args)
-      lastCall = currtime
-    } else {
-      lastArgs = args
-      if (!timer) {
-        timer = setTimeout(() => {
-          f(lastArgs)
-          timer = null
-        }, diffTime)
+  const promises: Promises<ReturnType<F>>[] = []
+
+  return (...args: any[]) => {
+    return new Promise<ReturnType<F>>((r) => {
+      const currtime = Date.now()
+      const diffTime = currtime - lastCall
+
+      if (diffTime > time || lastCall === 0) {
+        r(f(...args))
+        lastCall = currtime
+        return
       }
-    }
-  }) as F
-
-  return f
+      promises.push(r)
+      if (timer) {
+        return
+      }
+      timer = setTimeout(() => {
+        const data = f(...args)
+        promises.forEach((r) => r(data))
+        timer = 0
+        lastCall = currtime
+      }, time)
+    })
+  }
 }
