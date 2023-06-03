@@ -36,7 +36,7 @@ export const removeIDB = () => {
   indexedDB.deleteDatabase(DB_NAME)
 }
 
-export const indexedDBAdapter = (name: string, throttle = 0): AsyncStorage => {
+export const indexedDBAdapter = (name: string, throttleValue = 0): AsyncStorage => {
   return {
     isAsync: true,
     async get() {
@@ -55,7 +55,7 @@ export const indexedDBAdapter = (name: string, throttle = 0): AsyncStorage => {
       }
     },
 
-    set: throttle(throttle ?? 0, (value: unknown) => {
+    set: throttle((value: unknown) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')
@@ -66,7 +66,7 @@ export const indexedDBAdapter = (name: string, throttle = 0): AsyncStorage => {
 
         store.put({key: name, value: JSON.stringify({value})})
       })
-    }),
+    }, throttleValue),
     clear(): void {
       openDb().then((db) => {
         const transaction = db.transaction(STORE_NAME, 'readwrite')

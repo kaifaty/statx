@@ -5,7 +5,7 @@ import {SyncStorage} from '../types.js'
 
 export const localStorageAdapter = <T extends StateType>(
   name: string,
-  throttle = 0,
+  throttleValue = 0,
   isSession = false,
 ): SyncStorage => {
   const storage = isSession ? sessionStorage : localStorage
@@ -21,7 +21,7 @@ export const localStorageAdapter = <T extends StateType>(
 
       return data.value
     },
-    set: throttle(throttle, (value: T) => {
+    set: throttle((value: T) => {
       const type = typeof value
       if (NOT_ALLOWED_TYPES.includes(type)) {
         throw new Error('Type ' + type + ' not allowed')
@@ -34,6 +34,6 @@ export const localStorageAdapter = <T extends StateType>(
           version: 1,
         }),
       )
-    }),
+    }, throttleValue),
   }
 }
