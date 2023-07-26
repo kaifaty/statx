@@ -1,6 +1,6 @@
 {
   "name": "@statx/lit",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": false,
   "description": "Extry tiny smart state manager",
   "keywords": [
@@ -47,7 +47,7 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.2.2",
+    "@statx/core": "^1.2.3",
     "lit": "^2.6.1"
   },
   "targets": {
