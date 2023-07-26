@@ -2,6 +2,8 @@ import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
 import {state, computed, action, getHistoryValue} from '../index.js'
+import {State} from '../types/types.js'
+import {cachedState} from '../cached.js'
 
 type Mock = {
   (): void
@@ -239,6 +241,29 @@ test('karl test', async () => {
   await run(15)
 })
 
+test('from compuited', async () => {
+  const st = state(10)
+  let calls = 0
+
+  const {call: calcer} = cachedState<number>(st, (currentValue: number, data: number) => {
+    calls++
+    return currentValue * data
+  })
+  calcer(10)
+  calcer(10)
+  assert.is(calls, 1)
+  st.set(1)
+  await 1
+  calcer(10)
+  calcer(10)
+  assert.is(calls, 2)
+  calcer(11)
+  calcer(12)
+  assert.is(calls, 4)
+  calcer(11)
+  calcer(12)
+  assert.is(calls, 4)
+})
 /*
 const seconds = state(0, 'name12')
 const time = state(v => v + 1, 'name12', seconds.get())
