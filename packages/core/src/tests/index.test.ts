@@ -1,7 +1,7 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {state, computed, action, getHistoryValue} from './core.js'
+import {state, computed, action, getHistoryValue} from '../index.js'
 
 type Mock = {
   (): void
@@ -78,6 +78,7 @@ test('State may be reducer', () => {
 
   assert.is(reducer(), 20)
 })
+
 test('Subscription of computable state', async () => {
   const fn = createMockFn()
   const s1 = state(0)
@@ -100,6 +101,7 @@ test('Subscription of computable state', async () => {
   assert.is(test, _c3())
   assert.is(fn.calls, 1)
 })
+
 test('Action', () => {
   const v1 = state(5)
   const v2 = state(4)
@@ -118,6 +120,7 @@ test('Action', () => {
 
   assert.is(v1(), 5 + (100 * 50) / 101)
 })
+
 test(`Recalculation of subscribers`, async () => {
   const v = state(23)
   const c = computed(() => v() * 100 + 20)
@@ -142,6 +145,7 @@ test(`Recalculation of subscribers`, async () => {
 
   assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
 })
+
 test(`Recalculate all computed tree`, () => {
   const v = state(0)
   const c = computed(() => v() + 1, {name: 'c'})

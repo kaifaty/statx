@@ -1,46 +1,28 @@
+import {settings} from './utils/settings.js'
+import {subscribe} from './utils/subscribe.js'
 import {
   ComputedInternal,
   Listner,
   StateType,
-  Settings,
-  StateVariants,
   Action,
   Options,
   ComputedInternalOptions,
   Nullable,
   StatlessFunc,
   GetStatlessFunc,
-  HistoryInternal,
   State,
   Computed,
-  Func,
-  UnSubscribe,
   CommonInternal,
-  StateInternal,
-  SetterFunc,
   ActionOptions,
-} from './types.js'
+} from './types/index.js'
+import {assert, isFunction} from './utils/utils.js'
+import {setValue} from './utils/set-value.js'
+import {getValue} from './utils/get-value.js'
 
-let isNotifying = false
 let isActionNow = false
-let recording: Set<StateInternal> | undefined
 
 const defaultName = 'Unnamed state'
 const names = new Set()
-const requesters: ComputedInternal[] = []
-const states2notify = new Set<StateVariants>()
-const settings: Settings = {
-  historyLength: 5,
-}
-
-export const getHistoryValue = (state: StateVariants): unknown => {
-  return state.history[state.historyCursor]
-}
-const pushHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
-  const cursorHistory = state.historyCursor
-  state.historyCursor = (cursorHistory + 1) % state.history.length
-  state.history[state.historyCursor] = value
-}
 
 const getName = (name?: string): string => {
   if (name && names.has(name)) {
@@ -51,192 +33,6 @@ const getName = (name?: string): string => {
     return name
   }
   return defaultName
-}
-
-export const setSetting = (data: Partial<Settings>) => {
-  Object.assign(settings, data)
-}
-
-const getComputed = (state: CommonInternal | ComputedInternal) => {
-  if ('reducer' in state) {
-    return state
-  }
-}
-
-const isFunction = (v: unknown): v is Func => {
-  return typeof v === 'function'
-}
-
-const isDontNeedRecalc = (state: CommonInternal, prevState: unknown): boolean => {
-  return state.hasParentUpdates === false && prevState !== undefined
-}
-
-const getComputedValue = (state: ComputedInternal): unknown => {
-  try {
-    const prevState = getHistoryValue(state)
-
-    if (isDontNeedRecalc(state, prevState)) {
-      if (recording) {
-        state.depends.forEach((item) => {
-          recording?.add(item)
-        })
-      }
-      return prevState
-    }
-
-    assert(state.isComputing, `Loops dosen't allows. Name: ${state.name ?? 'Unnamed state'}`)
-
-    requesters.push(state)
-    state.depends.forEach((item) => {
-      item.childs.delete(state)
-    })
-    state.depends.clear()
-    state.isComputing = true
-    const value = state.reducer(prevState ?? state.initial)
-    state.isComputing = false
-    state.hasParentUpdates = false
-
-    requesters.pop()
-    pushHistory(state, value)
-
-    return value
-  } catch (e) {
-    console.error((e as Error).message)
-    return undefined
-  }
-}
-
-const getValue = (state: CommonInternal) => {
-  const reducer = getComputed(state)
-  try {
-    const lastRequester = requesters.at(-1)
-    if (lastRequester && !state.childs.has(lastRequester)) {
-      state.childs.add(lastRequester)
-      lastRequester.depends.add(state)
-    }
-    if (reducer) {
-      return getComputedValue(reducer)
-    }
-    return getHistoryValue(state)
-  } finally {
-    if (recording && !reducer) {
-      recording.add(state)
-    }
-  }
-}
-
-const getValueOfSetterFunction = (state: CommonInternal, value: SetterFunc): unknown => {
-  const prevValue = getHistoryValue(state)
-  return value(prevValue)
-}
-
-const setValue = (state: CommonInternal, value: unknown): void => {
-  const newValue = isFunction(value) ? getValueOfSetterFunction(state, value) : value
-
-  if (newValue === getHistoryValue(state)) {
-    return
-  }
-  pushHistory(state, newValue)
-  invalidateSubtree(state)
-  notifySubscribers()
-}
-
-/**
- * Mark all subtree is non actual.
- * Collect all nodes to notify subscribers im microtask queue.
- */
-const invalidateSubtree = (state: CommonInternal) => {
-  const stack: CommonInternal[] = [state]
-
-  while (stack.length) {
-    const st = stack.pop()
-    if (!st) {
-      continue
-    }
-    st.childs.forEach((it) => stack.push(it))
-    st.hasParentUpdates = true
-    if (st.subscribes.size) {
-      states2notify.add(st)
-    }
-  }
-}
-
-/**
- * Notify all collected subscribers once in microtask queue
- */
-const notifySubscribers = () => {
-  if (isNotifying === false) {
-    isNotifying = true
-    queueMicrotask(() => {
-      // Нужно обновить дерево
-      states2notify.forEach((state) => {
-        try {
-          state.subscribes.forEach((listner) => {
-            return listner(getValue(state))
-          })
-        } catch (e) {
-          console.error('Error in subscriber function of:', state.name)
-        }
-      })
-      states2notify.clear()
-      isNotifying = false
-    })
-  }
-}
-
-/**
- * Start collecting all non computed states.
- *
- * Helper for render adapters.
- */
-export const startRecord = () => {
-  recording = new Set()
-}
-
-/**
- * Flush all collected non computed states.
- */
-export const flushStates = (): Set<StateInternal> | undefined => {
-  const data = recording
-  recording = undefined
-  return data
-}
-
-export const subscribe = (state: CommonInternal | CommonInternal, listner: Listner): UnSubscribe => {
-  /**
-   * Если значение стейта ниразу не расчитывалось, его нужно обновить
-   * Если подписываемся на вычисляемый стэйт, то нужно узнать всех родителей
-   * Родители могут меняться, поэтому после каждого вычисления нужно обновлять зависимости дерева
-   *
-   * При отписке нужно оповестить всех на кого были опдписанты о том что мы отписались
-   *
-   */
-
-  if (state.subscribes.has(listner)) {
-    return () => ({})
-  }
-
-  const computedState = getComputed(state)
-  // Нужно актуализировать в родилеях зависимость
-  if (computedState) {
-    getComputedValue(computedState)
-    state.depends.forEach((parent) => parent.childs.add(state))
-  }
-
-  state.subscribes.add(listner)
-
-  return () => {
-    state.subscribes.delete(listner)
-    if (state.subscribes.size === 0) {
-      state.depends.forEach((parent) => parent.childs.delete(state))
-    }
-  }
-}
-
-const assert = (condtion: boolean, msg: string) => {
-  if (condtion) {
-    throw new Error(msg)
-  }
 }
 
 /**
@@ -298,6 +94,7 @@ export const computed = <
   }
 
   Object.defineProperty(publicApi, 'name', {value: data.name})
+
   publicApi.subscribe = (listner: Listner<T>) => subscribe(data, listner as Listner)
   publicApi._internal = data
 

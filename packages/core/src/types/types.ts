@@ -68,22 +68,6 @@ export type ComputedInternalOptions<T extends StateType> = {
   initial?: T
 }
 
-export type StatlessFunc<T extends StateType> = (v?: T) => T
-
-export type GetStatlessFunc<
-  T extends StateType,
-  S extends StatlessFunc<T>,
-  O extends Nullable<ComputedInternalOptions<T>>,
-> = T extends -1
-  ? O extends undefined
-    ? StatlessFunc<StateType<T>>
-    : S extends () => infer K
-    ? () => K
-    : NonNullable<O>['initial'] extends undefined
-    ? (v: unknown) => unknown
-    : StatlessFunc<StateType<NonNullable<O>['initial']>>
-  : StatlessFunc<StateType<T>>
-
 export type StateVariants = ComputedInternal | StateInternal
 
 export interface Common<T extends StateType> {
@@ -92,10 +76,12 @@ export interface Common<T extends StateType> {
   name: string
   subscribe(listner: Listner<T>): UnSubscribe
 }
-export interface State<T extends StateType> extends Common<T> {
+
+export type State<T extends StateType> = Common<T> & {
   set: (value: T) => void
 }
 export type Computed<T extends StateType> = Common<T>
+
 export interface Action<T extends unknown[]> {
   name: string
   run: (...args: T) => void

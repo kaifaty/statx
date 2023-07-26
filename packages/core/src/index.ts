@@ -1,2 +1,5 @@
-export {state, action, computed, subscribe, startRecord, flushStates} from './core.js'
-export * from './types.js'
+export {state, action, computed} from './core.js'
+export {startRecord, flushStates} from './utils/recording.js'
+export {subscribe} from './utils/subscribe.js'
+export {getHistoryValue} from './utils/utils.js'
+export * from './types/types.js'

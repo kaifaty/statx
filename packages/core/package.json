@@ -40,7 +40,8 @@
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
     "dev": "tsc watch",
-    "test": "tsx src/index.test.ts"
+    "lint": "tsc --noEmit",
+    "test": "uvu -r tsm ./src/tests"
   },
   "browserslist": [
     "last 4 chrome versions"
