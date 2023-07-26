@@ -1,17 +1,10 @@
-import type {ComputedInternalOptions, Nullable, StateType} from './types.js'
+export type StatlessFunc<T> = (v: T) => T
 
-export type StatlessFunc<T extends StateType> = (v: T) => T
+type Res<T, S extends StatlessFunc<T>> = T extends -1 ? ReturnType<S> : T
 
-export type GetStatlessFunc<
-  T extends StateType,
-  S extends StatlessFunc<T>,
-  O extends Nullable<ComputedInternalOptions<T>>,
-> = T extends -1
-  ? O extends undefined
-    ? StatlessFunc<StateType<T>>
-    : S extends () => infer K
-    ? () => K
-    : NonNullable<O>['initial'] extends undefined
-    ? (v: unknown) => unknown
-    : StatlessFunc<StateType<NonNullable<O>['initial']>>
-  : StatlessFunc<StateType<T>>
+export type GetStatlessFunc<T, S extends StatlessFunc<T>> = StatlessFunc<Res<T, S>>
+
+export type ComputedInternalOptions<T, S extends StatlessFunc<T>> = {
+  name?: string
+  initial?: Res<T, S>
+}

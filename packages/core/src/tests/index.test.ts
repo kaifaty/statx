@@ -71,7 +71,7 @@ test('Computation test', async () => {
 
 test('State may be reducer', () => {
   const v = state(0)
-  const reducer = computed(() => v() + 10, {initial: 10})
+  const reducer = computed<number>(() => v() + 10, {initial: 10})
 
   v.set(1)
   v.set(2)

@@ -6,6 +6,7 @@ import {
   GetStatlessFunc,
   Listner,
   Nullable,
+  SetterFunc,
   StateType,
   StatlessFunc,
 } from './types/index.js'
@@ -16,9 +17,9 @@ import {settings} from './utils/settings.js'
 export const computed = <
   T extends StateType = -1,
   S extends StatlessFunc<T> = StatlessFunc<T>,
-  O extends Nullable<ComputedInternalOptions<T>> = Nullable<ComputedInternalOptions<T>>,
+  O extends Nullable<ComputedInternalOptions<T, S>> = Nullable<ComputedInternalOptions<T, S>>,
 >(
-  value: GetStatlessFunc<T, S, O>,
+  value: GetStatlessFunc<T, S>,
   options?: O,
 ): Computed<T> => {
   const data: ComputedInternal = {
@@ -30,7 +31,7 @@ export const computed = <
     initial: options?.initial as ReturnType<typeof value> | undefined,
     isComputing: false,
     name: getName(options?.name),
-    reducer: value,
+    reducer: value as SetterFunc,
     subscribes: new Set(),
   }
 

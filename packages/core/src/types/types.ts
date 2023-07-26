@@ -63,11 +63,6 @@ export type ComputedInternal = CommonInternal & {
 
 export type StateInternal = CommonInternal
 
-export type ComputedInternalOptions<T extends StateType> = {
-  name?: string
-  initial?: T
-}
-
 export type StateVariants = ComputedInternal | StateInternal
 
 export interface Common<T extends StateType> {
