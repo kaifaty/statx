@@ -1,4 +1,4 @@
-import type {State} from './types/index.js'
+import type {State} from '@statx/core'
 
 type CachedData = Map<unknown, unknown>
 
