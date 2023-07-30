@@ -12,7 +12,7 @@ export const createI18n = <const T extends TransStore, L extends Lang>(data: T, 
   }
   const i18n = <K extends keyof T, const V extends PickValues<T, K, L>>(
     key: K,
-    values: V,
+    values: V | undefined = undefined,
   ): I18nResult<T, K, L, V> => {
     const value = data[key]?.[langState()]
 

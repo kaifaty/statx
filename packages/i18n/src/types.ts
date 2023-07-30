@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface ITranslationStorage {
   [key: string]: string | ITranslationStorage
 }
@@ -21,14 +22,6 @@ export type ParseString<T extends string | undefined> = T extends undefined
   ? variable
   : never
 
-type Test = 'test ${key} ${key1} ${key2}'
-type Data = {
-  test: {
-    en: Test
-  }
-}
-type Res = PickValues<Data, 'test', 'en'>
-
 type ReplaceString<
   T extends {[key in string]: string},
   Key extends string,
@@ -42,7 +35,14 @@ export type TransStore = Readonly<{
   [key in string]: Readonly<TranslationUnit>
 }>
 
-export type PickValues<T extends TransStore, K extends keyof T, L extends Lang> = {
+export type PickValues<
+  T extends TransStore,
+  K extends keyof T,
+  L extends Lang,
+  Res = {
+    [key in ParseString<T[K][L]>]: string
+  },
+> = {
   [key in ParseString<T[K][L]>]: string
 }
 
