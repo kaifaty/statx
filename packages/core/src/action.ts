@@ -1,7 +1,7 @@
 import type {Action, ActionOptions} from './types/index.js'
 import {getName} from './utils/get-name.js'
 
-let isActionNow = false
+//let isActionNow = false
 
 /**
  * Action state
@@ -14,9 +14,9 @@ export const action = <T extends unknown[]>(
 ): Action<T> => {
   return {
     run: (...args: T) => {
-      isActionNow = true
+      //isActionNow = true
       value(...args)
-      isActionNow = false
+      //isActionNow = false
       return this
     },
     name: getName(options?.name),

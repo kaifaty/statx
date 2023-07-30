@@ -4,7 +4,7 @@
     "declarationDir": "./build/",
     "rootDir": "./src",
     "baseUrl": ".",
-    "jsx": "react-jsx",
+    "jsx": "react-jsx"
   },
   "exclude": ["node_modules", "build"],
   "extends": "../../tsconfig.json"

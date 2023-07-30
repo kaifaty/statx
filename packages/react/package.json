@@ -47,7 +47,7 @@
   "browserslist": [
     "last 4 chrome versions"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "@statx/core": "^1.2.3",
     "react": "^16.0.0"
   },
@@ -63,7 +63,7 @@
   },
   "gitHead": "5380557359b61c2a26603869a555e10b7e2a0d12",
   "devDependencies": {
-    "@types/react-dom": "^18.2.4",
-    "react-dom": "^18.2.0"
+    "@types/react-dom": "^16.2.0",
+    "react-dom": "^16.2.0"
   }
 }

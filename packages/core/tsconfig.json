@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "declarationDir": "./build/",
-     "outDir": "./build/",
+    "outDir": "./build/",
     "rootDir": "./src",
     "baseUrl": "."
   },
   "exclude": ["node_modules", "build", "demo"],
   "extends": "../../tsconfig.json"
 }
-
