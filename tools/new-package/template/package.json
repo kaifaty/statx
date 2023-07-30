@@ -34,9 +34,8 @@
     "/src"
   ],
   "scripts": {
-    "build": "rimraf ./build/ && npm run build:parcel && npm run build:types",
-    "build:parcel": "parcel build --target=build",
-    "build:types": "tsc",
+    "build": "rimraf ./build/ && npm run build:tsc",
+    "build:tsc": "tsc",
     "demo": "parcel serve --target=demo",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
@@ -47,23 +46,5 @@
   ],
   "dependencies": {
     "@statx/core": "*"
-  },
-  "targets": {
-    "build": {
-      "context": "browser",
-      "distDir": "./build/",
-      "source": "./src/index.ts",
-      "isLibrary": true,
-      "optimize": true,
-      "outputFormat": "esmodule"
-    },
-    "demo": {
-      "context": "browser",
-      "distDir": "./build/demo/",
-      "source": "./src/demo/index.html",
-      "isLibrary": false,
-      "includeNodeModules": true,
-      "scopeHoist": false
-    }
   }
 }

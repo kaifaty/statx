@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
 import {state, computed, action, getHistoryValue} from '../index.js'
-import {State} from '../types/types.js'
 import {cachedState} from '../cached.js'
 
 type Mock = {
@@ -197,7 +197,8 @@ test('karl test', async () => {
   const numbers = Array.from({length: 5}, (_, i) => i)
 
   const fib = (n: number): number => (n < 2 ? 1 : fib(n - 1) + fib(n - 2))
-  const hard = (n: number, l: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const hard = (n: number, _: string) => {
     // console.log(l)
     return n + fib(16)
   }
