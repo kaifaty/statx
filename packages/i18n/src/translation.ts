@@ -28,7 +28,8 @@ export const createI18n = <const T extends TransStore, L extends Lang>(data: T, 
 
   const res = {
     store: () => data,
-    geLang: () => langState(),
+    getLang: () => langState(),
+    langState,
     setLang,
     i18n,
   }
