@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {State} from '@statx/core'
 
 type CachedData = Map<unknown, unknown>
@@ -14,21 +15,21 @@ const getCache = (st: State<any>) => {
   return newCache
 }
 
-export const cachedState = <T>(st: State<T>, func: (currentValue: T, data: T) => T) => {
+export const cachedState = <T, D, R>(st: State<T>, func: (currentValue: T, data: D) => R) => {
   const cache = getCache(st)
   const unsub = st.subscribe(() => {
     cache.clear()
   })
 
   return {
-    call: <K>(data: K) => {
+    call: (data: D): R => {
       const calced = cache.get(data)
 
       if (calced) {
         return calced
       }
 
-      const result = func(st(), data as any)
+      const result = func(st(), data)
       cache.set(data, result)
 
       return result

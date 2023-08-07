@@ -246,7 +246,7 @@ test('from compuited', async () => {
   const st = state(10)
   let calls = 0
 
-  const {call: calcer} = cachedState<number>(st, (currentValue: number, data: number) => {
+  const {call: calcer} = cachedState(st, (currentValue: number, data: number) => {
     calls++
     return currentValue * data
   })
