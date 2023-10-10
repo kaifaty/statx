@@ -242,7 +242,7 @@ test('karl test', async () => {
   await run(15)
 })
 
-test('from compuited', async () => {
+test('from compuited  cache', async () => {
   const st = state(10)
   let calls = 0
 
@@ -250,19 +250,24 @@ test('from compuited', async () => {
     calls++
     return currentValue * data
   })
-  calcer(10)
-  calcer(10)
+
+  assert.is(calcer(10), 100)
+  assert.is(calls, 1)
+  assert.is(calcer(10), 100)
   assert.is(calls, 1)
   st.set(1)
   await 1
-  calcer(10)
-  calcer(10)
+  assert.is(calcer(10), 10)
   assert.is(calls, 2)
-  calcer(11)
-  calcer(12)
+  assert.is(calcer(10), 10)
+  assert.is(calls, 2)
+  assert.is(calcer(11), 11)
+  assert.is(calls, 3)
+  assert.is(calcer(12), 12)
   assert.is(calls, 4)
-  calcer(11)
-  calcer(12)
+  assert.is(calcer(11), 11)
+  assert.is(calls, 4)
+  assert.is(calcer(12), 12)
   assert.is(calls, 4)
 })
 /*
