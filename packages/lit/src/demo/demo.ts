@@ -1,59 +1,45 @@
-import {LitElement, html} from 'lit'
-import {customElement} from 'lit/decorators/custom-element.js'
+import {LitElement, html as coreHtml} from 'lit'
 import {state, computed} from '@statx/core'
-import {statableLit} from '../index.js'
+import {statableLit, watch, html} from '../index.js'
 
 const v1 = state(1, {name: 'timer'})
+const v2 = computed(() => {
+  if (v1() < 10) {
+    return html`<b>just now</b>`
+  }
+  return html`<i>${v1()} sec ago</i>`
+})
 
-const s3 = computed(() => s1() + s2() + v1(), {name: 's3'})
 const s2 = computed(() => s1() - 5, {name: 's2'})
 const s1 = computed(() => v1() * 10, {name: 's1'})
 
-setTimeout(() => {
-  for (let i = 0; i < 1000; i++) {
-    v1.set(i)
-  }
-})
+setInterval(() => {
+  v1.set(v1() + 1)
+}, 500)
 
-s3.subscribe((v) => {
-  console.log('client v3', v, s3())
-})
-
-const st = () => {
-  const data = {
-    test: 123,
-  }
-  const f = function () {
-    console.log('1234', data.test)
-  }
-  f.data = data
-  return f
-}
-
-const array = [] //  state(Array.from({'length': 10}, (_, i) => i * 10), )
-
-const testFunc = st()
-
-testFunc()
-
-@customElement('test-component')
 export class TestComponent extends statableLit(LitElement) {
   protected render(): unknown {
-    return html`Timer = ${v1()}<br />
-      <style>
-        tr,
-        td {
-          contain: content;
-        }
-      </style>
-      <table>
-        ${array.map((item) => {
-          return html`<tr>
-            <td>${item}</td>
-            <td>${item}</td>
-            <td>${item}</td>
-          </tr>`
-        })}
-      </table> `
+    console.log('render 1')
+    return coreHtml`Timer = ${v1()}`
   }
 }
+
+export class TestWatch extends LitElement {
+  protected render(): unknown {
+    console.log('render 2')
+    return coreHtml`Timer = ${watch(v1)} `
+  }
+}
+
+export class TestHtml extends LitElement {
+  s3 = computed(() => html`<i>:: ${v2} ${s1() + s2() + v1()}</i>`, {name: 's3'})
+
+  protected render(): unknown {
+    console.log('render 3')
+    return html`Timer = ${v1} ${this.s3}`
+  }
+}
+
+customElements.define('test-component', TestComponent)
+customElements.define('test-html', TestHtml)
+customElements.define('test-watch', TestWatch)
