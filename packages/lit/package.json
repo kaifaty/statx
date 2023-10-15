@@ -47,7 +47,7 @@
   ],
   "dependencies": {
     "@statx/core": "^1.4.0",
-    "lit": "^2.6.1"
+    "lit": "^3.0.0"
   },
   "targets": {
     "build": {
