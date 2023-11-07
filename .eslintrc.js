@@ -15,7 +15,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-unnecessary-type-constraint': 'off',
-    'linebreak-style': ['error', 'windows'],
+    'linebreak-style': 'off',
     quotes: [
       'warn',
       'single',

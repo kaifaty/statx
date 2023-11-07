@@ -173,9 +173,9 @@ test('Check right dependencies of computed state', () => {
   assert.is(v2._internal.childs.has(c._internal), true)
   assert.is(v3._internal.childs.has(c._internal), true)
 
-  assert.is(c._internal.depends.has(v1._internal), true)
-  assert.is(c._internal.depends.has(v2._internal), true)
-  assert.is(c._internal.depends.has(v3._internal), true)
+  assert.is(c._internal.parents.has(v1._internal), true)
+  assert.is(c._internal.parents.has(v2._internal), true)
+  assert.is(c._internal.parents.has(v3._internal), true)
 })
 
 test('Dont update if value not changed', () => {

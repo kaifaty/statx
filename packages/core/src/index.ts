@@ -1,9 +1,5 @@
 export * from './state.js'
 export * from './types/index.js'
-export {action} from './action.js'
-export {computed} from './computed.js'
-export {getHistoryValue} from './utils/utils.js'
-export {startRecord, flushStates} from './utils/recording.js'
-export {subscribe} from './utils/subscribe.js'
+export {getHistoryValue} from './utils.js'
+
 export * from './cached.js'
-export * from './is-state-type.js'

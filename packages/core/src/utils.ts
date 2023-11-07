@@ -1,4 +1,18 @@
-import type {CommonInternal, Func, StateVariants, ComputedInternal, HistoryInternal} from '../types/types.js'
+import type {CommonInternal, Func, StateVariants, ComputedInternal} from './types/types.js'
+const names = new Set()
+
+const defaultName = 'Unnamed state'
+
+export const getName = (name?: string): string => {
+  if (name && names.has(name)) {
+    console.error(`Name ${name} already used! Replaced to undefined`)
+    return defaultName
+  }
+  if (name) {
+    return name
+  }
+  return defaultName
+}
 
 export const getComputedState = (state: CommonInternal | ComputedInternal): ComputedInternal | undefined => {
   if ('reducer' in state) {
@@ -14,12 +28,6 @@ export const assert = (condtion: boolean, msg: string) => {
   if (condtion) {
     throw new Error(msg)
   }
-}
-
-export const pushHistory = <T extends HistoryInternal>(state: T, value: unknown) => {
-  const cursorHistory = state.historyCursor
-  state.historyCursor = (cursorHistory + 1) % state.history.length
-  state.history[state.historyCursor] = value
 }
 
 export const isFunction = (v: unknown): v is Func => {

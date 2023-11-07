@@ -39,16 +39,16 @@ export type Settings = {
   historyLength: number
 }
 
-type Scheduler = () => void
+export type Scheduler = () => void
 
 export type HistoryInternal = {
   historyCursor: number
   history: unknown[]
 }
 
-export type CommonInternal = HistoryInternal & {
+export interface CommonInternal extends HistoryInternal {
   childs: Set<CommonInternal>
-  depends: Set<CommonInternal>
+  parents: Set<CommonInternal>
   subscribes: Set<Listner>
   name: string
   onUpdate?: Scheduler
