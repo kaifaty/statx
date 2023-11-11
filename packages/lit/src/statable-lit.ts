@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {LitElement, PropertyValueMap} from 'lit'
 import {flushStates, startRecord, subscribe} from '@statx/core'
 import type {CommonInternal, UnSubscribe} from '@statx/core'

@@ -4,7 +4,6 @@ import type {
   CommonInternal,
   Listner,
   Options,
-  Scheduler,
   State,
   StateType,
   UnSubscribe,
@@ -22,27 +21,28 @@ import {
 } from './types/index.js'
 
 class Common implements CommonInternal {
-  static states2notify = new Set<Common>()
+  static states2notify: Record<number, Common> = {}
   static isNotifying = false
   static requesters: Common[] = []
   static recording: Set<Common> | undefined
   static historyLength = 5
+  static nounce = 0
+  id: number
 
-  childs: Set<Common> = new Set()
-  parents: Set<Common> = new Set()
+  childs: Record<number, Common> = Object.create(null)
+  parents: Record<number, Common> = Object.create(null)
   subscribes: Set<Listner> = new Set()
 
   history = Array.from({length: Common.historyLength})
   historyCursor = -1
 
   name: string
-  onUpdate?: Scheduler | undefined
 
   hasParentUpdates: boolean | undefined
 
   constructor(options?: Options) {
-    this.onUpdate = options?.onUpdate
     this.name = getName(options?.name)
+    this.id = Common.nounce++
   }
 
   get peek() {
@@ -51,9 +51,9 @@ class Common implements CommonInternal {
 
   protected _updateDeps() {
     const lastRequester = Common.requesters.at(-1)
-    if (lastRequester && !this.childs.has(lastRequester)) {
-      this.childs.add(lastRequester)
-      lastRequester.parents.add(this)
+    if (lastRequester && !this.childs[lastRequester.id]) {
+      this.childs[lastRequester.id] = lastRequester
+      lastRequester.parents[this.id] = this
     }
   }
 
@@ -71,10 +71,11 @@ class Common implements CommonInternal {
       if (!st) {
         continue
       }
-      st.childs.forEach((it) => stack.push(it))
+
+      Object.values<Common>(st.childs).forEach((it) => stack.push(it))
       st.hasParentUpdates = true
       if (st.subscribes.size) {
-        Common.states2notify.add(st)
+        Common.states2notify[st.id] = st
       }
     }
   }
@@ -87,16 +88,17 @@ class Common implements CommonInternal {
       Common.isNotifying = true
       queueMicrotask(() => {
         // Нужно обновить дерево
-        Common.states2notify.forEach((state) => {
+        Object.values<Common>(Common.states2notify).forEach((state) => {
           try {
             state.subscribes.forEach((listner) => {
               return listner(state.getValue())
             })
           } catch (e) {
             console.error('Error in subscriber function of:', state.name)
+          } finally {
+            delete Common.states2notify[state.id]
           }
         })
-        Common.states2notify.clear()
         Common.isNotifying = false
       })
     }
@@ -121,7 +123,7 @@ class Common implements CommonInternal {
     return () => {
       this.subscribes.delete(listner)
       if (this.subscribes.size === 0) {
-        this.parents.forEach((parent) => parent.childs.delete(this))
+        Object.values<Common>(this.parents).forEach((parent) => delete parent.childs[this.id])
       }
     }
   }
@@ -150,7 +152,7 @@ class StateX extends Common {
   }
 }
 
-class ComputedX extends StateX implements ComputedInternal {
+class ComputedX extends Common implements ComputedInternal {
   initial?: unknown
   isComputing: boolean = false
   reducer: SetterFunc
@@ -164,7 +166,8 @@ class ComputedX extends StateX implements ComputedInternal {
   subscribe(listner: Listner): UnSubscribe {
     // Нужно актуализировать в родилеях зависимость
     this.computeValue()
-    this.parents.forEach((parent) => parent.childs.add(this))
+
+    Object.values<Common>(this.parents).forEach((parent) => (parent.childs[this.id] = this))
     return super.subscribe(listner)
   }
   getValue() {
@@ -185,9 +188,7 @@ class ComputedX extends StateX implements ComputedInternal {
       if (this.isDontNeedRecalc()) {
         const rec = Common.recording
         if (rec) {
-          this.parents.forEach((item) => {
-            rec?.add(item)
-          })
+          Object.values<Common>(this.parents).forEach((item) => rec?.add(item))
         }
         return this.peek
       }
@@ -195,10 +196,11 @@ class ComputedX extends StateX implements ComputedInternal {
       assert(this.isComputing, `Loops dosen't allows. Name: ${state.name ?? 'Unnamed state'}`)
 
       Common.requesters.push(this)
-      this.parents.forEach((item) => {
-        item.childs.delete(this)
+      Object.values<Common>(this.parents).forEach((item) => {
+        delete item.childs[this.id]
+        delete this.parents[item.id]
       })
-      this.parents.clear()
+
       this.isComputing = true
       const value = this.reducer(this.peek ?? this.initial)
       this.isComputing = false
@@ -292,6 +294,5 @@ export const action = <T extends unknown[]>(
       return this
     },
     name: getName(options?.name),
-    onAction: options?.onAction,
   }
 }

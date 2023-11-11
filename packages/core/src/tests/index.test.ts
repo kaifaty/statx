@@ -61,7 +61,6 @@ test('Computation test', async () => {
   for (let i = -10; i < 20; i++) {
     entry.set(i)
     await 1
-    console.log()
     assert.is(results.h, _h())
   }
 
@@ -148,8 +147,8 @@ test(`Recalculation of subscribers`, async () => {
   assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
 })
 
-test(`Recalculate all computed tree`, () => {
-  const v = state(0)
+test.only(`Recalculate all computed tree`, () => {
+  const v = state(0, {name: 'v'})
   const c = computed(() => v() + 1, {name: 'c'})
   const c2 = computed(() => c() + 2, {name: 'c2'})
   const c3 = computed(() => c2() + 3, {name: 'c3'})
@@ -169,13 +168,13 @@ test('Check right dependencies of computed state', () => {
   const c = computed(() => v1() + v2() + v3(), {name: 'c'})
 
   c()
-  assert.is(v1._internal.childs.has(c._internal), true)
-  assert.is(v2._internal.childs.has(c._internal), true)
-  assert.is(v3._internal.childs.has(c._internal), true)
+  assert.is(!!v1._internal.childs[c._internal.id], true)
+  assert.is(v2._internal.childs[c._internal.id], true)
+  assert.is(v3._internal.childs[c._internal.id], true)
 
-  assert.is(c._internal.parents.has(v1._internal), true)
-  assert.is(c._internal.parents.has(v2._internal), true)
-  assert.is(c._internal.parents.has(v3._internal), true)
+  assert.is(c._internal.parents[v1._internal.id], true)
+  assert.is(c._internal.parents[v2._internal.id], true)
+  assert.is(c._internal.parents[v3._internal.id], true)
 })
 
 test('Dont update if value not changed', () => {

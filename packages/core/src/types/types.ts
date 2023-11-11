@@ -39,19 +39,17 @@ export type Settings = {
   historyLength: number
 }
 
-export type Scheduler = () => void
-
 export type HistoryInternal = {
   historyCursor: number
   history: unknown[]
 }
 
 export interface CommonInternal extends HistoryInternal {
-  childs: Set<CommonInternal>
-  parents: Set<CommonInternal>
+  id: number
+  childs: Record<number, CommonInternal>
+  parents: Record<number, CommonInternal>
   subscribes: Set<Listner>
   name: string
-  onUpdate?: Scheduler
   hasParentUpdates: boolean | undefined
 }
 
@@ -80,15 +78,12 @@ export type Computed<T extends StateType> = Common<T>
 export interface Action<T extends unknown[]> {
   name: string
   run: (...args: T) => void
-  onAction?: Scheduler
 }
 
 export type ActionOptions = {
   name?: string
-  onAction?: Scheduler
 }
 
 export type Options = {
   name?: string
-  onUpdate?: Scheduler
 }
