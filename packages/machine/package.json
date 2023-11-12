@@ -1,6 +1,6 @@
 {
   "name": "@statx/machine",
-  "version": "1.0.0",
+  "version": "1.6.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -48,6 +48,6 @@
     "xstate": "^4.38.3"
   },
   "dependencies": {
-    "@statx/core": "*"
+    "@statx/core": "^1.6.0"
   }
 }
