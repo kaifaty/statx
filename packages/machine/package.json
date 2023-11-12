@@ -1,6 +1,6 @@
 {
-  "name": "@statx/react",
-  "version": "1.3.0",
+  "name": "@statx/machine",
+  "version": "1.0.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -16,21 +16,17 @@
     "observer",
     "observable"
   ],
-  "homepage": "https://github.com/kaifaty/statx/packages/react",
+  "homepage": "https://github.com/kaifaty/statx/packages/machine",
   "bugs": {
     "url": "https://github.com/kaifaty/statx/issues"
   },
   "license": "MIT",
   "author": "kaifaty",
   "sideEffects": false,
-  "exports": {
-    "types": "./build/index.d.ts",
-    "default": "./build/index.js"
-  },
   "type": "module",
-  "types": "./build/index.d.ts",
-  "module": "./build/index.js",
+  "main": "build/index.js",
   "source": "./src/index.ts",
+  "types": "build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
@@ -40,32 +36,18 @@
   "scripts": {
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
-    "demo": "parcel serve",
+    "demo": "parcel serve --target=demo",
+    "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },
   "browserslist": [
     "last 4 chrome versions"
   ],
+  "peerDependencies": {
+    "xstate": "^4.38.3"
+  },
   "dependencies": {
     "@statx/core": "*"
-  },
-  "peerDependencies": {
-    "react": "^16.0.0"
-  },
-  "targets": {
-    "build": {
-      "context": "browser",
-      "distDir": "./build/demo",
-      "source": "./src/demo/index.html",
-      "isLibrary": false,
-      "optimize": false,
-      "outputFormat": "esmodule"
-    }
-  },
-  "gitHead": "403372070134d59c790215a48ff76dc5a3d5cc17",
-  "devDependencies": {
-    "@types/react-dom": "^16.0.0",
-    "react-dom": "^16.0.0"
   }
 }

@@ -11,7 +11,7 @@ export const useStatx = <T extends StateType>(state: Common<T>): T => {
   return inner
 }
 
-export const useStatxComp = <T extends StateType>(
+export const useSXComponent = <T extends StateType>(
   state: Common<T>,
   f?: (value: T) => ReactNode,
 ): ReactElement => {
