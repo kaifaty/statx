@@ -12,7 +12,7 @@
     "allowUnreachableCode": true,
     "declaration": true,
     "esModuleInterop": true,
-    "module": "ESNext",
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "noLib": false,
     "removeComments": false,

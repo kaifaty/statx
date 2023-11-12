@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {LitElement, PropertyValueMap} from 'lit'
-import {flushStates, startRecord, subscribe} from '@statx/core'
+import {flushStates, startRecord} from '@statx/core'
 import type {CommonInternal, UnSubscribe} from '@statx/core'
 
 type Constructor<T> = new (...args: any[]) => T
@@ -36,7 +36,7 @@ export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T
       this._prevSnapshot = data
       this._unsubAll()
       data?.forEach((state) => {
-        this._subs.push(subscribe(state, this._updater))
+        this._subs.push(state.subscribe(this._updater))
       })
     }
     willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

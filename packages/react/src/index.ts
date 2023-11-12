@@ -1,7 +1,7 @@
 import {Fragment, useMemo, createElement, ReactElement, ReactNode, useEffect, useState} from 'react'
-import type {Common, StateType} from '@statx/core'
+import type {PublicState, StateType} from '@statx/core'
 
-export const useStatx = <T extends StateType>(state: Common<T>): T => {
+export const useStatx = <T extends StateType>(state: PublicState<T>): T => {
   const [inner, setInner] = useState<T>(state())
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export const useStatx = <T extends StateType>(state: Common<T>): T => {
 }
 
 export const useSXComponent = <T extends StateType>(
-  state: Common<T>,
+  state: PublicState<T>,
   f?: (value: T) => ReactNode,
 ): ReactElement => {
   return useMemo(() => {

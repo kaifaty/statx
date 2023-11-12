@@ -63,12 +63,14 @@ export type StateInternal = CommonInternal
 
 export type StateVariants = ComputedInternal | StateInternal
 
-export interface Common<T extends StateType> {
+interface Common<T extends StateType> {
   (): T
   _internal: CommonInternal
   name: string
   subscribe(listner: Listner<T>): UnSubscribe
 }
+
+export interface PublicState<T> extends Common<T> {}
 
 export type State<T extends StateType> = Common<T> & {
   set: (value: T) => void

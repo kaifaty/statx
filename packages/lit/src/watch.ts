@@ -4,10 +4,8 @@ import type {UnSubscribe} from '@statx/core'
 import type {Common} from '@statx/core'
 import {noChange} from 'lit'
 
-type LitState = Common<unknown>
-
 class ResolvePromise extends AsyncDirective {
-  stateElement: LitState | undefined
+  stateElement: Common | undefined
   unsub: UnSubscribe | undefined
   reconnected() {
     this.subscribe()
@@ -21,7 +19,7 @@ class ResolvePromise extends AsyncDirective {
     })
   }
 
-  render(stateElement: LitState) {
+  render(stateElement: Common) {
     if (this.stateElement !== stateElement) {
       this.unsub?.()
       this.stateElement = stateElement

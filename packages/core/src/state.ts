@@ -20,7 +20,7 @@ import {
   StatlessFunc,
 } from './types/index.js'
 
-class Common implements CommonInternal {
+export class Common implements CommonInternal {
   static states2notify: Record<number, Common> = {}
   static isNotifying = false
   static requesters: Common[] = []
@@ -295,4 +295,8 @@ export const action = <T extends unknown[]>(
     },
     name: getName(options?.name),
   }
+}
+
+export const isStateType = (v: unknown): v is Common => {
+  return typeof v === 'function' && '_internal' in v && v._internal instanceof Common
 }

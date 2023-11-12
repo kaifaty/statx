@@ -1,4 +1,4 @@
-import {subscribe, flushStates, startRecord, CommonInternal} from '@statx/core'
+import {flushStates, startRecord, Common} from '@statx/core'
 
 const DEFAULT_OPTIONS: Options = {
   interval: 0,
@@ -66,10 +66,10 @@ export const suspenseState = <T extends unknown = unknown>(
     },
   }
 
-  const subscribe2States = (states: Set<CommonInternal> | undefined) => {
+  const subscribe2States = (states: Set<Common> | undefined) => {
     queueMicrotask(() => {
       states?.forEach((state) => {
-        statesUnsubs.add(subscribe(state, stateListener))
+        statesUnsubs.add(state.subscribe(stateListener))
       })
     })
   }
