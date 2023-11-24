@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type Func = (...args: any[]) => any
+export type AnyFunc = (...args: any[]) => any
 type Promises<T> = (value: PromiseLike<T>) => void
 
-export const throttle = <F extends Func>(
+export const throttle = <F extends AnyFunc>(
   f: F,
   time: number,
 ): ((...args: Parameters<F>) => Promise<ReturnType<F>>) => {

@@ -1,6 +1,6 @@
 {
-  "name": "@statx/machine",
-  "version": "1.6.1",
+  "name": "@statx/element",
+  "version": "1.0.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -16,7 +16,7 @@
     "observer",
     "observable"
   ],
-  "homepage": "https://github.com/kaifaty/statx/packages/machine",
+  "homepage": "https://github.com/kaifaty/statx/packages/element",
   "bugs": {
     "url": "https://github.com/kaifaty/statx/issues"
   },
@@ -24,7 +24,9 @@
   "author": "kaifaty",
   "sideEffects": false,
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "build/index.js",
+  "source": "./src/index.ts",
+  "types": "build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
@@ -34,7 +36,7 @@
   "scripts": {
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
-    "demo": "parcel serve ",
+    "demo": "parcel serve --target=demo",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
@@ -42,11 +44,8 @@
   "browserslist": [
     "last 4 chrome versions"
   ],
-  "peerDependencies": {
-    "@xstate/fsm": "^3.0.0-beta.3"
-  },
   "dependencies": {
-    "@statx/core": "^1.6.0"
-  },
-  "gitHead": "77cb350daac7ac1f6210b7c3d44c231a2f8d2b8f"
+    "@statx/core": "*",
+    "@statx/machine": "*"
+  }
 }
