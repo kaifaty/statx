@@ -44,15 +44,15 @@ type AsycStateOptions<TResponse> = {
 
 type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
 
-export type TAsyncState<T> = State<T | undefined> & {
+export type AsyncState<T> = State<T | undefined> & {
   start(): void
   stop(): void
   isLoading: State<boolean>
   error: State<Error | undefined>
 }
 
-class AsyncState<TResponse> {
-  state: TAsyncState<TResponse>
+class _AsyncState<TResponse> {
+  state: AsyncState<TResponse>
   private strategy: Strategy
   private isStarted = false
   private frameId = 0
@@ -81,7 +81,7 @@ class AsyncState<TResponse> {
       this.start()
     }
   }
-  private initState<TResponse>(options?: AsycStateOptions<TResponse>): TAsyncState<TResponse> {
+  private initState<TResponse>(options?: AsycStateOptions<TResponse>): AsyncState<TResponse> {
     const data = state<TResponse | undefined>(options?.initial, {name: options?.name})
     Object.defineProperty(data, 'isLoading', {
       writable: false,
@@ -103,7 +103,7 @@ class AsyncState<TResponse> {
       configurable: false,
       value: () => this.stop(),
     })
-    return data as TAsyncState<TResponse>
+    return data as AsyncState<TResponse>
   }
 
   private get isMaxWait() {
@@ -176,6 +176,6 @@ export function asyncState<TResponse>(
   deps: (State<any> | Computed<any>)[],
   options?: AsycStateOptions<TResponse>,
 ) {
-  const asyncState = new AsyncState(fn, deps, options)
+  const asyncState = new _AsyncState(fn, deps, options)
   return asyncState.state
 }
