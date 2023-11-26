@@ -275,22 +275,22 @@ test('asyncState check state change', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start} = asyncState(async () => {
+  const res = asyncState(async () => {
     await delay(100)
     return dep1() + dep2()
   }, [dep1, dep2])
 
-  start()
-  assert.is(result().data, undefined)
+  res.start()
+  assert.is(res(), undefined)
   await delay(200)
-  assert.is(result().data, 3)
+  assert.is(res(), 3)
 })
 
 test('asyncState check initial state change', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start} = asyncState(
+  const res = asyncState(
     async () => {
       await delay(100)
       return dep1() + dep2()
@@ -299,17 +299,17 @@ test('asyncState check initial state change', async () => {
     {initial: 0},
   )
 
-  start()
-  assert.is(result().data, 0)
+  res.start()
+  assert.is(res(), 0)
   await delay(200)
-  assert.is(result().data, 3)
+  assert.is(res(), 3)
 })
 
 test('asyncState check state observe deps', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start} = asyncState(
+  const res = asyncState(
     async () => {
       await delay(100)
       return dep1() + dep2()
@@ -318,20 +318,20 @@ test('asyncState check state observe deps', async () => {
     {initial: 0},
   )
 
-  start()
-  assert.is(result().data, 0)
+  res.start()
+  assert.is(res(), 0)
   await delay(200)
-  assert.is(result().data, 3)
+  assert.is(res(), 3)
   dep2.set(20)
   await delay(200)
-  assert.is(result().data, 21)
+  assert.is(res(), 21)
 })
 
 test('asyncState check state observe can stop', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start, stop} = asyncState(
+  const res = asyncState(
     async () => {
       await delay(100)
       return dep1() + dep2()
@@ -340,24 +340,24 @@ test('asyncState check state observe can stop', async () => {
     {initial: 0},
   )
 
-  start()
-  assert.is(result().data, 0)
+  res.start()
+  assert.is(res(), 0)
   await delay(200)
-  assert.is(result().data, 3)
+  assert.is(res(), 3)
   dep2.set(20)
   await delay(200)
-  assert.is(result().data, 21)
-  stop()
+  assert.is(res(), 21)
+  res.stop()
   dep2.set(0)
   await delay(200)
-  assert.is(result().data, 21)
+  assert.is(res(), 21)
 })
 
-test('asyncState check last-win strategy', async () => {
+test.only('asyncState check last-win strategy', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start} = asyncState(
+  const res = asyncState(
     async () => {
       await delay(100)
       return dep1() + dep2()
@@ -366,25 +366,25 @@ test('asyncState check last-win strategy', async () => {
     {initial: 0},
   )
 
-  start()
+  res.start()
   dep2.set(1)
   await delay(50)
-  assert.is(result().data, 0)
+  assert.is(res(), 0)
   dep2.set(3)
   await delay(50)
-  assert.is(result().data, 0)
+  assert.is(res(), 0)
   dep2.set(4)
   await delay(50)
-  assert.is(result().data, 0)
+  assert.is(res(), 0)
   await delay(55)
-  assert.is(result().data, 5)
+  assert.is(res(), 5)
 })
 
 test('asyncState is maxWait works with last-win', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
-  const {result, start} = asyncState(
+  const res = asyncState(
     async () => {
       await delay(100)
       return dep1() + dep2()
@@ -393,16 +393,16 @@ test('asyncState is maxWait works with last-win', async () => {
     {initial: 0, stratagy: 'last-win', maxWait: 120},
   )
 
-  start()
+  res.start()
   dep2.set(1)
   await delay(50)
-  assert.is(result().data, 0)
+  assert.is(res(), 0)
   dep2.set(3)
   await delay(50)
-  assert.is(result().data, 0)
+  assert.is(res(), 0)
   dep2.set(4)
   await delay(50)
-  assert.is(result().data, 5)
+  assert.is(res(), 5)
 })
 
 /*

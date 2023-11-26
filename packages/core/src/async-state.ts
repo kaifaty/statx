@@ -3,12 +3,6 @@ import type {Computed, State, AnyFunc} from './types'
 import {state} from './state'
 import {cancelFrame, startFrame} from './utils.js'
 
-type AsycState<T> = {
-  data: T | undefined
-  loading: boolean
-  error: Error | undefined
-}
-
 type Strategy = 'last-win' | 'fist-win' | 'first&last-win'
 
 type AsycStateOptions<TResponse> = {
@@ -18,41 +12,67 @@ type AsycStateOptions<TResponse> = {
   initial?: TResponse
 
   /**
-   * last-win (default) - Classic debounce: cancel previouse request if new one comes in.
+   * Default: last-win
+   *
+   * last-win - Classic debounce: cancel previouse request if new one comes in.
    * first-win - Skip new requests if already requseting
    * first-last - Awaits request complete, after that call's again if was deps changes.
    */
   stratagy?: Strategy
+
+  /**
+   * Default: 0. Zero meens unlimit wait
+   */
   maxWait?: number
+  /**
+   * Default false. Auto start watching on props.
+   */
   autoStart?: boolean
+
+  /**
+   * Default true. Execute async function on start
+   */
+  execOnStart?: boolean
+
+  /**
+   * Default false. Set state to undefined on error
+   */
+  undefinedOnError?: boolean
+
+  name?: string
 }
+
 type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
 
-export class AsyncState<TResponse> {
-  result: State<AsycState<TResponse>>
-  initial: TResponse | undefined
-  strategy: Strategy
-  isStarted = false
-  frameId = 0
-  controller: AbortController | undefined
-  maxWait = 0
-  timeRequestStart = 0
+type TAsyncState<T> = State<T | undefined> & {
+  start(): void
+  stop(): void
+  isLoading: State<boolean>
+  error: State<Error | undefined>
+}
 
-  unSubs: AnyFunc[] = []
-  fn: RequestFn<TResponse>
+class AsyncState<TResponse> {
+  state: TAsyncState<TResponse>
+  private strategy: Strategy
+  private isStarted = false
+  private frameId = 0
+  private controller: AbortController | undefined
+  private maxWait = 0
+  private timeRequestStart = 0
+
+  private options?: AsycStateOptions<TResponse>
+  private unSubs: AnyFunc[] = []
+  private fn: RequestFn<TResponse>
 
   constructor(
     fn: (controller: AbortController) => Promise<TResponse>,
     deps: (State<any> | Computed<any>)[],
     options?: AsycStateOptions<TResponse>,
   ) {
+    this.options = options
+    this.state = this.initState(options)
     this.fn = fn
-    this.initial = options?.initial
-    this.result = state<AsycState<TResponse>>({
-      data: options?.initial,
-      loading: false,
-      error: undefined,
-    })
+
     this.strategy = options?.stratagy ?? 'last-win'
     this.unSubs = deps.map((dep) => dep.subscribe(() => this.onDepsChange()))
     this.maxWait = options?.maxWait ?? 0
@@ -61,8 +81,34 @@ export class AsyncState<TResponse> {
       this.start()
     }
   }
-  get isMaxWait() {
+  private initState<TResponse>(options?: AsycStateOptions<TResponse>): TAsyncState<TResponse> {
+    const data = state<TResponse | undefined>(options?.initial, {name: options?.name})
+    Object.defineProperty(data, 'isLoading', {
+      writable: false,
+      configurable: false,
+      value: state(false),
+    })
+    Object.defineProperty(data, 'error', {
+      writable: false,
+      configurable: false,
+      value: state(undefined),
+    })
+    Object.defineProperty(data, 'start', {
+      writable: false,
+      configurable: false,
+      value: () => this.start(),
+    })
+    Object.defineProperty(data, 'stop', {
+      writable: false,
+      configurable: false,
+      value: () => this.stop(),
+    })
+    return data as TAsyncState<TResponse>
+  }
+
+  private get isMaxWait() {
     if (this.maxWait) {
+      console.log(Date.now() - this.timeRequestStart)
       return Date.now() - this.timeRequestStart > this.maxWait
     }
     return false
@@ -76,49 +122,50 @@ export class AsyncState<TResponse> {
       this.timeRequestStart = Date.now()
     }
 
-    if (this.strategy === 'last-win' && !this.isMaxWait) {
+    if (this.strategy === 'last-win' && !this.isMaxWait && this.state.isLoading()) {
       this.controller?.abort('[NEW_CALL]: last-win strategy')
     }
+
     cancelFrame(this.frameId)
 
     this.frameId = startFrame(async () => {
-      this.controller = new AbortController()
-      const prevState = this.result()
+      const controller = new AbortController()
+      this.controller = controller
+      const prevState = this.state()
 
-      this.controller.signal.onabort = () => {
-        this.result.set(prevState)
+      controller.signal.onabort = () => {
+        this.timeRequestStart = Date.now()
+        this.state.set(prevState)
       }
-      try {
-        this.result.set({
-          ...prevState,
-          loading: true,
-        })
 
-        const response = await this.fn(this.controller)
-        if (!this.controller.signal.aborted) {
+      try {
+        this.state.isLoading.set(true)
+
+        const response = await this.fn(controller)
+
+        if (!controller.signal.aborted) {
           this.timeRequestStart = 0
-          this.result.set({
-            data: response,
-            error: undefined,
-            loading: false,
-          })
+          this.state.set(response)
+          this.state.error.set(undefined)
         }
       } catch (e) {
-        if (!this.controller.signal.aborted) {
-          this.result.set({
-            error: e as Error,
-            data: undefined,
-            loading: false,
-          })
+        if (controller.signal.aborted) {
+          this.state.error.set(e as Error)
+
+          if (this.options?.undefinedOnError) {
+            this.state.set(undefined)
+          }
         }
+      } finally {
+        this.state.isLoading.set(false)
       }
     })
   }
-  start() {
+  private start() {
     this.isStarted = true
     this.onDepsChange()
   }
-  stop() {
+  private stop() {
     this.isStarted = false
     this.unSubs.forEach((unSub) => unSub())
   }
@@ -129,11 +176,6 @@ export function asyncState<TResponse>(
   deps: (State<any> | Computed<any>)[],
   options?: AsycStateOptions<TResponse>,
 ) {
-  const res = new AsyncState(fn, deps, options)
-
-  return {
-    start: () => res.start(),
-    stop: () => res.stop(),
-    result: res.result,
-  }
+  const asyncState = new AsyncState(fn, deps, options)
+  return asyncState.state
 }
