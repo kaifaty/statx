@@ -33,13 +33,13 @@ export class CachedState<T, D, R> {
     })
   }
 
-  destroy() {
+  destroy = () => {
     this.cache.clear()
     this.unsub()
     CachedState.allCache.delete(this.st)
   }
 
-  call(data: D): R {
+  call = (data: D): R => {
     const calced = this.cache.get(data)
 
     if (calced) {

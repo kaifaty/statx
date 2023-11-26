@@ -33,3 +33,6 @@ export const assert = (condtion: boolean, msg: string) => {
 export const isFunction = (v: unknown): v is Func => {
   return typeof v === 'function'
 }
+
+export const cancelFrame = globalThis.cancelAnimationFrame ?? clearTimeout
+export const startFrame = globalThis.requestAnimationFrame ?? setTimeout

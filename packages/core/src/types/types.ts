@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type AnyFunc = (...args: any[]) => any
 export type Func = (...args: unknown[]) => unknown
 export type SetterFunc = (value: unknown) => unknown
 

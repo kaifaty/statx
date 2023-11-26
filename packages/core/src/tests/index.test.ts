@@ -2,9 +2,10 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {state, computed, action, getHistoryValue} from '../index.js'
+import {state, computed, asyncState, action, getHistoryValue} from '../index.js'
 import {cachedState} from '../cached.js'
 
+const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 type Mock = {
   (): void
   calls: number
@@ -147,7 +148,7 @@ test(`Recalculation of subscribers`, async () => {
   assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
 })
 
-test.only(`Recalculate all computed tree`, () => {
+test(`Recalculate all computed tree`, () => {
   const v = state(0, {name: 'v'})
   const c = computed(() => v() + 1, {name: 'c'})
   const c2 = computed(() => c() + 2, {name: 'c2'})
@@ -169,12 +170,12 @@ test('Check right dependencies of computed state', () => {
 
   c()
   assert.is(!!v1._internal.childs[c._internal.id], true)
-  assert.is(v2._internal.childs[c._internal.id], true)
-  assert.is(v3._internal.childs[c._internal.id], true)
+  assert.is(!!v2._internal.childs[c._internal.id], true)
+  assert.is(!!v3._internal.childs[c._internal.id], true)
 
-  assert.is(c._internal.parents[v1._internal.id], true)
-  assert.is(c._internal.parents[v2._internal.id], true)
-  assert.is(c._internal.parents[v3._internal.id], true)
+  assert.is(!!c._internal.parents[v1._internal.id], true)
+  assert.is(!!c._internal.parents[v2._internal.id], true)
+  assert.is(!!c._internal.parents[v3._internal.id], true)
 })
 
 test('Dont update if value not changed', () => {
@@ -269,6 +270,141 @@ test('from compuited  cache', async () => {
   assert.is(calcer(12), 12)
   assert.is(calls, 4)
 })
+
+test('asyncState check state change', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start} = asyncState(async () => {
+    await delay(100)
+    return dep1() + dep2()
+  }, [dep1, dep2])
+
+  start()
+  assert.is(result().data, undefined)
+  await delay(200)
+  assert.is(result().data, 3)
+})
+
+test('asyncState check initial state change', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start} = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0},
+  )
+
+  start()
+  assert.is(result().data, 0)
+  await delay(200)
+  assert.is(result().data, 3)
+})
+
+test('asyncState check state observe deps', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start} = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0},
+  )
+
+  start()
+  assert.is(result().data, 0)
+  await delay(200)
+  assert.is(result().data, 3)
+  dep2.set(20)
+  await delay(200)
+  assert.is(result().data, 21)
+})
+
+test('asyncState check state observe can stop', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start, stop} = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0},
+  )
+
+  start()
+  assert.is(result().data, 0)
+  await delay(200)
+  assert.is(result().data, 3)
+  dep2.set(20)
+  await delay(200)
+  assert.is(result().data, 21)
+  stop()
+  dep2.set(0)
+  await delay(200)
+  assert.is(result().data, 21)
+})
+
+test('asyncState check last-win strategy', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start} = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0},
+  )
+
+  start()
+  dep2.set(1)
+  await delay(50)
+  assert.is(result().data, 0)
+  dep2.set(3)
+  await delay(50)
+  assert.is(result().data, 0)
+  dep2.set(4)
+  await delay(50)
+  assert.is(result().data, 0)
+  await delay(55)
+  assert.is(result().data, 5)
+})
+
+test('asyncState is maxWait works with last-win', async () => {
+  const dep1 = state(1)
+  const dep2 = state(2)
+
+  const {result, start} = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0, stratagy: 'last-win', maxWait: 120},
+  )
+
+  start()
+  dep2.set(1)
+  await delay(50)
+  assert.is(result().data, 0)
+  dep2.set(3)
+  await delay(50)
+  assert.is(result().data, 0)
+  dep2.set(4)
+  await delay(50)
+  assert.is(result().data, 5)
+})
+
 /*
 const seconds = state(0, 'name12')
 const time = state(v => v + 1, 'name12', seconds.get())
