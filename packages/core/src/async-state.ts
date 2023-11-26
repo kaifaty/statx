@@ -44,7 +44,7 @@ type AsycStateOptions<TResponse> = {
 
 type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
 
-type TAsyncState<T> = State<T | undefined> & {
+export type TAsyncState<T> = State<T | undefined> & {
   start(): void
   stop(): void
   isLoading: State<boolean>
