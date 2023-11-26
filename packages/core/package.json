@@ -1,6 +1,6 @@
 {
   "name": "@statx/core",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "private": false,
   "description": "Extry tiny smart state manager",
   "keywords": [
