@@ -24,6 +24,7 @@ type AsycStateOptions<TResponse> = {
    */
   stratagy?: Strategy
   maxWait?: number
+  autoStart?: boolean
 }
 type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
 
@@ -55,6 +56,10 @@ export class AsyncState<TResponse> {
     this.strategy = options?.stratagy ?? 'last-win'
     this.unSubs = deps.map((dep) => dep.subscribe(() => this.onDepsChange()))
     this.maxWait = options?.maxWait ?? 0
+
+    if (options?.autoStart) {
+      this.start()
+    }
   }
   get isMaxWait() {
     if (this.maxWait) {
