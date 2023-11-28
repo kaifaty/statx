@@ -1,6 +1,6 @@
 {
   "name": "@statx/machine",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
