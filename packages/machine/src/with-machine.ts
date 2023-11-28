@@ -1,18 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {StateMachine, ServiceFrom} from '@xstate/fsm'
 import {interpret} from '@xstate/fsm'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Constructor<T> = new (...args: any[]) => T
 
 type WithRequsetUpdate = {
   requestUpdate(): void
 }
 
+type EventsC = {
+  type: 'xstate.init' | string
+  [key: string]: any
+}
+type UnSubscribe = () => void
+
 export interface IMachinable {
   initMachenes<T extends StateMachine.AnyMachine>(machine: T): ServiceFrom<T>
 }
-
-type UnSubscribe = () => void
 
 const subscribes_ = Symbol()
 const interpres_ = Symbol()
@@ -45,6 +49,16 @@ export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdat
       super.disconnectedCallback?.()
       this[interpres_].forEach((item) => item.stop())
       this[subscribes_].forEach((item) => item())
+    }
+  }
+}
+
+export const action = <Ctx, Event extends EventsC>(
+  fn: (ctx: Ctx, event: Event extends {type: 'xstate.init'} ? never : Event) => void,
+) => {
+  return (ctx: Ctx, event: Event) => {
+    if (event.type !== 'xstate.init') {
+      fn(ctx, event as any)
     }
   }
 }

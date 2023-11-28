@@ -24,7 +24,9 @@
   "author": "kaifaty",
   "sideEffects": false,
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./build/index.js",
+  "source": "./src/index.ts",
+  "types": "build/index.d.ts",
   "files": [
     "/build",
     "/package.json",
