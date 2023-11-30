@@ -13,13 +13,13 @@
     "declaration": true,
     "esModuleInterop": true,
     "module": "ES2022",
+    "target": "ES2022",
     "moduleResolution": "Bundler",
     "noLib": false,
     "removeComments": false,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "ESNext",
     "moduleDetection": "force"
   },
   "exclude": ["node_modules", "build", "dist"]

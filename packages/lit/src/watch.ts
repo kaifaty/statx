@@ -1,30 +1,43 @@
 import {AsyncDirective, directive} from 'lit/async-directive.js'
 import type {UnSubscribe} from '@statx/core'
 
-import type {Common} from '@statx/core'
+import type {PublicState} from '@statx/core'
 import {noChange} from 'lit'
 
 class ResolvePromise extends AsyncDirective {
-  stateElement: Common | undefined
-  unsub: UnSubscribe | undefined
+  private stateElement: PublicState<unknown> | undefined
+  private unsub: UnSubscribe | undefined
   reconnected() {
-    this.subscribe()
+    if (this.stateElement) {
+      this.setValue(this.stateElement())
+      this.subscribe()
+    }
   }
   disconnected() {
+    cancelAnimationFrame(this.req)
     this.unsub?.()
   }
-  subscribe() {
+  private req = 0
+  private requestUpdate(value: unknown) {
+    cancelAnimationFrame(this.req)
+    this.req = requestAnimationFrame(() => {
+      this.setValue(value)
+    })
+  }
+  private subscribe() {
     this.unsub = this.stateElement?.subscribe((v: unknown) => {
-      this.setValue(v)
+      this.requestUpdate(v)
     })
   }
 
-  render(stateElement: Common) {
+  render(stateElement: PublicState<unknown>) {
     if (this.stateElement !== stateElement) {
       this.unsub?.()
+      cancelAnimationFrame(this.req)
       this.stateElement = stateElement
       if (this.isConnected) {
         this.subscribe()
+        this.setValue(stateElement())
       }
     }
 

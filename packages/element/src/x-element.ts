@@ -1,5 +1,3 @@
-import {withMachine} from '@statx/machine'
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {render} from 'lit/html.js'
 import {adoptToElement, type WCStyleSheet} from './styles'
@@ -18,6 +16,12 @@ export abstract class IXElement extends HTMLElement {
   static properties: Properties
 }
 
+//@ts-ignore
+if (!Symbol.metadata) {
+  //@ts-ignore
+  Symbol.metadata = Symbol()
+}
+
 const req = Symbol()
 const renderTo = Symbol()
 
@@ -25,6 +29,7 @@ class BaseElement extends IXElement {
   static styles: WCStyleSheet
   static properties = {}
   static get observedAttributes() {
+    //@ts-ignore
     return attributes.get((this as any)[Symbol.metadata]) ?? []
   }
   [req] = 0;
@@ -77,4 +82,4 @@ class BaseElement extends IXElement {
   }
 }
 
-export class XElement extends withMachine(BaseElement) {}
+export class ElementX extends BaseElement {}

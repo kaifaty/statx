@@ -4,6 +4,7 @@ import type {
   CommonInternal,
   Listner,
   Options,
+  PublicState,
   State,
   StateType,
   UnSubscribe,
@@ -86,7 +87,7 @@ export class Common implements CommonInternal {
   protected _notifySubscribers() {
     if (Common.isNotifying === false) {
       Common.isNotifying = true
-      queueMicrotask(() => {
+      Promise.resolve(() => {
         // Нужно обновить дерево
         Object.values<Common>(Common.states2notify).forEach((state) => {
           try {
@@ -297,6 +298,6 @@ export const action = <T extends unknown[]>(
   }
 }
 
-export const isStateType = (v: unknown): v is Common => {
+export const isStateType = (v: unknown): v is PublicState<any> => {
   return typeof v === 'function' && '_internal' in v && v._internal instanceof Common
 }

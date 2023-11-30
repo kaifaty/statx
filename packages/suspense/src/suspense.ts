@@ -67,7 +67,7 @@ export const suspenseState = <T extends unknown = unknown>(
   }
 
   const subscribe2States = (states: Set<Common> | undefined) => {
-    queueMicrotask(() => {
+    Promise.resolve(() => {
       states?.forEach((state) => {
         statesUnsubs.add(state.subscribe(stateListener))
       })
@@ -84,7 +84,7 @@ export const suspenseState = <T extends unknown = unknown>(
       return
     }
     isRequsted = true
-    queueMicrotask(() => {
+    Promise.resolve(() => {
       makeRequest()
       isRequsted = false
     })

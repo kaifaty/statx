@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {XElement, addProperty} from '../x-element'
+import {ElementX, addProperty} from '../x-element'
 import type {Properties, PropertyData} from '../types'
-
-if (!Symbol.metadata) {
-  //@ts-ignore
-  Symbol.metadata = Symbol()
-}
 
 export const property = (params: PropertyData) => (value: any, ctx: ClassAccessorDecoratorContext) => {
   const {addInitializer, kind, name} = ctx
@@ -17,7 +12,7 @@ export const property = (params: PropertyData) => (value: any, ctx: ClassAccesso
   }
   addProperty(ctx)
   addInitializer(function () {
-    const classInstance = this as XElement
+    const classInstance = this as ElementX
     const properties: Properties = (classInstance.constructor as any).properties
 
     properties[name] = params
@@ -35,7 +30,7 @@ export const property = (params: PropertyData) => (value: any, ctx: ClassAccesso
     set(val: any) {
       console.log(`setting ${name} to ${val}`)
 
-      const classInstance = this as any as XElement
+      const classInstance = this as any as ElementX
 
       if (params.reflect) {
         if (params.type === Boolean) {

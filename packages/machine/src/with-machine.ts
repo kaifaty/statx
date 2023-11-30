@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {StateMachine, ServiceFrom} from '@xstate/fsm'
-import {interpret} from '@xstate/fsm'
+import type {StateMachine, EventObject, Typestate, ServiceFrom} from '@xstate/fsm'
+import {interpret, createMachine} from '@xstate/fsm'
 
 type Constructor<T> = new (...args: any[]) => T
 
@@ -15,40 +15,71 @@ type EventsC = {
 type UnSubscribe = () => void
 
 export interface IMachinable {
-  initMachenes<T extends StateMachine.AnyMachine>(machine: T): ServiceFrom<T>
+  createMachine<TContext extends object, TEvent extends EventObject, TState extends Typestate<TContext>>(
+    config: StateMachine.Config<TContext, TEvent, TState>,
+    options?: MachineOptions,
+  ): () => ServiceFrom<StateMachine.Config<TContext, TEvent, TState>>
 }
 
-const subscribes_ = Symbol()
-const interpres_ = Symbol()
+type MachineOptions = {
+  clearOnConnect: boolean
+}
+
+type StoreItem = {
+  config: StateMachine.Config<any, any, any>
+  machine: StateMachine.AnyMachine
+  service: StateMachine.AnyService
+  options?: MachineOptions
+  unSubscribe?: UnSubscribe
+}
+
+const store: WeakMap<any, StoreItem[]> = new WeakMap()
 
 export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdate>>(
   Element: T,
 ): T & Constructor<IMachinable> => {
   return class Machinable extends Element {
-    [interpres_]: StateMachine.AnyService[] = [];
-    [subscribes_]: UnSubscribe[] = []
+    createMachine<TContext extends object, TEvent extends EventObject, TState extends Typestate<TContext>>(
+      config: StateMachine.Config<TContext, TEvent, TState>,
+      options?: MachineOptions,
+    ): () => ServiceFrom<StateMachine.Config<TContext, TEvent, TState>> {
+      const machine = createMachine(config)
+      const list = store.get(this) ?? []
+      const item = {
+        config,
+        machine,
+        service: interpret(machine),
+        options,
+      }
+      list.push(item)
+      store.set(this, list)
 
-    initMachenes<T extends StateMachine.AnyMachine>(machine: T): ServiceFrom<T> {
-      const service = interpret(machine)
-      this[interpres_].push(service)
-      return service as ServiceFrom<T>
+      return () => item.service as ServiceFrom<T>
     }
 
     connectedCallback() {
       //@ts-ignore
       super.connectedCallback?.()
-      this[interpres_].forEach((item) => {
-        item.start()
-        const subResult = item.subscribe(() => super.requestUpdate())
-        this[subscribes_].push(subResult.unsubscribe)
+      const list = store.get(this)
+      list?.forEach((item) => {
+        if (item.options?.clearOnConnect) {
+          item.machine = createMachine(item.config)
+          item.service = interpret(item.machine)
+        }
+        item.service.start()
+        item.unSubscribe = item.service.subscribe(() => super.requestUpdate()).unsubscribe
       })
     }
 
     disconnectedCallback() {
       //@ts-ignore
       super.disconnectedCallback?.()
-      this[interpres_].forEach((item) => item.stop())
-      this[subscribes_].forEach((item) => item())
+
+      const list = store.get(this)
+      list?.forEach((item) => {
+        item.service.stop()
+        item.unSubscribe?.()
+      })
     }
   }
 }

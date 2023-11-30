@@ -3,7 +3,7 @@ import type {Computed, State, AnyFunc} from './types'
 import {state} from './state'
 import {cancelFrame, startFrame} from './utils.js'
 
-type Strategy = 'last-win' | 'fist-win' | 'first&last-win'
+type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'
 
 type AsycStateOptions<TResponse> = {
   /**
@@ -43,6 +43,8 @@ type AsycStateOptions<TResponse> = {
 }
 
 type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
+
+// TODO statages 'fist-win' | 'first&last-win'
 
 export type AsyncState<T> = State<T | undefined> & {
   start(): void
