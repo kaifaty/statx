@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   Action,
   ActionOptions,
@@ -194,7 +195,7 @@ class ComputedX extends Common implements ComputedInternal {
         return this.peek
       }
 
-      assert(this.isComputing, `Loops dosen't allows. Name: ${state.name ?? 'Unnamed state'}`)
+      assert(this.isComputing, `Loops dosen't allows. Name: ${this.name ?? 'Unnamed state'}`)
 
       Common.requesters.push(this)
       Object.values<Common>(this.parents).forEach((item) => {
@@ -212,7 +213,8 @@ class ComputedX extends Common implements ComputedInternal {
 
       return value
     } catch (e) {
-      console.error((e as Error).message)
+      console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`)
+      this.isComputing = false
       return undefined
     }
   }
@@ -232,6 +234,12 @@ const createPublic = (internal: ComputedX | StateX) => {
   })
   Object.defineProperty(publicApi, 'subscribe', {
     value: (listner: Listner) => internal.subscribe(listner),
+    writable: false,
+  })
+  Object.defineProperty(publicApi, 'peek', {
+    get() {
+      return internal.peek
+    },
     writable: false,
   })
 

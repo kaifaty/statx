@@ -52,7 +52,13 @@ class BaseElement extends IXElement {
     this[renderTo]()
   }
   requestUpdate(): void {
-    this[req] = requestAnimationFrame(() => this[renderTo]())
+    if (this[req]) {
+      return
+    }
+    this[req] = requestAnimationFrame(() => {
+      this[renderTo]()
+      this[req] = 0
+    })
   }
   createRenderRoot() {
     return this.shadowRoot as ShadowRoot

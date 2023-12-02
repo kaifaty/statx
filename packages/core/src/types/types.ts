@@ -70,6 +70,7 @@ interface Common<T extends StateType> {
   _internal: CommonInternal
   name: string
   subscribe(listner: Listner<T>): UnSubscribe
+  peek: T
 }
 
 export interface PublicState<T> extends Common<T> {}
