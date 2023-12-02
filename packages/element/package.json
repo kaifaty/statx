@@ -1,6 +1,6 @@
 {
   "name": "@statx/element",
-  "version": "1.8.9",
+  "version": "1.8.10",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "@statx/core": "^1.8.7",
-    "@statx/machine": "^1.8.9"
+    "@statx/machine": "^1.8.10"
   },
   "devDependencies": {
     "@parcel/transformer-typescript-tsc": "^2.10.3",
