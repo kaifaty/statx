@@ -3,4 +3,4 @@ export type * from './types/index.js'
 export {getHistoryValue} from './utils.js'
 
 export {cachedState} from './cached.js'
-export {asyncState} from './async-state.js'
+export {asyncState, AsyncState} from './async-state.js'
