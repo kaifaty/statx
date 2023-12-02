@@ -1,5 +1,6 @@
 .parcel-cache
 .turbo
+.vscode
 build
 dist
 node_modules
