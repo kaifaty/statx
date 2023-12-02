@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {StateMachine, EventObject, Typestate, ServiceFrom} from '@xstate/fsm'
-import {interpret, createMachine} from '@xstate/fsm'
+import type {StateMachine, ServiceFrom} from '@xstate/fsm'
+import {interpret} from '@xstate/fsm'
 
 type Constructor<T> = new (...args: any[]) => T
 
@@ -12,13 +12,14 @@ type EventsC = {
   type: 'xstate.init' | string
   [key: string]: any
 }
+
 type UnSubscribe = () => void
 
 export interface IMachinable {
-  createMachine<TContext extends object, TEvent extends EventObject, TState extends Typestate<TContext>>(
-    config: StateMachine.Config<TContext, TEvent, TState>,
+  createMachine<T extends StateMachine.AnyMachine>(
+    machineFabric: () => T,
     options?: MachineOptions,
-  ): () => ServiceFrom<StateMachine.Machine<TContext, TEvent, TState>>
+  ): () => ServiceFrom<T>
 }
 
 type MachineOptions = {
@@ -26,7 +27,7 @@ type MachineOptions = {
 }
 
 type StoreItem = {
-  config: StateMachine.Config<any, any, any>
+  machineFabric: () => StateMachine.AnyMachine
   machine: StateMachine.AnyMachine
   service: StateMachine.AnyService
   options?: MachineOptions
@@ -39,21 +40,17 @@ export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdat
   Element: T,
 ): T & Constructor<IMachinable> => {
   return class Machinable extends Element {
-    createMachine<
-      TContext extends object,
-      TEvent extends EventObject,
-      TState extends Typestate<TContext> = Typestate<TContext>,
-    >(
-      config: StateMachine.Config<TContext, TEvent, TState>,
+    createMachine<T extends StateMachine.AnyMachine>(
+      machineFabric: () => T,
       options?: MachineOptions,
-    ): () => ServiceFrom<StateMachine.Machine<TContext, TEvent, TState>> {
-      const machine = createMachine(config)
+    ): () => ServiceFrom<T> {
       const list = store.get(this) ?? []
+      const machine = machineFabric()
       const item = {
-        config,
-        machine,
+        machineFabric,
         service: interpret(machine),
         options,
+        machine,
       }
       list.push(item)
       store.set(this, list)
@@ -67,7 +64,7 @@ export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdat
       const list = store.get(this)
       list?.forEach((item) => {
         if (item.options?.clearOnConnect) {
-          item.machine = createMachine(item.config)
+          item.machine = item.machineFabric()
           item.service = interpret(item.machine)
         }
         item.service.start()
