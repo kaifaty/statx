@@ -39,7 +39,11 @@ export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdat
   Element: T,
 ): T & Constructor<IMachinable> => {
   return class Machinable extends Element {
-    createMachine<TContext extends object, TEvent extends EventObject, TState extends Typestate<TContext>>(
+    createMachine<
+      TContext extends object,
+      TEvent extends EventObject,
+      TState extends Typestate<TContext> = Typestate<TContext>,
+    >(
       config: StateMachine.Config<TContext, TEvent, TState>,
       options?: MachineOptions,
     ): () => ServiceFrom<StateMachine.Config<TContext, TEvent, TState>> {
