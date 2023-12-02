@@ -240,7 +240,7 @@ const createPublic = (internal: ComputedX | StateX) => {
     get() {
       return internal.peek
     },
-    writable: false,
+    configurable: false,
   })
 
   if (!('reducer' in internal)) {
