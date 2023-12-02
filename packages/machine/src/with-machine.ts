@@ -18,7 +18,7 @@ export interface IMachinable {
   createMachine<TContext extends object, TEvent extends EventObject, TState extends Typestate<TContext>>(
     config: StateMachine.Config<TContext, TEvent, TState>,
     options?: MachineOptions,
-  ): () => ServiceFrom<StateMachine.Config<TContext, TEvent, TState>>
+  ): () => ServiceFrom<StateMachine.Machine<TContext, TEvent, TState>>
 }
 
 type MachineOptions = {
@@ -46,7 +46,7 @@ export const withMachine = <T extends Constructor<HTMLElement & WithRequsetUpdat
     >(
       config: StateMachine.Config<TContext, TEvent, TState>,
       options?: MachineOptions,
-    ): () => ServiceFrom<StateMachine.Config<TContext, TEvent, TState>> {
+    ): () => ServiceFrom<StateMachine.Machine<TContext, TEvent, TState>> {
       const machine = createMachine(config)
       const list = store.get(this) ?? []
       const item = {
