@@ -79,7 +79,7 @@ class _AsyncState<TResponse> {
     this.unSubs = deps.map((dep) => dep.subscribe(() => this.onDepsChange()))
     this.maxWait = options?.maxWait ?? 0
 
-    if (options?.autoStart) {
+    if (options?.autoStart ?? true) {
       this.start()
     }
   }

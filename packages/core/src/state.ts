@@ -88,7 +88,7 @@ export class Common implements CommonInternal {
   protected _notifySubscribers() {
     if (Common.isNotifying === false) {
       Common.isNotifying = true
-      Promise.resolve(() => {
+      queueMicrotask(() => {
         // Нужно обновить дерево
         Object.values<Common>(Common.states2notify).forEach((state) => {
           try {
