@@ -37,10 +37,7 @@ createWatcher(
     throttle: 500,
   }),
 )
-
-createWatcher(
-  indexeddbStorage('initial', {
-    name: 'idb',
-    throttle: 500,
-  }),
-)
+const dd = indexeddbStorage('initial', {
+  name: 'idb',
+  throttle: 500,
+})

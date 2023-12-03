@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {state, StateType} from '@statx/core'
 
 import {indexedDBAdapter} from './adapters/indexeddb-storage.js'
@@ -27,10 +28,10 @@ export const persistState = <S extends PersistCreatorOptions<T>, T extends State
 
   let afterClear = false
 
-  let store: SyncPersistState<T>
+  let store: SyncPersistState<T> | AsyncPersistState<T>
 
   if (storage.isAsync) {
-    store = state(value, {name}) as AsyncPersistState<T>
+    store = state(value, {name}) as any as AsyncPersistState<T>
 
     let isLoading = true
 

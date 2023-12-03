@@ -30,6 +30,7 @@ export type SyncPersistState<T extends StateType> = State<T> & {
   clear(): void
   isLoading: undefined
 }
-export type AsyncPersistState<T extends StateType> = SyncPersistState<T> & {
+export type AsyncPersistState<T extends StateType> = Omit<SyncPersistState<T>, 'isLoading'> & {
+  (): T
   isLoading: boolean
 }
