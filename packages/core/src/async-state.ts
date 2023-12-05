@@ -110,7 +110,6 @@ class _AsyncState<TResponse> {
 
   private get isMaxWait() {
     if (this.maxWait) {
-      console.log(Date.now() - this.timeRequestStart)
       return Date.now() - this.timeRequestStart > this.maxWait
     }
     return false
@@ -136,13 +135,11 @@ class _AsyncState<TResponse> {
       const prevState = this.state()
 
       controller.signal.onabort = () => {
-        this.timeRequestStart = Date.now()
         this.state.set(prevState)
       }
 
       try {
         this.state.isLoading.set(true)
-
         const response = await this.fn(controller)
 
         if (!controller.signal.aborted) {
@@ -159,7 +156,10 @@ class _AsyncState<TResponse> {
           }
         }
       } finally {
-        this.state.isLoading.set(false)
+        if (!controller.signal.aborted) {
+          this.state.isLoading.set(false)
+          this.timeRequestStart = Date.now()
+        }
       }
     })
   }

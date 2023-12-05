@@ -65,7 +65,7 @@ export type StateInternal = CommonInternal
 
 export type StateVariants = ComputedInternal | StateInternal
 
-interface Common<T extends StateType> {
+export interface PublicState<T extends StateType> {
   (): T
   _internal: CommonInternal
   name: string
@@ -73,12 +73,14 @@ interface Common<T extends StateType> {
   peek: T
 }
 
-export interface PublicState<T> extends Common<T> {}
+export interface PublicList<T extends Array<unknown>>
+  extends State<T>,
+    Pick<Array<T[number]>, 'sort' | 'push' | 'pop' | 'shift' | 'unshift' | 'at'> {}
 
-export type State<T extends StateType> = Common<T> & {
+export type State<T extends StateType> = PublicState<T> & {
   set: (value: T) => void
 }
-export type Computed<T extends StateType> = Common<T>
+export type Computed<T extends StateType> = PublicState<T>
 
 export interface Action<T extends unknown[]> {
   name: string

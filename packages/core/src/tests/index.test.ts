@@ -4,6 +4,7 @@ import * as assert from 'uvu/assert'
 
 import {state, computed, asyncState, action, getHistoryValue} from '../index.js'
 import {cachedState} from '../cached.js'
+import {list} from '../list.js'
 
 const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 type Mock = {
@@ -199,7 +200,6 @@ test('karl test', async () => {
   const fib = (n: number): number => (n < 2 ? 1 : fib(n - 1) + fib(n - 2))
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hard = (n: number, _: string) => {
-    // console.log(l)
     return n + fib(16)
   }
 
@@ -353,7 +353,7 @@ test('asyncState check state observe can stop', async () => {
   assert.is(res(), 21)
 })
 
-test.only('asyncState check last-win strategy', async () => {
+test('asyncState check last-win strategy', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
@@ -380,13 +380,13 @@ test.only('asyncState check last-win strategy', async () => {
   assert.is(res(), 5)
 })
 
-test('asyncState is maxWait works with last-win', async () => {
+test.only('asyncState is maxWait works with last-win', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
   const res = asyncState(
     async () => {
-      await delay(100)
+      await delay(80)
       return dep1() + dep2()
     },
     [dep1, dep2],
@@ -395,40 +395,98 @@ test('asyncState is maxWait works with last-win', async () => {
 
   res.start()
   dep2.set(1)
+
+  await delay(50)
+  assert.is(res(), 0)
+  dep2.set(2)
+
   await delay(50)
   assert.is(res(), 0)
   dep2.set(3)
-  await delay(50)
-  assert.is(res(), 0)
-  dep2.set(4)
-  await delay(50)
-  assert.is(res(), 5)
+
+  await delay(100)
+  assert.is(res(), 4)
 })
 
-/*
-const seconds = state(0, 'name12')
-const time = state(v => v + 1, 'name12', seconds.get())
+test('List: create, subscribe', async () => {
+  const res = list([0, 1, 2])
+  let test = 0
+  assert.is(res()[2], 2)
 
-seconds.set(v => v + 1)
-seconds.set(v => v + 1)
-seconds.set(v => v + 1)
-seconds.set(v => v + 1)
-seconds.set(v => v + 1)
-seconds.set(v => v + 1)
-console.log(seconds)
+  res.subscribe((v) => {
+    test = v[0]
+  })
+  res.set([3])
 
-seconds.onUpdate = v => {
-  console.log('updates seconds', v)
-  throw new Error('=>>')
-}
-time.onUpdate = v => {
-  console.log('updates time', v)
-}
+  await 1
 
-console.log(seconds.get())
-seconds.subscribe(() => {
-  console.log('on subscribe')
+  assert.is(test, 3)
 })
-*/
+test('List: push, imutability', async () => {
+  const v1 = [0, 1, 2]
+  const res = list(v1)
+  res.push(3)
+  const res2 = res.push(3, 4, 5)
+
+  assert.is(res2, 7)
+  assert.is.not(v1, res())
+})
+
+test('List: pop, imutability', async () => {
+  const v1 = [0, 1, 2]
+  const res = list(v1)
+  const last = res.pop()
+
+  assert.is(last, 2)
+  assert.is.not(v1, res())
+})
+
+test('List: shift, imutability', async () => {
+  const v1 = [0, 1, 2]
+  const res = list(v1)
+  const first = res.shift()
+
+  assert.is(first, 0)
+  assert.is.not(v1, res())
+})
+
+test('List: unshift, imutability', async () => {
+  const v1 = [0, 1, 2]
+  const res = list(v1)
+  res.unshift(3)
+  const res2 = res.unshift(3, 4, 5)
+
+  assert.is(res2, 7)
+  assert.is.not(v1, res())
+})
+
+test('List: sort, imutability', async () => {
+  const v1 = [11, 1, 5, 0, 3, 4]
+  const res = list(v1)
+
+  const sortedAsStrings = res.sort()
+  assert.is(sortedAsStrings, res())
+
+  const sortedAsNumbers = res.sort((a, b) => a - b)
+  assert.is(sortedAsNumbers, res())
+
+  assert.is.not(v1, sortedAsStrings)
+  assert.is.not(v1, sortedAsNumbers)
+
+  assert.is(sortedAsStrings[0], 0)
+  assert.is(sortedAsStrings.at(-1), 5)
+  assert.is(sortedAsNumbers[0], 0)
+  assert.is(sortedAsNumbers.at(-1), 11)
+})
+
+test('List: at', async () => {
+  const v1 = [11, 1, 5, 0, 3, 4]
+  const res = list(v1)
+  assert.is(res.at(0), 11)
+  assert.is(res.at(1), 1)
+  assert.is(res.at(11), undefined)
+  assert.is(res.at(-1), 4)
+  assert.is(res.at(-11), undefined)
+})
 
 test.run()

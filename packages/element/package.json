@@ -38,6 +38,7 @@
     "build:tsc": "tsc",
     "demo": "parcel serve ./src/demo/index.html",
     "dev": "parcel watch",
+    "lint": "tsc --noEmit",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },

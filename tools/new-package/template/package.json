@@ -36,6 +36,7 @@
   "scripts": {
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
+    "lint": "tsc --noEmit",
     "demo": "parcel serve --target=demo",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
