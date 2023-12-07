@@ -1,5 +1,5 @@
 {
-  "name": "@statx/<%= name %>",
+  "name": "@statx/router",
   "version": "1.0.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
@@ -16,7 +16,7 @@
     "observer",
     "observable"
   ],
-  "homepage": "https://github.com/kaifaty/statx/packages/<%= name %>",
+  "homepage": "https://github.com/kaifaty/statx/packages/router",
   "bugs": {
     "url": "https://github.com/kaifaty/statx/issues"
   },
@@ -46,6 +46,6 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "*"
+    "@statx/url": "*"
   }
 }

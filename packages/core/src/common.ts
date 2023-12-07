@@ -21,6 +21,7 @@ export class Common implements CommonInternal {
   name: string
 
   hasParentUpdates: boolean | undefined
+  cause?: string
 
   constructor(options?: Options) {
     this.name = getName(options?.name)
@@ -54,7 +55,10 @@ export class Common implements CommonInternal {
         continue
       }
 
-      Object.values<Common>(st.childs).forEach((it) => stack.push(it))
+      Object.values<Common>(st.childs).forEach((it) => {
+        it.cause = st.name
+        stack.push(it)
+      })
       st.hasParentUpdates = true
       if (st.subscribes.size) {
         Common.states2notify[st.id] = st
