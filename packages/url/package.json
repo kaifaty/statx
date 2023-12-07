@@ -47,5 +47,6 @@
   ],
   "dependencies": {
     "@statx/core": "^1.10.0"
-  }
+  },
+  "gitHead": "76e165784ba61ec63d575f70432ed4beadca7c56"
 }

@@ -53,5 +53,6 @@
     "@parcel/transformer-typescript-tsc": "^2.10.3",
     "parcel-transformer-minify-literals": "^1.0.10",
     "typescript": "^5.3.2"
-  }
+  },
+  "gitHead": "76e165784ba61ec63d575f70432ed4beadca7c56"
 }
