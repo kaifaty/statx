@@ -67,5 +67,8 @@
   "engines": {
     "npm": ">=8.0.0"
   },
-  "readme": "README.md"
+  "readme": "README.md",
+  "dependencies": {
+    "nvm": "^0.0.4"
+  }
 }

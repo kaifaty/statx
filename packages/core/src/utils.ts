@@ -21,7 +21,7 @@ export const getComputedState = (state: CommonInternal | ComputedInternal): Comp
 }
 
 export const getHistoryValue = (state: StateVariants): unknown => {
-  return state.history[state.historyCursor]
+  return state._history[state._historyCursor]
 }
 
 export const assert = (condtion: boolean, msg: string) => {

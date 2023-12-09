@@ -22,7 +22,7 @@ class ComputedX extends Common implements ComputedInternal {
     // Нужно актуализировать в родилеях зависимость
     this.computeValue()
 
-    Object.values<Common>(this.parents).forEach((parent) => (parent.childs[this.id] = this))
+    Object.values<Common>(this._parents).forEach((parent) => (parent._childs[this._id] = this))
     return super.subscribe(listner)
   }
   getValue() {
@@ -35,7 +35,7 @@ class ComputedX extends Common implements ComputedInternal {
   }
 
   private isDontNeedRecalc(): boolean {
-    return this.hasParentUpdates === false && this.peek !== undefined
+    return this._hasParentUpdates === false && this.peek !== undefined
   }
 
   private computeValue(): unknown {
@@ -43,7 +43,7 @@ class ComputedX extends Common implements ComputedInternal {
       if (this.isDontNeedRecalc()) {
         const rec = Common.recording
         if (rec) {
-          Object.values<Common>(this.parents).forEach((item) => rec?.add(item))
+          Object.values<Common>(this._parents).forEach((item) => rec?.add(item))
         }
         return this.peek
       }
@@ -51,15 +51,15 @@ class ComputedX extends Common implements ComputedInternal {
       assert(this.isComputing, `Loops dosen't allows. Name: ${this.name ?? 'Unnamed state'}`)
 
       Common.requesters.push(this)
-      Object.values<Common>(this.parents).forEach((item) => {
-        delete item.childs[this.id]
-        delete this.parents[item.id]
+      Object.values<Common>(this._parents).forEach((item) => {
+        delete item._childs[this._id]
+        delete this._parents[item._id]
       })
 
       this.isComputing = true
       const value = this.reducer(this.peek ?? this.initial)
       this.isComputing = false
-      this.hasParentUpdates = false
+      this._hasParentUpdates = false
 
       Common.requesters.pop()
       this._pushHistory(value)

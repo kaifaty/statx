@@ -170,13 +170,13 @@ test('Check right dependencies of computed state', () => {
   const c = computed(() => v1() + v2() + v3(), {name: 'c'})
 
   c()
-  assert.is(!!v1._internal.childs[c._internal.id], true)
-  assert.is(!!v2._internal.childs[c._internal.id], true)
-  assert.is(!!v3._internal.childs[c._internal.id], true)
+  assert.is(!!v1._internal._childs[c._internal._id], true)
+  assert.is(!!v2._internal._childs[c._internal._id], true)
+  assert.is(!!v3._internal._childs[c._internal._id], true)
 
-  assert.is(!!c._internal.parents[v1._internal.id], true)
-  assert.is(!!c._internal.parents[v2._internal.id], true)
-  assert.is(!!c._internal.parents[v3._internal.id], true)
+  assert.is(!!c._internal._parents[v1._internal._id], true)
+  assert.is(!!c._internal._parents[v2._internal._id], true)
+  assert.is(!!c._internal._parents[v3._internal._id], true)
 })
 
 test('Dont update if value not changed', () => {

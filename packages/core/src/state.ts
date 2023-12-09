@@ -6,9 +6,9 @@ import {Common, createPublic} from './common.js'
 export class StateX extends Common {
   constructor(value: unknown, options?: Options) {
     super(options)
-    this.setValue(value)
+    this.set(value)
   }
-  setValue(value: unknown): void {
+  set(value: unknown): void {
     const newValue = isFunction(value) ? value(this.peek) : value
 
     if (newValue === this.peek) {

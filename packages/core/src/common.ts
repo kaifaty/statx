@@ -9,41 +9,41 @@ export class Common implements CommonInternal {
   static recording: Set<Common> | undefined
   static historyLength = 5
   static nounce = 0
-  id: number
+  _id: number
 
-  childs: Record<number, Common> = Object.create(null)
-  parents: Record<number, Common> = Object.create(null)
-  subscribes: Set<Listner> = new Set()
+  _childs: Record<number, Common> = Object.create(null)
+  _parents: Record<number, Common> = Object.create(null)
+  _subscribes: Set<Listner> = new Set()
 
-  history = Array.from({length: Common.historyLength})
-  historyCursor = -1
+  _history = Array.from({length: Common.historyLength})
+  _historyCursor = -1
+  _hasParentUpdates: boolean | undefined
 
   name: string
 
-  hasParentUpdates: boolean | undefined
   cause?: string
 
   constructor(options?: Options) {
     this.name = getName(options?.name)
-    this.id = Common.nounce++
+    this._id = Common.nounce++
   }
 
   get peek() {
-    return this.history[this.historyCursor]
+    return this._history[this._historyCursor]
   }
 
   protected _updateDeps() {
     const lastRequester = Common.requesters.at(-1)
-    if (lastRequester && !this.childs[lastRequester.id]) {
-      this.childs[lastRequester.id] = lastRequester
-      lastRequester.parents[this.id] = this
+    if (lastRequester && !this._childs[lastRequester._id]) {
+      this._childs[lastRequester._id] = lastRequester
+      lastRequester._parents[this._id] = this
     }
   }
 
   protected _pushHistory(value: unknown) {
-    const cursorHistory = this.historyCursor
-    this.historyCursor = (cursorHistory + 1) % this.history.length
-    this.history[this.historyCursor] = value
+    const cursorHistory = this._historyCursor
+    this._historyCursor = (cursorHistory + 1) % this._history.length
+    this._history[this._historyCursor] = value
   }
 
   protected _invalidateSubtree() {
@@ -55,13 +55,13 @@ export class Common implements CommonInternal {
         continue
       }
 
-      Object.values<Common>(st.childs).forEach((it) => {
+      Object.values<Common>(st._childs).forEach((it) => {
         it.cause = st.name
         stack.push(it)
       })
-      st.hasParentUpdates = true
-      if (st.subscribes.size) {
-        Common.states2notify[st.id] = st
+      st._hasParentUpdates = true
+      if (st._subscribes.size) {
+        Common.states2notify[st._id] = st
       }
     }
   }
@@ -76,13 +76,13 @@ export class Common implements CommonInternal {
         // Нужно обновить дерево
         Object.values<Common>(Common.states2notify).forEach((state) => {
           try {
-            state.subscribes.forEach((listner) => {
+            state._subscribes.forEach((listner) => {
               return listner(state.getValue())
             })
           } catch (e) {
             console.error('Error in subscriber function of:', state.name)
           } finally {
-            delete Common.states2notify[state.id]
+            delete Common.states2notify[state._id]
           }
         })
         Common.isNotifying = false
@@ -100,16 +100,16 @@ export class Common implements CommonInternal {
      *
      */
 
-    if (this.subscribes.has(listner)) {
+    if (this._subscribes.has(listner)) {
       return () => ({})
     }
 
-    this.subscribes.add(listner)
+    this._subscribes.add(listner)
 
     return () => {
-      this.subscribes.delete(listner)
-      if (this.subscribes.size === 0) {
-        Object.values<Common>(this.parents).forEach((parent) => delete parent.childs[this.id])
+      this._subscribes.delete(listner)
+      if (this._subscribes.size === 0) {
+        Object.values<Common>(this._parents).forEach((parent) => delete parent._childs[this._id])
       }
     }
   }
@@ -125,31 +125,12 @@ export const createPublic = (internal: Common) => {
   const publicApi = function () {
     return internal.getValue()
   }
+
+  Object.setPrototypeOf(publicApi, internal)
   Object.defineProperty(publicApi, 'name', {
     value: internal.name,
     writable: false,
   })
-  Object.defineProperty(publicApi, '_internal', {
-    value: internal,
-    writable: false,
-  })
-  Object.defineProperty(publicApi, 'subscribe', {
-    value: (listner: Listner) => internal.subscribe(listner),
-    writable: false,
-  })
-  Object.defineProperty(publicApi, 'peek', {
-    get() {
-      return internal.peek
-    },
-    configurable: false,
-  })
-
-  if ('setValue' in internal) {
-    Object.defineProperty(publicApi, 'set', {
-      value: (value: unknown) => (internal as any).setValue(value),
-      writable: false,
-    })
-  }
 
   return publicApi
 }

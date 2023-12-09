@@ -3,70 +3,49 @@ import type {Options, PublicList} from './types/index.js'
 import {createPublic} from './common.js'
 import {StateX} from './state.js'
 
+class List<T extends Array<unknown>> extends StateX {
+  push(...args: Array<unknown>) {
+    const data = [...(this.peek as Array<unknown>), ...args]
+    this.set(data)
+    return data.length
+  }
+  unshift(...args: Array<unknown>) {
+    const data = [...args, ...(this.peek as Array<unknown>)]
+    this.set(data)
+    return data.length
+  }
+  pop() {
+    const res = this.peek as Array<unknown>
+
+    this.set(res.slice(0, res.length - 1))
+    return res[res.length - 1]
+  }
+  shift() {
+    const res = this.peek as Array<unknown>
+
+    this.set(res.slice(1))
+    return res[0]
+  }
+  at(position: number) {
+    const res = this.getValue() as Array<unknown>
+    const length = res.length
+    if (position < 0) {
+      return res[length + position]
+    }
+
+    return res[position]
+  }
+  sort(fn?: (a: T[number], b: T[number]) => number) {
+    const res = this.getValue() as Array<unknown>
+    const sorted = res.slice().sort(fn)
+    this.set(sorted)
+
+    return sorted
+  }
+}
+
 export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
-  const statex = new StateX(value, options)
-  const fn = createPublic(statex)
-  const getValue = () => statex.getValue() as T
+  const statex = new List<T>(value, options)
 
-  Object.defineProperty(fn, 'push', {
-    value: (...args: Array<unknown>) => {
-      statex.setValue([...getValue(), ...args])
-      return getValue().length
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'unshift', {
-    value: (...args: Array<unknown>) => {
-      statex.setValue([...args, ...getValue()])
-      return getValue().length
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'pop', {
-    value: () => {
-      const res = getValue()
-      const lastValue = res[res.length - 1]
-
-      statex.setValue(res.slice(0, res.length - 1))
-      return lastValue
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'shift', {
-    value: () => {
-      const res = getValue()
-      const firstValue = res[0]
-      statex.setValue(res.slice(1))
-      return firstValue
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'at', {
-    value: (position: number) => {
-      const res = getValue()
-      const length = res.length
-      if (position < 0) {
-        return res[length + position]
-      }
-
-      return res[position]
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'sort', {
-    value: (fn?: (a: T[number], b: T[number]) => number) => {
-      const res = getValue()
-      const sorted = res.slice().sort(fn)
-      statex.setValue(sorted)
-      return sorted
-    },
-    writable: false,
-  })
-
-  return fn as PublicList<T>
+  return createPublic(statex) as PublicList<T>
 }
