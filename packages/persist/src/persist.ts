@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {state, StateType} from '@statx/core'
+import {isStateType, list, State, state, StateType} from '@statx/core'
 
 import {indexedDBAdapter} from './adapters/indexeddb-storage.js'
 
@@ -16,96 +16,118 @@ import {
 
 const uniqNames = new Set<string>()
 
-export const persistState = <S extends PersistCreatorOptions<T>, T extends StateType = StateType>(
-  value: T,
-  {name, onInitRestore, storage}: S,
-): S['storage'] extends AsyncStorage ? AsyncPersistState<T> : SyncPersistState<T> => {
+const assertUnuniqNames = (name: string) => {
   if (uniqNames.has(name)) {
     throw new Error(`Name: ${name} must be uniq`)
-  } else {
-    uniqNames.add(name)
   }
-
-  let afterClear = false
-
-  let store: SyncPersistState<T> | AsyncPersistState<T>
-
-  if (storage.isAsync) {
-    store = state(value, {name}) as any as AsyncPersistState<T>
-
-    let isLoading = true
-
-    ;(storage as AsyncStorage).get().then((r) => {
-      if (r !== undefined) {
-        const current = r as T
-        store.set(current)
-        onInitRestore?.(current)
-        isLoading = false
-      }
+}
+class Persist {
+  value: State<unknown>
+  storage: AsyncStorage | SyncStorage
+  initialValue: unknown
+  constructor(value: unknown, storage: AsyncStorage | SyncStorage, {name}: PersistCreatorOptions<any>) {
+    this.storage = storage as any
+    if (isStateType(value)) {
+      this.initialValue = value()
+      this.value = value as State<unknown>
+    } else {
+      this.initialValue = value
+      this.value = state<unknown>(this.initialValue, {name})
+    }
+    this.value.subscribe((value) => {
+      this.storage.set(value)
     })
 
-    Object.defineProperty(store, 'isLoading', {
-      get() {
-        return isLoading
+    Object.defineProperty(this.value, 'clear', {
+      writable: false,
+      configurable: false,
+      value: () => {
+        this.storage.clear()
+        this.value.set(this.initialValue)
       },
     })
-  } else {
-    const storeValue = (storage as SyncStorage).get()
-    const current = (storeValue ?? value) as T
-
-    store = state(storeValue ?? value, {name}) as SyncPersistState<T>
-    onInitRestore?.(current)
   }
+}
 
-  store.subscribe((v: any) => {
-    if (afterClear) {
-      afterClear = false
-      return
+class SyncPersist extends Persist {
+  constructor(value: unknown, storage: SyncStorage, {name, onInitRestore}: PersistCreatorOptions<any>) {
+    super(value, storage, {name, onInitRestore})
+    const storeValue = storage.get()
+    if (storeValue) {
+      this.value.set(storeValue)
     }
-
-    storage.set(v)
-  })
-
-  store.clear = () => {
-    afterClear = true
-
-    storage.clear()
-
-    store.set(value)
+    onInitRestore?.(this.value())
   }
+}
+class AsyncPersist extends Persist {
+  constructor(value: unknown, storage: AsyncStorage, {name, onInitRestore}: PersistCreatorOptions<any>) {
+    super(value, storage, {name, onInitRestore})
 
-  return store as S['storage'] extends AsyncStorage ? AsyncPersistState<T> : SyncPersistState<T>
+    Object.defineProperty(this.value, 'isLoading', {
+      writable: false,
+      configurable: false,
+      value: state(false),
+    })
+    ;(this.storage as AsyncStorage)
+      .get()
+      .then((value) => {
+        this.value.set(value)
+      })
+      .finally(() => {
+        ;(this.value as any).isLoading.set(false)
+        onInitRestore?.(this.value())
+      })
+  }
 }
 
-export const stateLocalStorage = <T extends StateType = StateType>(
+export const persistSyncState = <S extends PersistCreatorOptions<T>, T extends StateType | State<StateType>>(
+  value: T,
+  storage: SyncStorage,
+  options: S,
+): typeof value extends State<any> ? T & SyncPersistState : State<T> & SyncPersistState => {
+  assertUnuniqNames(options.name)
+  uniqNames.add(options.name)
+  const res = new SyncPersist(value, storage, options)
+  return res.value as any
+}
+
+export const persistAsyncState = <S extends PersistCreatorOptions<T>, T extends StateType = StateType>(
+  value: T | State<T>,
+  storage: AsyncStorage,
+  options: S,
+): typeof value extends State<T> ? T & AsyncPersistState : State<T> & AsyncPersistState => {
+  assertUnuniqNames(options.name)
+  uniqNames.add(options.name)
+  const res = new AsyncPersist(value, storage, options)
+  return res.value as any
+}
+
+export const stateLocalStorage = <T extends StateType | State<StateType> = StateType>(
   value: T,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
-  return persistState(value, {
+  return persistSyncState(value, localStorageAdapter(name, throttle), {
     name,
     onInitRestore,
-    storage: localStorageAdapter(name, throttle),
   })
 }
 
-export const stateSessionStorage = <T extends StateType = StateType>(
+export const stateSessionStorage = <T extends StateType | State<StateType> = StateType>(
   value: T,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
-  return persistState(value, {
+  return persistSyncState(value, localStorageAdapter(name, throttle, true), {
     name,
     onInitRestore,
-    storage: localStorageAdapter(name, throttle, true),
   })
 }
 
 export const indexeddbStorage = <T extends StateType = StateType>(
-  value: T,
+  value: T | State<T>,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
-  return persistState(value, {
+  return persistAsyncState(value, indexedDBAdapter(name, throttle), {
     name,
     onInitRestore,
-    storage: indexedDBAdapter(name, throttle),
   })
 }

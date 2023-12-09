@@ -380,7 +380,7 @@ test('asyncState check last-win strategy', async () => {
   assert.is(res(), 5)
 })
 
-test.only('asyncState is maxWait works with last-win', async () => {
+test('asyncState is maxWait works with last-win', async () => {
   const dep1 = state(1)
   const dep2 = state(2)
 
@@ -429,6 +429,7 @@ test('List: push, imutability', async () => {
   const res2 = res.push(3, 4, 5)
 
   assert.is(res2, 7)
+  assert.is(res().length, 7)
   assert.is.not(v1, res())
 })
 
@@ -438,6 +439,7 @@ test('List: pop, imutability', async () => {
   const last = res.pop()
 
   assert.is(last, 2)
+  assert.is(res().length, 2)
   assert.is.not(v1, res())
 })
 
@@ -447,16 +449,21 @@ test('List: shift, imutability', async () => {
   const first = res.shift()
 
   assert.is(first, 0)
+  assert.is(res().length, 2)
   assert.is.not(v1, res())
 })
 
 test('List: unshift, imutability', async () => {
-  const v1 = [0, 1, 2]
+  const v1 = [11, 12, 13]
   const res = list(v1)
   res.unshift(3)
   const res2 = res.unshift(3, 4, 5)
-
+  assert.is(res().length, 7)
   assert.is(res2, 7)
+  assert.is(res()[0], 3)
+  assert.is(res()[2], 5)
+  assert.is(res()[3], 3)
+  assert.is(res()[4], 11)
   assert.is.not(v1, res())
 })
 

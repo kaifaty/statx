@@ -22,15 +22,12 @@ export type PersistOptions<T extends StateType> = {
 
 export type PersistCreatorOptions<T extends StateType> = {
   name: string
-  storage: Storage | AsyncStorage
   onInitRestore?: (value: T) => void
 }
 
-export type SyncPersistState<T extends StateType> = State<T> & {
+export type SyncPersistState = {
   clear(): void
-  isLoading: undefined
 }
-export type AsyncPersistState<T extends StateType> = Omit<SyncPersistState<T>, 'isLoading'> & {
-  (): T
-  isLoading: boolean
+export type AsyncPersistState = SyncPersistState & {
+  isLoading: State<boolean>
 }

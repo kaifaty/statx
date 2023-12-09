@@ -29,7 +29,7 @@ export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
       const res = getValue()
       const lastValue = res[res.length - 1]
 
-      statex.setValue(res.slice(0, res.length - 2))
+      statex.setValue(res.slice(0, res.length - 1))
       return lastValue
     },
     writable: false,

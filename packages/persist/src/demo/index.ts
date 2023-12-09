@@ -1,14 +1,10 @@
-import {
-  stateLocalStorage,
-  stateSessionStorage,
-  indexeddbStorage,
-  SyncPersistState,
-  AsyncPersistState,
-} from '../index.js'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {list} from '@statx/core'
+import {stateLocalStorage, stateSessionStorage} from '../index.js'
 
 const logElement = document.getElementById('log')
 
-const createWatcher = (storage: SyncPersistState<string> | AsyncPersistState<string>) => {
+const createWatcher = (storage: any) => {
   const element = document.getElementById(storage.name) as HTMLInputElement
   const button = document.getElementById('clear-' + storage.name) as HTMLButtonElement
 
@@ -37,7 +33,34 @@ createWatcher(
     throttle: 500,
   }),
 )
-const dd = indexeddbStorage('initial', {
-  name: 'idb',
+
+createWatcher(
+  stateSessionStorage('initial', {
+    name: 'idb',
+    throttle: 500,
+  }),
+)
+
+const testList = stateLocalStorage(list(['test']), {
+  name: 'local-list',
   throttle: 500,
+})
+testList.subscribe((value) => {
+  listElement.value = value.join(', ')
+})
+
+const listElement = document.getElementById('list') as HTMLTextAreaElement
+
+listElement.value = testList().join(', ')
+
+document.getElementById('push-list')?.addEventListener('click', () => {
+  testList.push(Math.random().toFixed(3))
+})
+
+document.getElementById('pop-list')?.addEventListener('click', () => {
+  testList.pop()
+})
+
+document.getElementById('clear-list')?.addEventListener('click', () => {
+  testList.clear()
 })
