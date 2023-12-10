@@ -1,6 +1,6 @@
 {
   "name": "@statx/url",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -46,7 +46,7 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.10.1"
+    "@statx/core": "^1.10.2"
   },
   "gitHead": "8c6c4d11a4bca82178a3307b6507bdd7ec92f84a"
 }
