@@ -39,6 +39,9 @@ const getFromStorage = <T>(name: string): T | undefined => {
   }
 }
 
+/**
+ * @deprecated
+ */
 export const suspenseState = <T extends unknown = unknown>(
   request: AsyncFucn<T>,
   options?: Options,

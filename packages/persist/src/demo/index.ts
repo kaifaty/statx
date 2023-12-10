@@ -8,7 +8,7 @@ const createWatcher = (storage: any) => {
   const element = document.getElementById(storage.name) as HTMLInputElement
   const button = document.getElementById('clear-' + storage.name) as HTMLButtonElement
 
-  storage.subscribe((v) => {
+  storage.subscribe((v: any) => {
     element.value = v as any
     logElement?.insertAdjacentText(
       'beforeend',
