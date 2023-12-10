@@ -142,7 +142,7 @@ export class Router extends Routes {
   private static unsub?: () => void
   static start(): void {
     this.unsub = url.path.subscribe((path) => this.goto(path, true))
-    this.goto(url.path())
+    this.goto(url.path(), true)
     window.addEventListener('click', this._onClick)
   }
   static stop() {
@@ -197,7 +197,7 @@ export class Router extends Routes {
 
     e.preventDefault()
     if (href !== location.href) {
-      this.goto(anchor.pathname)
+      this.goto(anchor.getAttribute('href') ?? anchor.pathname)
     }
   }
 }
