@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Options, State, StateType} from './types/index.js'
-import {assert, isFunction} from './utils.js'
-import {Common, createPublic} from './common.js'
+import {assert, createPublic, isFunction} from './utils.js'
+import {Common} from './common.js'
 
 export class StateX extends Common {
   constructor(value: unknown, options?: Options) {
     super(options)
-    this.setValue(value)
+    this.set(value)
   }
-  setValue(value: unknown): void {
+  set(value: unknown): void {
     const newValue = isFunction(value) ? value(this.peek) : value
 
     if (newValue === this.peek) {
@@ -17,6 +17,12 @@ export class StateX extends Common {
     this._pushHistory(newValue)
     this._invalidateSubtree()
     this._notifySubscribers()
+  }
+
+  get() {
+    this._updateDeps()
+    Common.recording?.add(this)
+    return this.peek
   }
 }
 

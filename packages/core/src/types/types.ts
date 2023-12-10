@@ -42,17 +42,18 @@ export type Settings = {
 }
 
 export type HistoryInternal = {
-  historyCursor: number
-  history: unknown[]
+  _historyCursor: number
+  _history: unknown[]
 }
 
 export interface CommonInternal extends HistoryInternal {
-  id: number
-  childs: Record<number, CommonInternal>
-  parents: Record<number, CommonInternal>
-  subscribes: Set<Listner>
+  _id: number
+  _childs: Record<number, CommonInternal>
+  _parents: Record<number, CommonInternal>
+  _subscribes: Set<Listner>
   name: string
-  hasParentUpdates: boolean | undefined
+  _hasParentUpdates: boolean | undefined
+  peek: unknown
 }
 
 export type ComputedInternal = CommonInternal & {
