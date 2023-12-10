@@ -1,6 +1,6 @@
 {
   "name": "@statx/machine",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -49,7 +49,7 @@
     "@xstate/fsm": "^3.0.0-beta.3"
   },
   "dependencies": {
-    "@statx/core": "^1.10.0"
+    "@statx/core": "^1.10.1"
   },
   "gitHead": "76e165784ba61ec63d575f70432ed4beadca7c56"
 }
