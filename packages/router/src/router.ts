@@ -4,7 +4,7 @@ import {url} from '@statx/url'
 const origin = location.origin || location.protocol + '//' + location.host
 
 type Entry = () => Promise<boolean> | boolean
-type RenderFn = (outer?: RenderFn) => unknown
+type RenderFn = (outer?: RenderFn, query?: Record<string, string>) => unknown
 type ChildParams = {
   render: RenderFn
   name: string
@@ -13,11 +13,53 @@ type ChildParams = {
 type InitParams = Omit<ChildParams, 'name'> & {
   injectSelector: string
 }
+type GotoParams = {
+  path: string
+  query: Record<string, string>
+  onInit?: boolean
+}
+
+let count = 0
+let prevCheck = 0
+let lastUpdate = 0
+
+const loopCheck = () => {
+  count++
+  if (Date.now() - lastUpdate > 20) {
+    if (count - prevCheck > 5) {
+      throw new Error('Router loop')
+    }
+    prevCheck = count
+    lastUpdate = Date.now()
+  }
+}
 
 async function* gen(data: string[]) {
   while (data.length) {
     yield data.shift() as string
   }
+}
+
+const getPath = (_path: string) => {
+  if (location.protocol === 'file:') {
+    _path = _path.split('#')[1] ?? _path
+  }
+
+  const [path, query] = _path.split('?')
+  const urlParams = new URLSearchParams(query)
+
+  const queryParams = [...urlParams.entries()].reduce<Record<string, string>>((acc, v) => {
+    acc[v[0]] = v[1]
+    return acc
+  }, {})
+
+  return {path, query: queryParams}
+}
+const setPath = (path: string) => {
+  if (location.protocol === 'file:') {
+    return '#' + path
+  }
+  return path
 }
 
 class Routes {
@@ -39,7 +81,7 @@ class Routes {
     this.rootNode = new this(this.hiddenSymbol, '/', render, entry)
     return this.rootNode
   }
-  static async goto(path: string): Promise<boolean> {
+  static async __goto({path, query}: GotoParams): Promise<boolean> {
     const pathData = this.parsePath(path)
     let current = this.rootNode
     const stack = [current]
@@ -52,16 +94,18 @@ class Routes {
 
         break
       }
-      const entryResult = await existNode.entry?.()
-      if (entryResult === false) {
-        console.warn(name, 'entry is not allowed')
-        return false
-      }
       stack.push(existNode)
       current = existNode
     }
     const lastNode = stack.pop()
-    const renderResult = lastNode?.render()
+    const entryResult = await lastNode?.entry?.()
+
+    if (entryResult === false) {
+      console.warn(lastNode?.name, 'entry is not allowed')
+      return false
+    }
+
+    const renderResult = lastNode?.render(undefined, query)
     this.renderFunction(renderResult, this.rootElement)
     return true
   }
@@ -78,9 +122,9 @@ class Routes {
       throw new Error('Create new route with static initRoot or addChild functions')
     }
   }
-  render(outerFn?: () => string): unknown {
+  render(outerFn?: () => string, query?: Record<string, string>): unknown {
     if (this.parent) {
-      return this.parent?.render(() => this.renderFn(outerFn) as any)
+      return this.parent?.render(() => this.renderFn(outerFn, query) as any)
     }
     return this.renderFn(outerFn)
   }
@@ -97,7 +141,7 @@ class Routes {
 export class Router extends Routes {
   private static unsub?: () => void
   static start(): void {
-    this.unsub = url.path.subscribe((path) => this.goto(path))
+    this.unsub = url.path.subscribe((path) => this.goto(path, true))
     this.goto(url.path())
     window.addEventListener('click', this._onClick)
   }
@@ -105,11 +149,21 @@ export class Router extends Routes {
     this.unsub?.()
     window.removeEventListener('click', this._onClick)
   }
-  static async goto(path: string) {
-    const result = await super.goto(path)
-    if (result !== false) {
-      url.push(path)
+  static async goto(path: string, init = false) {
+    loopCheck()
+    const newPath = getPath(path)
+    const currentPath = getPath(url.path())
+
+    if (newPath.path === currentPath.path && !init) {
+      return false
     }
+
+    const result = await this.__goto(newPath)
+
+    if (result !== false) {
+      url.push(setPath(path))
+    }
+
     return result
   }
 

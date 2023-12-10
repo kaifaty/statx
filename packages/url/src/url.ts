@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {state} from '@statx/core'
 
-const parseQueryParams = () => {
+export const parseQueryParams = () => {
   let search = window.location.search
   if (search.startsWith('?')) {
     search = search.substring(1)
@@ -14,7 +14,8 @@ const parseQueryParams = () => {
 
   return result
 }
-const encodeQueryParams = (data: Record<string, string>) => {
+
+export const encodeQueryParams = (data: Record<string, string>) => {
   const entries = Object.entries(data)
   if (entries.length === 0) {
     return ''
