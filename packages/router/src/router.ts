@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {url} from '@statx/url'
+import {state} from '@statx/core'
 
 const origin = location.origin || location.protocol + '//' + location.host
 
@@ -65,6 +66,7 @@ const setPath = (path: string) => {
 class Routes {
   private static rootNode: Routes | undefined
   private static hiddenSymbol = Symbol()
+  static currentRoute = state<Routes | undefined>(undefined)
   static errorFallback = () => {
     return `Oops, page dont exist`
   }
@@ -106,6 +108,7 @@ class Routes {
     }
 
     const renderResult = lastNode?.render(undefined, query)
+    this.currentRoute.set(lastNode)
     this.renderFunction(renderResult, this.rootElement)
     return true
   }
