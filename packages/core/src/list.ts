@@ -1,72 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Options, PublicList} from './types/index.js'
-import {state} from './proto'
+import type {Listner, Options, PublicList} from './types/index.js'
+import {getNounce} from './proto/proto-base.js'
+import {At, Pop, Push, Shift, Sort, UnShift} from './proto/proto-list.js'
+import {StateProto} from './state.js'
+import {getName} from './utils.js'
+
+const ListProto = Object.assign(Object.create(null), StateProto)
+
+ListProto.sort = Sort
+ListProto.at = At
+ListProto.shift = Shift
+ListProto.unshift = UnShift
+ListProto.pop = Pop
+ListProto.push = Push
 
 export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
-  const fn = state(value, options)
-  // const fn = createPublic(statex)
+  //@ts-ignore
+  const List = () => List.get()
 
-  /**
-   * 
-  Object.defineProperty(fn, 'push', {
-    value: (...args: Array<unknown>) => {
-      statex.set([...get(), ...args])
-      return get().length
-    },
+  Object.setPrototypeOf(List, ListProto)
+
+  List._childs = Object.create(null)
+  List._parents = Object.create(null)
+  List._id = getNounce()
+  List._subscribes = [] as Array<Listner>
+
+  Object.defineProperty(List, 'name', {
+    value: getName(options?.name),
+    configurable: false,
     writable: false,
   })
 
-  Object.defineProperty(fn, 'unshift', {
-    value: (...args: Array<unknown>) => {
-      statex.set([...args, ...get()])
-      return get().length
-    },
-    writable: false,
-  })
+  //@ts-ignore
+  List.set(value)
 
-  Object.defineProperty(fn, 'pop', {
-    value: () => {
-      const res = get()
-      const lastValue = res[res.length - 1]
-
-      statex.set(res.slice(0, res.length - 1))
-      return lastValue
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'shift', {
-    value: () => {
-      const res = get()
-      const firstValue = res[0]
-      statex.set(res.slice(1))
-      return firstValue
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'at', {
-    value: (position: number) => {
-      const res = get()
-      const length = res.length
-      if (position < 0) {
-        return res[length + position]
-      }
-      return res[position]
-    },
-    writable: false,
-  })
-
-  Object.defineProperty(fn, 'sort', {
-    value: (fn?: (a: T[number], b: T[number]) => number) => {
-      const res = get()
-      const sorted = res.slice().sort(fn)
-      statex.set(sorted)
-      return sorted
-    },
-    writable: false,
-  })
-   */
-
-  return fn as PublicList<T>
+  return List as any as PublicList<T>
 }

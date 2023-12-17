@@ -1,28 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, isFunction} from '../utils'
-import type {Listner, Options, State, StateType} from '../types/types'
-import {
-  InvalidateSubtree,
-  NotifySubscribers,
-  Peek,
-  PushHistory,
-  Subscribe,
-  UpdateDeps,
-  getNounce,
-} from './proto-base'
-import {GetStateValue, SetValue} from './proto-state'
+import {assert, getName, isFunction} from './utils'
+import type {Listner, Options, State, StateType} from './types/types'
+import {Peek, Subscribe, getNounce} from './proto/proto-base'
+import {GetStateValue, SetValue} from './proto/proto-state'
 
-const StateProto = Object.create(null)
+export const StateProto = Object.create(null)
 
 StateProto.set = SetValue
 StateProto.get = GetStateValue
 StateProto.peek = Peek
 StateProto.subscribe = Subscribe
-StateProto.invalidateSubtree = InvalidateSubtree
-StateProto.notifySubscribers = NotifySubscribers
-StateProto.pushHistory = PushHistory
-StateProto.updateDeps = UpdateDeps
 
 export function state<T extends StateType = StateType>(value: T, options?: Options): State<T> {
   assert(isFunction(value), 'Function not allowed in state')
@@ -33,12 +21,14 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
   Object.setPrototypeOf(State, StateProto)
 
   State._childs = Object.create(null)
-  State._id = getNounce()
   State._parents = Object.create(null)
+  State._id = getNounce()
   State._subscribes = [] as Array<Listner>
 
   Object.defineProperty(State, 'name', {
-    value: options?.name ?? 'unknown',
+    value: getName(options?.name),
+    configurable: false,
+    writable: false,
   })
 
   //@ts-ignore

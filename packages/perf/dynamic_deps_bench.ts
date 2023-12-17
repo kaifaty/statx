@@ -1,33 +1,25 @@
-import { Fn } from '@reatom/core'
-import { printLogs, formatLog } from './utils'
+import {Fn} from '@reatom/core'
+import {printLogs, formatLog} from './utils'
 
 async function testAggregateGrowing(count: number) {
   const mol_wire_lib = await import('mol_wire_lib')
-  const { $mol_wire_atom } = mol_wire_lib.default
+  const {$mol_wire_atom} = mol_wire_lib.default
 
-  const { atom, createCtx } = await import('@reatom/core')
+  const {atom, createCtx} = await import('@reatom/core')
 
-  const { observable, computed, autorun, configure } = await import('mobx')
-  configure({ enforceActions: 'never' })
+  const {observable, computed, autorun, configure} = await import('mobx')
+  configure({enforceActions: 'never'})
 
-  const { act } = await import('@artalar/act')
+  const {act} = await import('@artalar/act')
 
   const molAtoms = [new $mol_wire_atom(`0`, (next: number = 0) => next)]
   const reAtoms = [atom(0, `${0}`)]
-  const mobxAtoms = [observable.box(0, { name: `${0}` })]
+  const mobxAtoms = [observable.box(0, {name: `${0}`})]
   const actAtoms = [act(0)]
 
-  const molAtom = new $mol_wire_atom(`sum`, () =>
-    molAtoms.reduce((sum, atom) => sum + atom.sync(), 0),
-  )
-  const reAtom = atom(
-    (ctx) => reAtoms.reduce((sum, atom) => sum + ctx.spy(atom), 0),
-    `sum`,
-  )
-  const mobxAtom = computed(
-    () => mobxAtoms.reduce((sum, atom) => sum + atom.get(), 0),
-    { name: `sum` },
-  )
+  const molAtom = new $mol_wire_atom(`sum`, () => molAtoms.reduce((sum, atom) => sum + atom.sync(), 0))
+  const reAtom = atom((ctx) => reAtoms.reduce((sum, atom) => sum + ctx.spy(atom), 0), `sum`)
+  const mobxAtom = computed(() => mobxAtoms.reduce((sum, atom) => sum + atom.get(), 0), {name: `sum`})
   const actAtom = act(() => actAtoms.reduce((sum, a) => sum + a(), 0))
   const ctx = createCtx()
 
@@ -54,7 +46,7 @@ async function testAggregateGrowing(count: number) {
     molLogs.push(performance.now() - startMol)
 
     const startMobx = performance.now()
-    mobxAtoms.push(observable.box(i, { name: `${i}` }))
+    mobxAtoms.push(observable.box(i, {name: `${i}`}))
     mobxAtoms.at(-2)!.set(i)
     mobxLogs.push(performance.now() - startMobx)
 
@@ -67,10 +59,7 @@ async function testAggregateGrowing(count: number) {
     await new Promise((resolve) => setTimeout(resolve, 0))
   }
 
-  if (
-    new Set([molAtom.sync(), ctx.get(reAtom), mobxAtom.get(), actAtom()]).size >
-    1
-  ) {
+  if (new Set([molAtom.sync(), ctx.get(reAtom), mobxAtom.get(), actAtom()]).size > 1) {
     throw new Error(
       'Mismatch: ' +
         JSON.stringify({
@@ -93,34 +82,24 @@ async function testAggregateGrowing(count: number) {
 
 async function testAggregateShrinking(count: number) {
   const mol_wire_lib = await import('mol_wire_lib')
-  const { $mol_wire_atom } = mol_wire_lib.default
+  const {$mol_wire_atom} = mol_wire_lib.default
 
-  const { atom, createCtx } = await import('@reatom/core')
+  const {atom, createCtx} = await import('@reatom/core')
 
-  const { observable, computed, autorun, configure } = await import('mobx')
-  configure({ enforceActions: 'never' })
+  const {observable, computed, autorun, configure} = await import('mobx')
+  configure({enforceActions: 'never'})
 
   const molAtoms = Array.from(
-    { length: count },
+    {length: count},
     (_, i) => new $mol_wire_atom(`${i}`, (next: number = 0) => next),
   )
-  const reAtoms = Array.from({ length: count }, (_, i) => atom(0, `${i}`))
-  const mobxAtoms = Array.from({ length: count }, (_, i) =>
-    observable.box(i, { name: `${i}` }),
-  )
+  const reAtoms = Array.from({length: count}, (_, i) => atom(0, `${i}`))
+  const mobxAtoms = Array.from({length: count}, (_, i) => observable.box(i, {name: `${i}`}))
 
-  const molAtom = new $mol_wire_atom(`sum`, () =>
-    molAtoms.reduce((sum, atom) => sum + atom.sync(), 0),
-  )
-  const reAtom = atom(
-    (ctx) => reAtoms.reduce((sum, atom) => sum + ctx.spy(atom), 0),
-    `sum`,
-  )
+  const molAtom = new $mol_wire_atom(`sum`, () => molAtoms.reduce((sum, atom) => sum + atom.sync(), 0))
+  const reAtom = atom((ctx) => reAtoms.reduce((sum, atom) => sum + ctx.spy(atom), 0), `sum`)
   const ctx = createCtx()
-  const mobxAtom = computed(
-    () => mobxAtoms.reduce((sum, atom) => sum + atom.get(), 0),
-    { name: `sum` },
-  )
+  const mobxAtom = computed(() => mobxAtoms.reduce((sum, atom) => sum + atom.get(), 0), {name: `sum`})
 
   ctx.subscribe(reAtom, () => {})
   molAtom.sync()
@@ -169,17 +148,17 @@ async function testAggregateShrinking(count: number) {
 
 async function testParent(count: number) {
   const mol_wire_lib = await import('mol_wire_lib')
-  const { $mol_wire_atom } = mol_wire_lib.default
+  const {$mol_wire_atom} = mol_wire_lib.default
 
-  const { atom, createCtx } = await import('@reatom/core')
+  const {atom, createCtx} = await import('@reatom/core')
 
-  const { observable, computed, autorun, configure } = await import('mobx')
-  configure({ enforceActions: 'never' })
+  const {observable, computed, autorun, configure} = await import('mobx')
+  configure({enforceActions: 'never'})
 
   const molAtom = new $mol_wire_atom(`0`, (next: number = 0) => next)
   const reAtom = atom(0, `${0}`)
   const ctx = createCtx()
-  const mobxAtom = observable.box(0, { name: `${0}` })
+  const mobxAtom = observable.box(0, {name: `${0}`})
 
   {
     let i = count
@@ -239,11 +218,11 @@ async function testParent(count: number) {
 
 async function testMany(count: number) {
   const mol_wire_lib = await import('mol_wire_lib')
-  const { $mol_wire_atom, $mol_wire_fiber } = mol_wire_lib.default
-  let resolve: Fn = () => {}
+  const {$mol_wire_atom, $mol_wire_fiber} = mol_wire_lib.default
+  const resolve: Fn = () => {}
 
   const molAtoms = Array.from(
-    { length: count },
+    {length: count},
     (_, i) => new $mol_wire_atom(i.toString(), (next: number = 0) => next),
   )
 

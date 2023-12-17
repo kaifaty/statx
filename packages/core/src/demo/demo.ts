@@ -1,4 +1,4 @@
-import {state, computed} from '../proto'
+import {state, computed} from '../index'
 
 const test = state(0, {name: 'test'})
 const testComp = computed(() => test() + 21, {name: 'test'})

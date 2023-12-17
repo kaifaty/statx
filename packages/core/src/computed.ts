@@ -1,18 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, isFunction} from '../utils'
-import type {Computed, Listner, Nullable, StateType} from '../types/types'
-import {
-  InvalidateSubtree,
-  IsDontNeedRecalc,
-  NotifySubscribers,
-  Peek,
-  PushHistory,
-  UpdateDeps,
-  Subscribe,
-  getNounce,
-} from './proto-base'
-import {ComputeValue, GetComputedValue, SubscribeComputed} from './proto-computed'
+import {assert, getName, isFunction} from './utils'
+import type {Computed, Listner, Nullable, StateType} from './types/types'
+import {Peek, Subscribe, getNounce} from './proto/proto-base'
+import {GetComputedValue, SubscribeComputed} from './proto/proto-computed'
 
 type Res<T, S extends StatlessFunc<T>> = T extends -1 ? ReturnType<S> : T
 
@@ -25,16 +16,10 @@ export type ComputedInternalOptions<T, S extends StatlessFunc<T>> = {
 
 const ComputeProto = Object.create(null)
 
-ComputeProto.computeValue = ComputeValue
 ComputeProto.get = GetComputedValue
-ComputeProto.invalidateSubtree = InvalidateSubtree
-ComputeProto.isDontNeedRecalc = IsDontNeedRecalc
-ComputeProto.notifySubscribers = NotifySubscribers
 ComputeProto.peek = Peek
-ComputeProto.pushHistory = PushHistory
 ComputeProto.subscribe = SubscribeComputed
 ComputeProto.subscribeState = Subscribe
-ComputeProto.updateDeps = UpdateDeps
 
 export const computed = <
   T extends StateType = -1,
@@ -61,7 +46,9 @@ export const computed = <
   Computed.reducer = value
 
   Object.defineProperty(Computed, 'name', {
-    value: options?.name ?? 'unknown',
+    value: getName(options?.name),
+    configurable: false,
+    writable: false,
   })
 
   return Computed as any as Computed<T>

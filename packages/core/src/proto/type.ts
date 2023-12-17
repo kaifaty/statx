@@ -24,17 +24,18 @@ export interface CommonInternal {
 }
 
 export interface Base extends CommonInternal {
-  invalidateSubtree(): void
-  isDontNeedRecalc(): boolean
-  notifySubscribers(): void
   peek(): unknown
-  pushHistory(value: unknown): void
   subscribe(listner: Listner): UnSubscribe
-  updateDeps(): void
 }
 
 export interface IState extends Base {
   set(value: unknown): void
+}
+
+export interface IList extends Base {
+  currentValue: Array<unknown>
+  prevValue: Array<unknown>
+  set(value: Array<unknown>): void
 }
 
 export interface IComputed extends Base {

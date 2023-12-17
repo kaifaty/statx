@@ -1,13 +1,12 @@
 import {onEach} from '../utils'
 import {Listner, UnSubscribe} from '../types'
-import {Base, CommonInternal, IComputed, IState} from './type'
+import {CommonInternal, IState} from './type'
 
 let nounce = 0
 let isNotifying = false
 let recording: Set<CommonInternal> | undefined = undefined
 let states2notify: Record<number, CommonInternal> = Object.create(null)
-
-const requesters: CommonInternal[] = []
+let requester: CommonInternal | undefined
 
 export const startRecord = () => {
   recording = new Set()
@@ -26,7 +25,8 @@ export const isStateType = (v: unknown): v is IState => {
   return typeof v === 'function'
 }
 
-export const getRequesters = () => requesters
+export const setRequesters = (value: CommonInternal | undefined) => (requester = value)
+export const getRequesters = () => requester
 export const getNounce = () => nounce++
 export const getRecording = (): Set<CommonInternal> | undefined => recording
 
@@ -51,7 +51,7 @@ export function Subscribe(this: CommonInternal, listner: Listner): UnSubscribe {
   }
 }
 
-export function NotifySubscribers(this: CommonInternal) {
+export function notifySubscribers() {
   if (isNotifying === false) {
     isNotifying = true
 
@@ -69,34 +69,24 @@ export function NotifySubscribers(this: CommonInternal) {
   }
 }
 
-export function InvalidateSubtree(this: CommonInternal) {
-  this._hasParentUpdates = true
-  states2notify[this._id] = this
-  onEach<CommonInternal>(this._childs, (item) => {
-    ;(item as Base).invalidateSubtree()
-    // item.cause = this.name
-  })
+export function invalidateSubtree(value: CommonInternal) {
+  value._hasParentUpdates = true
+  states2notify[value._id] = value
+  onEach<CommonInternal>(value._childs, invalidateSubtree)
 }
 
-export function PushHistory(this: CommonInternal, value: unknown) {
-  this.prevValue = this.currentValue
-  this.currentValue = value
+export function pushHistory(target: CommonInternal, value: unknown) {
+  target.prevValue = target.currentValue
+  target.currentValue = value
 }
 
 export function Peek(this: CommonInternal) {
   return this.currentValue
 }
 
-export function IsDontNeedRecalc(this: IComputed): boolean {
-  return this._hasParentUpdates === false && this.currentValue !== undefined
-}
-
-export function UpdateDeps(this: CommonInternal) {
-  const requesters = getRequesters()
-  const lastRequester = requesters[requesters.length - 1]
-
-  if (lastRequester && !this._childs[lastRequester._id]) {
-    this._childs[lastRequester._id] = lastRequester
-    lastRequester._parents[this._id] = this
+export function updateDeps(target: CommonInternal) {
+  if (requester && !target._childs[requester._id]) {
+    target._childs[requester._id] = requester
+    requester._parents[target._id] = target
   }
 }

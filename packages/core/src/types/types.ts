@@ -46,29 +46,8 @@ export type HistoryInternal = {
   _history: unknown[]
 }
 
-export interface CommonInternal extends HistoryInternal {
-  _id: number
-  _childs: Record<number, CommonInternal>
-  _parents: Record<number, CommonInternal>
-  _subscribes: Set<Listner>
-  _hasParentUpdates: boolean | undefined
-  name: string
-  peek(): unknown
-}
-
-export type ComputedInternal = CommonInternal & {
-  initial?: unknown
-  isComputing: boolean
-  reducer: SetterFunc
-}
-
-export type StateInternal = CommonInternal
-
-export type StateVariants = ComputedInternal | StateInternal
-
 export interface PublicState<T extends StateType> {
   (): T
-  _internal: CommonInternal
   name: string
   subscribe(listner: Listner<T>): UnSubscribe
   peek(): T

@@ -2,10 +2,8 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {asyncState, action, getHistoryValue} from '../index.js'
-import {state, computed} from '../proto/index.js'
+import {asyncState, computed, state, list, action, getHistoryValue} from '../index.js'
 import {cachedState} from '../cached.js'
-import {list} from '../list.js'
 
 const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 type Mock = {

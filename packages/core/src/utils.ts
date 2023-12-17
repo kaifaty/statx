@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {CommonInternal, Func, ComputedInternal} from './types/types.js'
+import type {Func} from './types/types.js'
 const names = new Set()
 
 const defaultName = 'Unnamed state'
@@ -13,12 +13,6 @@ export const getName = (name?: string): string => {
     return name
   }
   return defaultName
-}
-
-export const getComputedState = (state: CommonInternal | ComputedInternal): ComputedInternal | undefined => {
-  if ('reducer' in state) {
-    return state
-  }
 }
 
 export const getHistoryValue = (state: any): unknown => {
