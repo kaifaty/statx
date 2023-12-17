@@ -1,10 +1,10 @@
 import {onEach} from '../utils'
 import {Listner, UnSubscribe} from '../types'
-import {CommonInternal, IState} from './type'
+import {Base, CommonInternal} from './type'
 
 let nounce = 0
 let isNotifying = false
-let recording: Set<CommonInternal> | undefined = undefined
+let recording: Set<Base> | undefined = undefined
 let states2notify: Record<number, CommonInternal> = Object.create(null)
 let requester: CommonInternal | undefined
 
@@ -15,14 +15,10 @@ export const startRecord = () => {
 /**
  * Flush all collected non computed states.
  */
-export const flushStates = (): Set<CommonInternal> | undefined => {
+export const flushStates = (): Set<Base> | undefined => {
   const data = recording
   recording = undefined
   return data
-}
-
-export const isStateType = (v: unknown): v is IState => {
-  return typeof v === 'function'
 }
 
 export const setRequesters = (value: CommonInternal | undefined) => (requester = value)

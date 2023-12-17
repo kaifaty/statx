@@ -36,3 +36,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
   return State as any as State<T>
 }
+
+export const isStateType = (v: unknown): v is State<unknown> => {
+  return typeof v === 'function' && 'set' in v && '_id' in v
+}

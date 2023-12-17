@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {flushStates, startRecord} from '@statx/core'
-import type {CommonInternal, UnSubscribe} from '@statx/core'
+import type {Base, UnSubscribe} from '@statx/core'
 
 type Constructor<T> = new (...args: any[]) => T
-type Subs = Set<CommonInternal>
+type Subs = Set<Base>
 
 interface BaseUpdatedElement extends HTMLElement {
   updated(..._args: any[]): void

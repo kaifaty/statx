@@ -1,2 +1,3 @@
 export {computed} from '../computed'
-export {flushStates, startRecord, isStateType} from './proto-base'
+export {flushStates, startRecord} from './proto-base'
+export {Base} from './type'

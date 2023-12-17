@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {LitElement, PropertyValueMap} from 'lit'
 import {flushStates, startRecord} from '@statx/core'
-import type {CommonInternal, UnSubscribe} from '@statx/core'
+import type {Base, UnSubscribe} from '@statx/core'
 
 type Constructor<T> = new (...args: any[]) => T
-type Subs = Set<CommonInternal>
+type Subs = Set<Base>
 
 const isEqual = (current: Subs, prev?: Subs) => {
   if (!prev) return false
