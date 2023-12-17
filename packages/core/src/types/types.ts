@@ -51,9 +51,9 @@ export interface CommonInternal extends HistoryInternal {
   _childs: Record<number, CommonInternal>
   _parents: Record<number, CommonInternal>
   _subscribes: Set<Listner>
-  name: string
   _hasParentUpdates: boolean | undefined
-  peek: unknown
+  name: string
+  peek(): unknown
 }
 
 export type ComputedInternal = CommonInternal & {
@@ -71,7 +71,7 @@ export interface PublicState<T extends StateType> {
   _internal: CommonInternal
   name: string
   subscribe(listner: Listner<T>): UnSubscribe
-  peek: T
+  peek(): T
 }
 
 export interface PublicList<T extends Array<unknown>>

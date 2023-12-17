@@ -2,7 +2,8 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {state, computed, asyncState, action, getHistoryValue} from '../index.js'
+import {asyncState, action, getHistoryValue} from '../index.js'
+import {state, computed} from '../proto/index.js'
 import {cachedState} from '../cached.js'
 import {list} from '../list.js'
 
@@ -34,14 +35,15 @@ test('Name is settable', () => {
 
 test('Computation test', async () => {
   const entry = state(0)
-  const a = computed(() => entry())
-  const b = computed(() => a() + 1)
-  const c = computed(() => a() + 1)
-  const d = computed(() => b() + c())
-  const e = computed(() => d() + 1)
-  const f = computed(() => d() + e())
-  const g = computed(() => d() + e())
-  const h = computed(() => f() + g())
+  const a = computed(() => entry(), {name: 'a'})
+  const b = computed(() => a() + 1, {name: 'b'})
+  const c = computed(() => a() + 1, {name: 'c'})
+  const d = computed(() => b() + c(), {name: 'd'})
+  const e = computed(() => d() + 1, {name: 'e'})
+  const f = computed(() => d() + e(), {name: 'f'})
+  const g = computed(() => d() + e(), {name: 'g'})
+  const h = computed(() => f() + g(), {name: 'h'})
+
   const _a = () => entry()
   const _b = () => _a() + 1
   const _c = () => _a() + 1
@@ -65,9 +67,10 @@ test('Computation test', async () => {
     await 1
     assert.is(results.h, _h())
   }
+  await new Promise((r) => setTimeout(r, 1))
 
-  //assert.is(results.c, _c())
-  //assert.is(results.h, _h())
+  assert.is(results.c, _c())
+  assert.is(results.h, _h())
 })
 
 test('State may be reducer', () => {
@@ -129,24 +132,25 @@ test(`Recalculation of subscribers`, async () => {
   const c = computed(() => v() * 100 + 20)
 
   // No calculations if no subs
-  assert.is(c._internal.peek, undefined)
+  assert.is(c.peek(), undefined)
 
   const unsub = c.subscribe(() => {
     1
   })
   // Recalc on subscribe
-  assert.is(getHistoryValue(c._internal), 23 * 100 + 20)
+
+  assert.is(getHistoryValue(c), 23 * 100 + 20)
 
   v.set(1)
   await 1
 
-  assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
+  assert.is(getHistoryValue(c), 1 * 100 + 20)
 
   // No recalc after unsub
   unsub()
   v.set(0)
 
-  assert.is(getHistoryValue(c._internal), 1 * 100 + 20)
+  assert.is(getHistoryValue(c), 1 * 100 + 20)
 })
 
 test(`Recalculate all computed tree`, () => {
@@ -163,20 +167,20 @@ test(`Recalculate all computed tree`, () => {
 })
 
 test('Check right dependencies of computed state', () => {
-  const v1 = state(1, {name: 'v1'})
-  const v2 = state(2, {name: 'v2'})
-  const v3 = state(3, {name: 'v3'})
+  const v1 = state(1, {name: 'v1'}) as any
+  const v2 = state(2, {name: 'v2'}) as any
+  const v3 = state(3, {name: 'v3'}) as any
 
-  const c = computed(() => v1() + v2() + v3(), {name: 'c'})
+  const c = computed(() => v1() + v2() + v3(), {name: 'c'}) as any
 
   c()
-  assert.is(!!v1._internal._childs[c._internal._id], true)
-  assert.is(!!v2._internal._childs[c._internal._id], true)
-  assert.is(!!v3._internal._childs[c._internal._id], true)
+  assert.is(!!v1._childs[c._id], true)
+  assert.is(!!v2._childs[c._id], true)
+  assert.is(!!v3._childs[c._id], true)
 
-  assert.is(!!c._internal._parents[v1._internal._id], true)
-  assert.is(!!c._internal._parents[v2._internal._id], true)
-  assert.is(!!c._internal._parents[v3._internal._id], true)
+  assert.is(!!c._parents[v1._id], true)
+  assert.is(!!c._parents[v2._id], true)
+  assert.is(!!c._parents[v3._id], true)
 })
 
 test('Dont update if value not changed', () => {

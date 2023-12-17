@@ -1,10 +1,8 @@
 export {action} from './actions'
-export {state} from './state.js'
-export {computed} from './computed.js'
+export {state, computed, flushStates, startRecord, isStateType} from './proto/index'
 export {list} from './list.js'
-export {Common, flushStates, startRecord, isStateType} from './common.js'
-export type * from './types/index.js'
-export {getHistoryValue, createPublic} from './utils.js'
+// export {} from './types/index.js'
+export {getHistoryValue} from './utils.js'
 
 export {cachedState} from './cached.js'
 export {asyncState, AsyncState} from './async-state.js'

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Options, PublicList} from './types/index.js'
-import {state} from './proto'
+import type {Options, PublicList} from '../types/index.js'
+import {state} from './state.js'
 
 export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
   const fn = state(value, options)

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Computed, State, AnyFunc} from './types'
-import {state} from './proto'
-import {cancelFrame, startFrame} from './utils.js'
+import type {Computed, State, AnyFunc} from '../types'
+import {state} from './state'
+import {cancelFrame, startFrame} from '../utils.js'
 
 type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'
 

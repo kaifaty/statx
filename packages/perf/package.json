@@ -1,0 +1,62 @@
+{
+  "name": "reactive-computed-bench",
+  "private": true,
+  "description": "Benchmarks of complex computed update performance",
+  "scripts": {
+    "start": "tsx computers_bench.ts",
+    "start:mem": "node --expose-gc --loader=tsx computers_bench.ts",
+    "site:dev": "vite dev",
+    "site:build": "vite build",
+    "update": "npx npm-check-updates -u"
+  },
+  "author": "artalar",
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/artalar/reactive-computed-bench.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/artalar/reactive-computed-bench/issues"
+  },
+  "homepage": "https://github.com/artalar/reactive-computed-bench/tree/main",
+  "devDependencies": {
+    "@artalar/act": "^3.2.1",
+    "@frp-ts/core": "^1.0.0-beta.3",
+    "@ngrx/store": "^15.4.0",
+    "@preact/signals-core": "^1.2.3",
+    "@reatom/core": "^3.2.0",
+    "@statx/core": "*",
+    "@types/node": "latest",
+    "@webreflection/signal": "^2.0.0",
+    "cellx": "^1.10.30",
+    "effector": "^22.8.0",
+    "jotai": "^2.0.3",
+    "mobx": "^6.9.0",
+    "mol_wire_lib": "^1.0.548",
+    "nanostores": "^0.7.4",
+    "react": "^18.2.0",
+    "redux": "^4.2.1",
+    "reselect": "^4.1.7",
+    "s-js": "^0.4.9",
+    "solid-js": "^1.7.3",
+    "spred": "^0.32.2",
+    "tsx": "^3.12.6",
+    "typescript": "^5.0.4",
+    "usignal": "^0.9.0",
+    "uvu": "^0.5.6",
+    "vite": "^4.2.1",
+    "whatsup": "^2.5.0",
+    "wonka": "^6.3.1"
+  },
+  "keywords": [
+    "reactive",
+    "reactivity",
+    "computed",
+    "bench",
+    "perf"
+  ]
+}

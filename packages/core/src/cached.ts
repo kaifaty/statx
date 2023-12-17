@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {State, UnSubscribe} from '@statx/core'
+import type {State, UnSubscribe} from './types'
 
 type CachedData = Map<unknown, unknown>
 
