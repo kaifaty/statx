@@ -30,7 +30,7 @@ export const encodeQueryParams = (data: Record<string, string>) => {
   )
 }
 
-class StateURL {
+export class StateURL {
   readonly query = state<Record<string, string>>(parseQueryParams())
   readonly path = state(window.location.pathname)
   readonly hash = state(window.location.hash)

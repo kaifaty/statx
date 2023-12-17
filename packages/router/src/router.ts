@@ -10,6 +10,7 @@ type ChildParams = {
   render: RenderFn
   name: string
   entry?: Entry
+  outlet?: () => void
 }
 type InitParams = Omit<ChildParams, 'name'> & {
   injectSelector: string

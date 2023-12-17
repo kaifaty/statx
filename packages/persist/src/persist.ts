@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {isStateType, list, State, state, StateType} from '@statx/core'
+import {isStateType, State, state, StateType} from '@statx/core'
 
 import {indexedDBAdapter} from './adapters/indexeddb-storage.js'
 
@@ -16,6 +16,7 @@ import {
 
 const uniqNames = new Set<string>()
 
+// TODO разделить неймспейсы для кажого хранилизща
 const assertUnuniqNames = (name: string) => {
   if (uniqNames.has(name)) {
     throw new Error(`Name: ${name} must be uniq`)
@@ -44,6 +45,7 @@ class Persist {
       value: () => {
         this.storage.clear()
         this.value.set(this.initialValue)
+        uniqNames.delete(name)
       },
     })
   }
@@ -68,10 +70,12 @@ class AsyncPersist extends Persist {
       configurable: false,
       value: state(false),
     })
+
+    this.value.set(value)
     ;(this.storage as AsyncStorage)
       .get()
-      .then((value) => {
-        this.value.set(value)
+      .then((restored) => {
+        this.value.set(restored ?? value)
       })
       .finally(() => {
         ;(this.value as any).isLoading.set(false)

@@ -39,8 +39,8 @@
     "lint": "tsc --noEmit",
     "demo": "parcel serve ./src/demo/index.html",
     "dev": "parcel watch",
-    "test": "tsx src/index.test.ts",
-    "test:watch": "tsx watch src/index.test.ts"
+    "test": "wtr --config wtr-config.js --node-resolve",
+    "test:watch": "wtr **/*.test.js --node-resolve --watch"
   },
   "browserslist": [
     "last 4 chrome versions"
