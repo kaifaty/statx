@@ -1,12 +1,11 @@
-import {onEach} from '../utils'
-import {Listner, UnSubscribe} from '../types'
-import {Base, CommonInternal} from './type'
+import {UnSubscribe} from '../types'
+import {Base, Listner, CommonInternal, IComputed} from './type'
 
 let nounce = 0
 let isNotifying = false
 let recording: Set<Base> | undefined = undefined
-let states2notify: Record<number, CommonInternal> = Object.create(null)
-let requester: CommonInternal | undefined
+let requester: IComputed | undefined
+const states2notify: Set<Listner> = new Set()
 
 export const startRecord = () => {
   recording = new Set()
@@ -21,8 +20,8 @@ export const flushStates = (): Set<Base> | undefined => {
   return data
 }
 
-export const setRequesters = (value: CommonInternal | undefined) => (requester = value)
-export const getRequesters = () => requester
+export const setRequester = (value: IComputed | undefined) => (requester = value)
+export const getRequester = () => requester
 export const getNounce = () => nounce++
 export const getRecording = (): Set<CommonInternal> | undefined => recording
 
@@ -33,18 +32,14 @@ export const getRecording = (): Set<CommonInternal> | undefined => recording
  * When unsubscribing, we need to notify all the subscribers that we have unsubscribed.
  */
 export function Subscribe(this: CommonInternal, listner: Listner): UnSubscribe {
-  this._subscribes.push(listner)
+  listner.base = this
+  this._listeners.add(listner)
 
-  return () => {
-    const index = this._subscribes.findIndex((item) => item === listner)
-    this._subscribes.splice(index, 1)
+  return () => this._listeners.delete(listner)
+}
 
-    if (this._subscribes.length === 0) {
-      onEach<CommonInternal>(this._parents, (parent) => {
-        delete parent._childs[this._id]
-      })
-    }
-  }
+function isComputed(item: Listner | IComputed): item is IComputed {
+  return '_computed' in item
 }
 
 export function notifySubscribers() {
@@ -52,23 +47,24 @@ export function notifySubscribers() {
     isNotifying = true
 
     Promise.resolve().then(() => {
-      onEach<CommonInternal>(states2notify, (state) => {
-        try {
-          state._subscribes.forEach((listner) => listner(state.get()))
-        } catch (e) {
-          console.error('Error in subscriber function of:', state.name)
-        }
+      states2notify.forEach((item) => {
+        item(item.base.get())
       })
-      states2notify = Object.create(null)
+      states2notify.clear()
       isNotifying = false
     })
   }
 }
 
-export function invalidateSubtree(value: CommonInternal) {
-  value._hasParentUpdates = true
-  states2notify[value._id] = value
-  onEach<CommonInternal>(value._childs, invalidateSubtree)
+export function invalidateSubtree(value: Base) {
+  value._listeners.forEach((item) => {
+    if (isComputed(item)) {
+      item._hasParentUpdates = true
+      invalidateSubtree(item)
+    } else {
+      states2notify.add(item)
+    }
+  })
 }
 
 export function pushHistory(target: CommonInternal, value: unknown) {
@@ -81,8 +77,5 @@ export function Peek(this: CommonInternal) {
 }
 
 export function updateDeps(target: CommonInternal) {
-  if (requester && !target._childs[requester._id]) {
-    target._childs[requester._id] = requester
-    requester._parents[target._id] = target
-  }
+  recording?.add(target as Base)
 }

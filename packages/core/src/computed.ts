@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {assert, getName, isFunction} from './utils'
-import type {Computed, Listner, Nullable, StateType} from './types/types'
+import type {Computed, Nullable, StateType} from './types/types'
 import {Peek, Subscribe, getNounce} from './proto/proto-base'
 import {GetComputedValue, SubscribeComputed} from './proto/proto-computed'
 
@@ -36,10 +36,9 @@ export const computed = <
 
   Object.setPrototypeOf(Computed, ComputeProto)
 
-  Computed._childs = Object.create(null)
   Computed._id = getNounce()
-  Computed._parents = Object.create(null)
-  Computed._subscribes = [] as Array<Listner>
+  Computed._computed = true
+  Computed._listeners = new Set()
 
   Computed.initial = options?.initial
   Computed.isComputing = false

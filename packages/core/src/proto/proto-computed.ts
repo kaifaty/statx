@@ -1,58 +1,46 @@
-import {getRecording, pushHistory, setRequesters, updateDeps} from './proto-base'
-import {CommonInternal, IComputed} from './type'
-import {assert, onEach} from '../utils'
-import type {Listner, UnSubscribe} from '../types/types'
+import {pushHistory, setRequester, getRequester, updateDeps} from './proto-base'
+import type {IComputed, Listner} from './type'
+import {assert} from '../utils'
+import type {UnSubscribe} from '../types/types'
 
 export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscribe {
-  computeValue(this)
+  this.get()
   return this.subscribeState(listner)
 }
 
-export function GetComputedValue(this: IComputed) {
+export function GetComputedValue(this: IComputed): unknown {
   try {
-    updateDeps(this)
-    return computeValue(this)
-  } finally {
-    getRecording()?.add(this)
-  }
-}
-
-function computeValue(target: IComputed): unknown {
-  if (isDontNeedRecalc(target)) {
-    const rec = getRecording()
-    if (rec) {
-      onEach<CommonInternal>(target._parents, (item) => rec?.add(item))
+    const requesterComputed = getRequester()
+    if (requesterComputed) {
+      this._listeners.add(requesterComputed)
     }
-    return target.currentValue
-  }
+    updateDeps(this)
+    setRequester(this)
 
-  try {
-    assert(target.isComputing, `Loops dosen't allows. Name: ${target.name ?? 'Unnamed state'}`)
-    setRequesters(target)
+    if (isDontNeedRecalc(this)) {
+      return this.currentValue
+    }
 
-    onEach<CommonInternal>(target._parents, (item) => {
-      delete item._childs[target._id]
-      delete target._parents[item._id]
-    })
+    assert(this.isComputing, `Loops dosen't allows. Name: ${this.name ?? 'Unnamed state'}`)
 
-    target.isComputing = true
+    this.isComputing = true
 
-    const value = target.reducer(target.currentValue ?? target.initial)
+    pushHistory(this, this.reducer(this.currentValue ?? this.initial))
+    this.isComputing = false
+    this._hasParentUpdates = false
 
-    setRequesters(undefined)
-    pushHistory(target, value)
-
-    return value
+    return this.currentValue
   } catch (e) {
-    console.error(`Error in computed name: ${target.name}. Message: ${(e as Error).message}`)
-
+    console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`)
+    this.isComputing = false
+    this._hasParentUpdates = false
     return undefined
   } finally {
-    target.isComputing = false
-    target._hasParentUpdates = false
+    setRequester(undefined)
   }
 }
 
 function isDontNeedRecalc(value: IComputed): boolean {
+  // TODO ввести уникальное значение для еще не подсчитанного состояния
   return value._hasParentUpdates === false && value.currentValue !== undefined
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {assert, getName, isFunction} from './utils'
-import type {Listner, Options, State, StateType} from './types/types'
+import type {Options, State, StateType} from './types/types'
 import {Peek, Subscribe, getNounce} from './proto/proto-base'
 import {GetStateValue, SetValue} from './proto/proto-state'
 
@@ -20,10 +20,11 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
   Object.setPrototypeOf(State, StateProto)
 
-  State._childs = Object.create(null)
-  State._parents = Object.create(null)
+  State._listeners = new Set()
   State._id = getNounce()
-  State._subscribes = [] as Array<Listner>
+  //State._childs = Object.create(null)
+  //State._parents = Object.create(null)
+  //State._subscribes = [] as Array<Listner>
 
   Object.defineProperty(State, 'name', {
     value: getName(options?.name),
@@ -33,6 +34,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
   //@ts-ignore
   State.set(value)
+  //console.log(State)
 
   return State as any as State<T>
 }

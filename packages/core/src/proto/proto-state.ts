@@ -1,12 +1,13 @@
-import type {IState, CommonInternal} from './type'
+import type {IState} from './type'
 import {isFunction} from '../utils'
-import {getRecording, pushHistory, invalidateSubtree, notifySubscribers, updateDeps} from './proto-base'
+import {pushHistory, invalidateSubtree, notifySubscribers, updateDeps, getRequester} from './proto-base'
 
-export function SetValue(this: CommonInternal, value: unknown) {
+export function SetValue(this: IState, value: unknown) {
   const newValue = isFunction(value) ? value(this.currentValue) : value
   if (newValue === this.currentValue) {
     return
   }
+  // console.log('set value', value)
   pushHistory(this, newValue)
   invalidateSubtree(this)
   notifySubscribers()
@@ -14,6 +15,9 @@ export function SetValue(this: CommonInternal, value: unknown) {
 
 export function GetStateValue(this: IState) {
   updateDeps(this)
-  getRecording()?.add(this)
+  const requester = getRequester()
+  if (requester) {
+    this._listeners.add(requester)
+  }
   return this.currentValue
 }

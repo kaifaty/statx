@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {Listner, SetterFunc, UnSubscribe} from '../types'
+import {SetterFunc, UnSubscribe} from '../types'
 
 export interface CommonInternal {
-  _childs: Record<number, CommonInternal>
-  _hasParentUpdates: boolean | undefined
+  // _childs: Record<number, CommonInternal>
 
   currentValue: unknown
   prevValue: unknown
 
   // _history: unknown[]
   // _historyCursor: number
+  // _subscribes: Array<Listner>
+  // _parents: Record<number, CommonInternal>
 
+  _listeners: Set<Listner | IComputed>
   _id: number
-  _parents: Record<number, CommonInternal>
-  _subscribes: Array<Listner>
+  _computed?: true
 
   cause?: string
   get(): unknown
@@ -21,6 +22,11 @@ export interface CommonInternal {
   isComputing: boolean
   name: string
   peek(): unknown
+}
+
+export type Listner = {
+  (value: unknown): void
+  base: CommonInternal
 }
 
 export interface Base extends CommonInternal {
@@ -39,6 +45,7 @@ export interface IList extends Base {
 }
 
 export interface IComputed extends Base {
+  _hasParentUpdates: boolean
   reducer: SetterFunc
   computeValue(): void
   subscribeState(listner: Listner): UnSubscribe
