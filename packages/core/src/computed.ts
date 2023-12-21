@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getName, isFunction} from './utils'
+import {assert, isFunction} from './utils'
 import type {Computed, Nullable, StateType} from './types/types'
 import {Peek, Subscribe, getNounce} from './proto/proto-base'
 import {GetComputedValue, SubscribeComputed} from './proto/proto-computed'
@@ -43,12 +43,12 @@ export const computed = <
   Computed.initial = options?.initial
   Computed.isComputing = false
   Computed.reducer = value
-
-  Object.defineProperty(Computed, 'name', {
-    value: getName(options?.name),
-    configurable: false,
-    writable: false,
-  })
+  //
+  //Object.defineProperty(Computed, 'name', {
+  //  value: getName(options?.name),
+  //  configurable: false,
+  //  writable: false,
+  //})
 
   return Computed as any as Computed<T>
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Listner, Options, PublicList} from './types/index.js'
+import type {Options, PublicList} from './types/index.js'
 import {getNounce} from './proto/proto-base.js'
 import {At, Pop, Push, Shift, Sort, UnShift} from './proto/proto-list.js'
 import {StateProto} from './state.js'
@@ -20,10 +20,8 @@ export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
 
   Object.setPrototypeOf(List, ListProto)
 
-  List._childs = Object.create(null)
-  List._parents = Object.create(null)
   List._id = getNounce()
-  List._subscribes = [] as Array<Listner>
+  List._listeners = new Set()
 
   Object.defineProperty(List, 'name', {
     value: getName(options?.name),

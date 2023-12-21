@@ -5,7 +5,7 @@ let nounce = 0
 let isNotifying = false
 let recording: Set<Base> | undefined = undefined
 let requester: IComputed | undefined
-const states2notify: Set<Listner> = new Set()
+const states2notify: Array<Listner> = []
 
 export const startRecord = () => {
   recording = new Set()
@@ -34,11 +34,12 @@ export const getRecording = (): Set<CommonInternal> | undefined => recording
 export function Subscribe(this: CommonInternal, listner: Listner): UnSubscribe {
   listner.base = this
   this._listeners.add(listner)
+  listner.willNotify = false
 
   return () => this._listeners.delete(listner)
 }
 
-function isComputed(item: Listner | IComputed): item is IComputed {
+export function isComputed(item: Listner | IComputed): item is IComputed {
   return '_computed' in item
 }
 
@@ -47,10 +48,14 @@ export function notifySubscribers() {
     isNotifying = true
 
     Promise.resolve().then(() => {
-      states2notify.forEach((item) => {
+      const len = states2notify.length
+      for (let i = 0; i < len; i++) {
+        const item = states2notify[i]
         item(item.base.get())
-      })
-      states2notify.clear()
+        item.willNotify = false
+      }
+
+      states2notify.length = 0
       isNotifying = false
     })
   }
@@ -61,8 +66,9 @@ export function invalidateSubtree(value: Base) {
     if (isComputed(item)) {
       item._hasParentUpdates = true
       invalidateSubtree(item)
-    } else {
-      states2notify.add(item)
+    } else if (item?.willNotify === false) {
+      states2notify.push(item)
+      item.willNotify = true
     }
   })
 }

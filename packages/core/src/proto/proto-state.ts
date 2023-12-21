@@ -7,7 +7,6 @@ export function SetValue(this: IState, value: unknown) {
   if (newValue === this.currentValue) {
     return
   }
-  // console.log('set value', value)
   pushHistory(this, newValue)
   invalidateSubtree(this)
   notifySubscribers()

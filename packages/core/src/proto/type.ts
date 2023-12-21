@@ -27,6 +27,7 @@ export interface CommonInternal {
 export type Listner = {
   (value: unknown): void
   base: CommonInternal
+  willNotify: boolean
 }
 
 export interface Base extends CommonInternal {

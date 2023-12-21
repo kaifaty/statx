@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {state, computed} from '../index'
 
+new Function()
 const test = async () => {
   const entry = state(0)
   const a = computed(() => entry(), {name: 'a'})

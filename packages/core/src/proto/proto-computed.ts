@@ -1,4 +1,4 @@
-import {pushHistory, setRequester, getRequester, updateDeps} from './proto-base'
+import {pushHistory, setRequester, getRequester, updateDeps, isComputed} from './proto-base'
 import type {IComputed, Listner} from './type'
 import {assert} from '../utils'
 import type {UnSubscribe} from '../types/types'
@@ -9,17 +9,18 @@ export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscrib
 }
 
 export function GetComputedValue(this: IComputed): unknown {
+  const requesterComputed = getRequester()
   try {
-    const requesterComputed = getRequester()
-    if (requesterComputed) {
-      this._listeners.add(requesterComputed)
-    }
-    updateDeps(this)
     setRequester(this)
 
     if (isDontNeedRecalc(this)) {
       return this.currentValue
     }
+    this._listeners.forEach((item) => {
+      if (isComputed(item)) {
+        this._listeners.delete(item)
+      }
+    })
 
     assert(this.isComputing, `Loops dosen't allows. Name: ${this.name ?? 'Unnamed state'}`)
 
@@ -36,6 +37,10 @@ export function GetComputedValue(this: IComputed): unknown {
     this._hasParentUpdates = false
     return undefined
   } finally {
+    if (requesterComputed) {
+      this._listeners.add(requesterComputed)
+    }
+    updateDeps(this)
     setRequester(undefined)
   }
 }
