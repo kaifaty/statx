@@ -28,7 +28,7 @@ test('Defaul value', () => {
 })
 
 test('Name is settable', () => {
-  assert.is(state(0, {name: 'name'}).name, 'name')
+  assert.is(state(0, {name: 'name'})._name, 'name')
 })
 
 test('Computation test', async () => {
@@ -220,9 +220,9 @@ test('karl test', async () => {
   const F = computed(() => hard(D()[2].x || B(), 'F'))
   const G = computed(() => C() + (C() || E() % 2) + D()[4].x + F())
 
-  F.subscribe((v) => (res.push(hard(v, 'J')), console.log(hard(v, 'J'))))
-  G.subscribe((v) => (res.push(hard(v, 'H')), console.log(hard(v, 'H'))))
-  G.subscribe((v) => (res.push(v), console.log(v)))
+  F.subscribe((v) => res.push(hard(v, 'J')))
+  G.subscribe((v) => res.push(hard(v, 'H')))
+  G.subscribe((v) => res.push(v))
 
   const _C = () => (A() % 2) + (B() % 2)
   const _D = () => numbers.map((i) => ({x: i + (A() % 2) - (B() % 2)}))

@@ -2,25 +2,20 @@
 import {SetterFunc, UnSubscribe} from '../types'
 
 export interface CommonInternal {
-  // _childs: Record<number, CommonInternal>
-
   currentValue: unknown
   prevValue: unknown
 
   // _history: unknown[]
   // _historyCursor: number
-  // _subscribes: Array<Listner>
-  // _parents: Record<number, CommonInternal>
 
   _listeners: Set<Listner | IComputed>
   _id: number
   _computed?: true
-
   cause?: string
+  _name: string
   get(): unknown
   initial?: unknown
   isComputing: boolean
-  name: string
   peek(): unknown
 }
 

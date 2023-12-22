@@ -22,7 +22,7 @@ export function GetComputedValue(this: IComputed): unknown {
       }
     })
 
-    assert(this.isComputing, `Loops dosen't allows. Name: ${this.name ?? 'Unnamed state'}`)
+    assert(this.isComputing, `Loops dosen't allows. Name: ${this._name ?? 'Unnamed state'}`)
 
     this.isComputing = true
 
@@ -32,7 +32,7 @@ export function GetComputedValue(this: IComputed): unknown {
 
     return this.currentValue
   } catch (e) {
-    console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`)
+    console.error(`Error in computed name: ${this._name}. Message: ${(e as Error).message}`)
     this.isComputing = false
     this._hasParentUpdates = false
     return undefined

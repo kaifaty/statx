@@ -13,6 +13,6 @@ export const action = <T extends unknown[]>(
       //isActionNow = false
       return this
     },
-    name: getName(options?.name),
+    _name: getName(options?.name),
   }
 }

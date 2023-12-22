@@ -48,7 +48,7 @@ export type HistoryInternal = {
 
 export interface PublicState<T extends StateType> {
   (): T
-  name: string
+  _name: string
   subscribe(listner: Listner<T>): UnSubscribe
   peek(): T
 }
@@ -63,7 +63,7 @@ export type State<T extends StateType> = PublicState<T> & {
 export type Computed<T extends StateType> = PublicState<T>
 
 export interface Action<T extends unknown[]> {
-  name: string
+  _name: string
   run: (...args: T) => void
 }
 
