@@ -36,7 +36,7 @@ export const statableLit = <T extends Constructor<LitElement>>(superClass: T): T
       this._prevSnapshot = data
       this._unsubAll()
       data?.forEach((state) => {
-        this._subs.push(state.subscribe(this._updater))
+        this._subs.push(state.subscribe(this._updater as any))
       })
     }
     willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

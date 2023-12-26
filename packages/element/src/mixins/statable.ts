@@ -42,7 +42,7 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
       this._prevSnapshot = data
       this._unsubAll()
       data?.forEach((state) => {
-        this._subs.push(state.subscribe(this._updater))
+        this._subs.push(state.subscribe(this._updater as any))
       })
     }
     willUpdate(...args: any[]): void {
