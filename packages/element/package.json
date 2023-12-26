@@ -1,6 +1,6 @@
 {
   "name": "@statx/element",
-  "version": "1.10.2",
+  "version": "1.11.0",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -46,8 +46,8 @@
     "last 4 chrome versions"
   ],
   "dependencies": {
-    "@statx/core": "^1.10.2",
-    "@statx/machine": "^1.10.2"
+    "@statx/core": "^1.11.0",
+    "@statx/machine": "^1.11.0"
   },
   "devDependencies": {
     "@parcel/transformer-typescript-tsc": "^2.10.3",
