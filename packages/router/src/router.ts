@@ -65,8 +65,10 @@ const setPath = (path: string) => {
 }
 
 class Routes {
+  static maxHistoryLength = 10
   private static rootNode: Routes | undefined
   private static hiddenSymbol = Symbol()
+  static history: Array<Router> = []
   static currentRoute = state<Routes | undefined>(undefined)
   static errorFallback = () => {
     return `Oops, page dont exist`
@@ -110,6 +112,12 @@ class Routes {
 
     const renderResult = lastNode?.render(undefined, query)
     this.currentRoute.set(lastNode)
+    if (lastNode) {
+      this.history.push(lastNode)
+      if (this.history.length > this.maxHistoryLength) {
+        this.history.splice(0, 1)
+      }
+    }
     this.renderFunction(renderResult, this.rootElement)
     return true
   }
@@ -152,6 +160,12 @@ export class Router extends Routes {
   static stop() {
     this.unsub?.()
     window.removeEventListener('click', this._onClick)
+  }
+  static async back() {
+    if (this.history.length > 1) {
+      const name = this.history[this.history.length - 2].name
+      this.goto(name)
+    }
   }
   static async goto(path: string, init = false) {
     loopCheck()

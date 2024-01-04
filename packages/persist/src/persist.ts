@@ -88,18 +88,18 @@ export const persistSyncState = <S extends PersistCreatorOptions<T>, T extends S
   value: T,
   storage: SyncStorage,
   options: S,
-): typeof value extends State<any> ? T & SyncPersistState : State<T> & SyncPersistState => {
+): SyncPersistState<T> => {
   assertUnuniqNames(options.name)
   uniqNames.add(options.name)
   const res = new SyncPersist(value, storage, options)
   return res.value as any
 }
 
-export const persistAsyncState = <S extends PersistCreatorOptions<T>, T extends StateType = StateType>(
-  value: T | State<T>,
+export const persistAsyncState = <S extends PersistCreatorOptions<T>, T extends StateType | State<StateType>>(
+  value: T,
   storage: AsyncStorage,
   options: S,
-): typeof value extends State<T> ? T & AsyncPersistState : State<T> & AsyncPersistState => {
+): AsyncPersistState<T> => {
   assertUnuniqNames(options.name)
   uniqNames.add(options.name)
   const res = new AsyncPersist(value, storage, options)
@@ -126,8 +126,8 @@ export const stateSessionStorage = <T extends StateType | State<StateType> = Sta
   })
 }
 
-export const indexeddbStorage = <T extends StateType = StateType>(
-  value: T | State<T>,
+export const indexeddbStorage = <T extends StateType | State<StateType> = StateType>(
+  value: T,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistAsyncState(value, indexedDBAdapter(name, throttle), {

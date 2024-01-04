@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {list} from '@statx/core'
-import {stateLocalStorage, stateSessionStorage} from '../index.js'
+import {stateLocalStorage, stateSessionStorage, indexeddbStorage} from '../index.js'
 
 const logElement = document.getElementById('log')
 
@@ -45,8 +45,16 @@ const testList = stateLocalStorage(list(['test']), {
   name: 'local-list',
   throttle: 500,
 })
+const testList2 = indexeddbStorage(list(['test']), {
+  name: 'local-list',
+  throttle: 500,
+})
 testList.subscribe((value) => {
   listElement.value = value.join(', ')
+})
+
+testList2.subscribe((value) => {
+  console.log(value.join(', '))
 })
 
 const listElement = document.getElementById('list') as HTMLTextAreaElement
