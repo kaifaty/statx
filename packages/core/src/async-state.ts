@@ -105,6 +105,25 @@ class AsyncState<TResponse> {
       configurable: false,
       value: () => this.stop(),
     })
+
+    /**
+     * Make possible to write `await asyncState() and get value after load`
+     */
+    Object.defineProperty(data, 'then', {
+      writable: false,
+      configurable: false,
+      value: (onFulfilled: any) => {
+        const d: any = data
+        const current = d()
+        if (!d.isLoading() && current !== undefined) {
+          return onFulfilled(current)
+        }
+        const unsub = d.subscribe((v: any) => {
+          onFulfilled(v)
+          unsub()
+        })
+      },
+    })
     return data as TAsyncState<TResponse>
   }
 

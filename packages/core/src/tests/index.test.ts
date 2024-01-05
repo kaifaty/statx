@@ -417,6 +417,27 @@ test('asyncState is maxWait works with last-win', async () => {
   assert.is(res(), 4)
 })
 
+test('asyncState can be used with await', async () => {
+  const async = asyncState(
+    async () => {
+      await new Promise((r) => setTimeout(r, 50))
+      return 123
+    },
+    [],
+    {autoStart: true},
+  )
+  const v = await async
+  assert.is(v, 123)
+
+  const v2 = await new Promise((r) =>
+    setTimeout(async () => {
+      const v = await async
+      r(v)
+    }, 100),
+  )
+  assert.is(v2, 123)
+})
+
 test('List: create, subscribe', async () => {
   const res = list([0, 1, 2])
   let test = 0
