@@ -4,7 +4,7 @@ import {Base, Listner, CommonInternal, IComputed} from './type'
 let nounce = 0
 let isNotifying = false
 let recording: Set<Base> | undefined = undefined
-let requester: IComputed | undefined
+const requester: Array<IComputed> = []
 const states2notify: Array<Listner> = []
 
 export const startRecord = () => {
@@ -20,8 +20,14 @@ export const flushStates = (): Set<Base> | undefined => {
   return data
 }
 
-export const setRequester = (value: IComputed | undefined) => (requester = value)
-export const getRequester = () => requester
+export const setRequester = (value: IComputed | undefined) => {
+  if (value) {
+    requester.push(value)
+  } else {
+    requester.pop()
+  }
+}
+export const getRequester = () => requester[requester.length - 1]
 export const getNounce = () => nounce++
 export const getRecording = (): Set<CommonInternal> | undefined => recording
 

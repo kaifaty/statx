@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getName, isFunction} from './utils'
+import {assert, getName, getNewFnWithName, isFunction} from './utils'
 import type {Computed, Nullable, StateType} from './types/types'
 import {Peek, Subscribe, getNounce} from './proto/proto-base'
 import {GetComputedValue, SubscribeComputed} from './proto/proto-computed'
@@ -31,8 +31,7 @@ export const computed = <
 ): Computed<T> => {
   assert(!isFunction(value), 'In computed must be functions only')
 
-  //@ts-ignore
-  const Computed = () => Computed.get()
+  const Computed = getNewFnWithName(options)
 
   Object.setPrototypeOf(Computed, ComputeProto)
 

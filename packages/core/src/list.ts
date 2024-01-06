@@ -3,7 +3,7 @@ import type {Options, PublicList} from './types/index.js'
 import {getNounce} from './proto/proto-base.js'
 import {At, Pop, Push, Shift, Sort, UnShift} from './proto/proto-list.js'
 import {StateProto} from './state.js'
-import {getName} from './utils.js'
+import {getName, getNewFnWithName} from './utils.js'
 
 const ListProto = Object.assign(Object.create(null), StateProto)
 
@@ -15,8 +15,7 @@ ListProto.pop = Pop
 ListProto.push = Push
 
 export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
-  //@ts-ignore
-  const List = () => List.get()
+  const List = getNewFnWithName(options)
 
   Object.setPrototypeOf(List, ListProto)
 
@@ -29,7 +28,6 @@ export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
     writable: false,
   })
 
-  //@ts-ignore
   List.set(value)
 
   return List as any as PublicList<T>

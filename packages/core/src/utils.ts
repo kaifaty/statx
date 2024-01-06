@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Func} from './types/types.js'
+import type {Func, Options} from './types/types.js'
 const names = new Set()
 
 const defaultName = 'Unnamed state'
@@ -35,4 +35,12 @@ export const onEach = <T>(data: Record<any, any>, cb: (value: T) => void) => {
   for (const key in data) {
     cb(data[key])
   }
+}
+export const getNewFnWithName = (options?: Options) => {
+  const name = getName(options?.name)
+  const obj = {
+    //@ts-ignore
+    [name]: () => obj[name].get(),
+  } as any
+  return obj[name]
 }

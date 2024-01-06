@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getName, isFunction} from './utils'
+import {assert, getName, getNewFnWithName, isFunction} from './utils'
 import type {Options, State, StateType} from './types/types'
 import {Peek, Subscribe, getNounce} from './proto/proto-base'
 import {GetStateValue, SetValue} from './proto/proto-state'
@@ -15,8 +15,7 @@ StateProto.subscribe = Subscribe
 export function state<T extends StateType = StateType>(value: T, options?: Options): State<T> {
   assert(isFunction(value), 'Function not allowed in state')
 
-  //@ts-ignore
-  const State = () => State.get()
+  const State = getNewFnWithName(options)
 
   Object.setPrototypeOf(State, StateProto)
 
@@ -24,7 +23,6 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
   State._id = getNounce()
   State._name = getName(options?.name)
 
-  //@ts-ignore
   State.set(value)
 
   return State as any as State<T>

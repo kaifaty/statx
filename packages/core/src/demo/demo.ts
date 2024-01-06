@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {asyncState} from '../index'
+import {asyncState, state} from '../index'
 
+const a = state(1, {name: 'aValue'})
+console.log(a)
 const async = asyncState(
   async () => {
     await new Promise((r) => setTimeout(r, 100))
