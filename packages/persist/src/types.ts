@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {StateType, State} from '@statx/core'
+import type {StateType, State, PublicList} from '@statx/core'
+import {TAsyncState} from '../../core/build/async-state'
+
+type Persist = {
+  clear(): void
+}
 
 interface Storage {
   set(value: unknown): void
@@ -26,12 +31,14 @@ export type PersistCreatorOptions<T extends StateType> = {
   onInitRestore?: (value: T) => void
 }
 
-export type SyncPersistState_ = {
-  clear(): void
-}
+export type SyncPersistState<T> = T extends State<T>
+  ? T & Persist
+  : T extends PublicList<any>
+  ? T & Persist
+  : T extends TAsyncState<T>
+  ? T & Persist
+  : State<T> & Persist
 
-export type SyncPersistState<V> = State<V> & SyncPersistState_
-
-export type AsyncPersistState<V> = SyncPersistState<V> & {
+export type AsyncPersistState<T> = SyncPersistState<T> & {
   isLoading: State<boolean>
 }

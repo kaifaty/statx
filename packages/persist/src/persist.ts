@@ -84,10 +84,13 @@ class AsyncPersist extends Persist {
   }
 }
 
-export const persistSyncState = <S extends PersistCreatorOptions<T>, T extends StateType>(
-  value: T | State<StateType>,
+export const persistSyncState = <
+  T extends StateType,
+  O extends PersistCreatorOptions<T> = PersistCreatorOptions<T>,
+>(
+  value: T,
   storage: SyncStorage,
-  options: S,
+  options: O,
 ): SyncPersistState<T> => {
   assertUnuniqNames(options.name)
   uniqNames.add(options.name)
@@ -106,8 +109,8 @@ export const persistAsyncState = <S extends PersistCreatorOptions<T>, T extends 
   return res.value as any
 }
 
-export const stateLocalStorage = <T extends StateType = StateType>(
-  value: T | State<StateType>,
+export const stateLocalStorage = <T extends StateType>(
+  value: T,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistSyncState(value, localStorageAdapter(name, throttle), {
@@ -117,7 +120,7 @@ export const stateLocalStorage = <T extends StateType = StateType>(
 }
 
 export const stateSessionStorage = <T extends StateType = StateType>(
-  value: T | State<StateType>,
+  value: T,
   {name, onInitRestore, throttle}: PersistOptions<T>,
 ) => {
   return persistSyncState(value, localStorageAdapter(name, throttle, true), {
