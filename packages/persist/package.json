@@ -1,6 +1,6 @@
 {
   "name": "@statx/persist",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
