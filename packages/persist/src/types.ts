@@ -20,24 +20,24 @@ export interface AsyncStorage extends Storage {
   isAsync: true
 }
 
-export type PersistOptions<T extends StateType> = {
+export type PersistOptions<T> = {
   name: string
   throttle?: number
-  onInitRestore?: (value: T) => void
+  onInitRestore?: (value: StateType<T>) => void
 }
 
-export type PersistCreatorOptions<T extends StateType> = {
+export type PersistCreatorOptions<T> = {
   name: string
-  onInitRestore?: (value: T) => void
+  onInitRestore?: (value: StateType<T>) => void
 }
 
-export type SyncPersistState<T> = T extends State<T>
+export type SyncPersistState<T> = T extends State<any>
   ? T & Persist
   : T extends PublicList<any>
   ? T & Persist
-  : T extends TAsyncState<T>
+  : T extends TAsyncState<any>
   ? T & Persist
-  : State<T> & Persist
+  : State<StateType<T>> & Persist
 
 export type AsyncPersistState<T> = SyncPersistState<T> & {
   isLoading: State<boolean>

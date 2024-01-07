@@ -99,7 +99,7 @@ export const persistSyncState = <
 }
 
 export const persistAsyncState = <S extends PersistCreatorOptions<T>, T extends StateType>(
-  value: T | State<StateType>,
+  value: T,
   storage: AsyncStorage,
   options: S,
 ): AsyncPersistState<T> => {
