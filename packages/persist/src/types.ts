@@ -26,11 +26,11 @@ export type PersistCreatorOptions<T extends StateType> = {
   onInitRestore?: (value: T) => void
 }
 
-type SyncPersistState_ = {
+export type SyncPersistState_ = {
   clear(): void
 }
 
-export type SyncPersistState<V> = V extends State<any> ? V & SyncPersistState_ : State<V> & SyncPersistState_
+export type SyncPersistState<V> = State<V> & SyncPersistState_
 
 export type AsyncPersistState<V> = SyncPersistState<V> & {
   isLoading: State<boolean>
