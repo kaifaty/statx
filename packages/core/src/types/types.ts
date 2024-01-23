@@ -1,3 +1,5 @@
+import type {CommonInternal, Strategy} from '../proto/type'
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunc = (...args: any[]) => any
 export type Func = (...args: unknown[]) => unknown
@@ -48,7 +50,8 @@ export type HistoryInternal = {
 
 export interface PublicState<T extends StateType> {
   (): T
-  _name: string
+  _customDeps?: Array<CommonInternal>
+  readonly name: string
   subscribe(listner: Listner<T>): UnSubscribe
   peek(): T
 }
@@ -63,7 +66,7 @@ export type State<T extends StateType> = PublicState<T> & {
 export type Computed<T extends StateType> = PublicState<T>
 
 export interface Action<T extends unknown[]> {
-  _name: string
+  name: string
   run: (...args: T) => void
 }
 
@@ -72,5 +75,42 @@ export type ActionOptions = {
 }
 
 export type Options = {
+  name?: string
+}
+
+export type AsycStateOptions<TResponse> = {
+  /**
+   * Initial state
+   */
+  initial?: TResponse
+
+  /**
+   * Default: last-win
+   *
+   * last-win - Classic debounce: cancel previouse request if new one comes in.
+   * first-win - Skip new requests if already requseting
+   * first-last - Awaits request complete, after that call's again if was deps changes.
+   */
+  stratagy?: Strategy
+
+  /**
+   * Default: 0. Zero meens unlimit wait
+   */
+  maxWait?: number
+  /**
+   * Default false. Auto start watching on props.
+   */
+  autoStart?: boolean
+
+  /**
+   * Default true. Execute async function on start
+   */
+  execOnStart?: boolean
+
+  /**
+   * Default false. Set state to undefined on error
+   */
+  undefinedOnError?: boolean
+
   name?: string
 }

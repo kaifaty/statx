@@ -1,0 +1,73 @@
+{
+  "name": "@statx/debug",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Extry tiny smart statx manager",
+  "keywords": [
+    "statx",
+    "state",
+    "store",
+    "management",
+    "lit-element",
+    "lit",
+    "app",
+    "shared",
+    "global",
+    "observer",
+    "observable"
+  ],
+  "homepage": "https://github.com/kaifaty/statx/packages/debug",
+  "bugs": {
+    "url": "https://github.com/kaifaty/statx/issues"
+  },
+  "license": "MIT",
+  "author": "kaifaty",
+  "sideEffects": false,
+  "type": "module",
+  "main": "build/index.js",
+  "source": "./src/index.ts",
+  "types": "build/index.d.ts",
+  "files": [
+    "/build",
+    "/package.json",
+    "/README.md",
+    "/src"
+  ],
+  "targets": {
+    "watch": {
+      "context": "browser",
+      "distDir": "./dist/",
+      "source": "./debug.html",
+      "isLibrary": false,
+      "optimize": false,
+      "includeNodeModules": true,
+      "outputFormat": "esmodule"
+    },
+    "demo": {
+      "context": "browser",
+      "distDir": "./dist/",
+      "source": "./index.html",
+      "isLibrary": false,
+      "includeNodeModules": true,
+      "scopeHoist": false
+    }
+  },
+  "scripts": {
+    "build": "rimraf ./build/ && npm run build:tsc",
+    "build:tsc": "tsc",
+    "lint": "tsc --noEmit",
+    "demo": "parcel serve --target=demo",
+    "dev": "parcel watch --target=watch",
+    "test": "tsx src/index.test.ts",
+    "test:watch": "tsx watch src/index.test.ts"
+  },
+  "browserslist": [
+    "last 4 chrome versions"
+  ],
+  "dependencies": {
+    "@statx/utils": "*",
+    "@statx/core": "*",
+    "@statx/element": "*"
+
+  }
+}

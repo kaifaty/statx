@@ -9,3 +9,5 @@ export type PropertyData = {
 export type Properties = {
   [key: string]: PropertyData
 }
+
+export type Constructor<T> = new (...args: any[]) => T

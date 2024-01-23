@@ -1,8 +1,10 @@
-import {ElementX} from '../x-element'
 import {html} from '@statx/lit'
+
+import {ElementX} from '../x-element'
+import {css} from '../styles'
 import {statable} from '../mixins/statable'
 import {statx} from '../decorators/statx'
-import {css} from '../styles'
+import {property} from '../decorators/property'
 
 type ButtonState = {
   disabled: boolean
@@ -12,6 +14,9 @@ type ButtonState = {
 class TestButton extends statable(ElementX) {
   @statx
   accessor config: ButtonState = {disabled: false, variant: 'default'}
+
+  @property({type: String})
+  accessor test: string = '12'
 
   static styles = css`
     [variant='primary'] {

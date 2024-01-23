@@ -1,7 +1,8 @@
 import {html as coreHtml, svg as coreSvg, type TemplateResult} from 'lit/html.js'
 
-import {watch} from './watch.js'
-import {isStateType} from '@statx/core'
+import {isStatxFn} from '@statx/core'
+
+import {watch} from './watch'
 
 const withWatch =
   (coreTag: typeof coreHtml | typeof coreSvg) =>
@@ -9,7 +10,7 @@ const withWatch =
     return coreTag(
       strings,
       ...values.map((v) => {
-        return isStateType(v) ? watch(v) : v
+        return isStatxFn(v) ? watch(v as any) : v
       }),
     )
   }

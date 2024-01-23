@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {isStateType, State, state, StateType} from '@statx/core'
+import {isState, isAsyncComputed, State, state, StateType} from '@statx/core'
 
 import {indexedDBAdapter} from './adapters/indexeddb-storage.js'
 
@@ -16,21 +16,21 @@ import {
 
 const uniqNames = new Set<string>()
 
-// TODO разделить неймспейсы для кажого хранилизща
 const assertUnuniqNames = (name: string) => {
   if (uniqNames.has(name)) {
     throw new Error(`Name: ${name} must be uniq`)
   }
 }
+
 class Persist {
   value: State<unknown>
   storage: AsyncStorage | SyncStorage
   initialValue: unknown
   constructor(value: unknown, storage: AsyncStorage | SyncStorage, {name}: PersistCreatorOptions<any>) {
     this.storage = storage as any
-    if (isStateType(value)) {
-      this.initialValue = value()
-      this.value = value as State<unknown>
+    if (isState(value) || isAsyncComputed(value)) {
+      this.initialValue = (value as any)()
+      this.value = value as any
     } else {
       this.initialValue = value
       this.value = state<unknown>(this.initialValue, {name})

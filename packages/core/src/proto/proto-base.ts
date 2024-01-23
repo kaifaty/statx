@@ -1,20 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {isAsyncComputed, isComputed} from '../utils'
 import {UnSubscribe} from '../types'
-import {Base, Listner, CommonInternal, IComputed} from './type'
+import {CommonInternal, Listner, IState, IComputed, HistoryChange} from './type'
+import {events} from '../events'
 
-let nounce = 0
 let isNotifying = false
-let recording: Set<Base> | undefined = undefined
-const requester: Array<IComputed> = []
+let recording: Set<CommonInternal> | undefined = undefined
+
+let logsEnabled = false
+let maxHistory = 10
+
+export const getLogsEnabled = () => logsEnabled
+export const setLogsEnabled = (value: boolean) => (logsEnabled = value)
+export const setMaxHistory = (value: number) => (maxHistory = value)
+
+export const readStates: Array<IState> = []
+export const requester: Array<IComputed> = []
 const states2notify: Array<Listner> = []
 
-export const startRecord = () => {
-  recording = new Set()
-}
+export const startRecord = () => (recording = new Set())
 
 /**
  * Flush all collected non computed states.
  */
-export const flushStates = (): Set<Base> | undefined => {
+export const flushStates = (): Set<CommonInternal> | undefined => {
   const data = recording
   recording = undefined
   return data
@@ -28,7 +37,7 @@ export const setRequester = (value: IComputed | undefined) => {
   }
 }
 export const getRequester = () => requester[requester.length - 1]
-export const getNounce = () => nounce++
+
 export const getRecording = (): Set<CommonInternal> | undefined => recording
 
 /**
@@ -45,10 +54,6 @@ export function Subscribe(this: CommonInternal, listner: Listner): UnSubscribe {
   return () => this._listeners.delete(listner)
 }
 
-export function isComputed(item: Listner | IComputed): item is IComputed {
-  return '_computed' in item
-}
-
 export function notifySubscribers() {
   if (isNotifying === false) {
     isNotifying = true
@@ -57,21 +62,60 @@ export function notifySubscribers() {
       const len = states2notify.length
       for (let i = 0; i < len; i++) {
         const item = states2notify[i]
-        item(item.base.get())
+        const base = item.base
+        item(base.get())
         item.willNotify = false
+
+        if (logsEnabled) {
+          events.dispatchValueUpdate(base)
+        }
       }
 
       states2notify.length = 0
       isNotifying = false
+      if (logsEnabled) {
+        events.dispatchUpdate()
+      }
     })
   }
 }
+const initHistory = (target: CommonInternal) => {
+  if (target._historyCursor === undefined) {
+    target._historyCursor = -1
+  }
+  if (target._history === undefined) {
+    target._history = []
+  }
+  if (maxHistory !== target._history.length) {
+    target._history.length = maxHistory
+  }
+}
 
-export function invalidateSubtree(value: Base) {
-  value._listeners.forEach((item) => {
-    if (isComputed(item)) {
+const moveHistoryCursor = (target: CommonInternal) => {
+  target._historyCursor = (target._historyCursor + 1) % maxHistory
+}
+
+export function invalidateSubtree(state: CommonInternal, level = 0) {
+  state._listeners.forEach((item) => {
+    const isAsync = isAsyncComputed(item)
+    if (isComputed(item) || isAsync) {
       item._hasParentUpdates = true
-      invalidateSubtree(item)
+
+      logReason: {
+        if (logsEnabled) {
+          if (level === 0) {
+            item._reason = [state]
+          } else if (item._reason) {
+            item._reason.length = 0
+          }
+        }
+      }
+
+      if (isAsync) {
+        item.onDepsChange()
+      } else {
+        invalidateSubtree(item, level + 1)
+      }
     } else if (item?.willNotify === false) {
       states2notify.push(item)
       item.willNotify = true
@@ -79,9 +123,20 @@ export function invalidateSubtree(value: Base) {
   })
 }
 
-export function pushHistory(target: CommonInternal, value: unknown) {
+export function pushHistory(target: CommonInternal, value: unknown, reason: HistoryChange['reason']) {
   target.prevValue = target.currentValue
   target.currentValue = value
+
+  if (logsEnabled && reason) {
+    initHistory(target)
+    moveHistoryCursor(target)
+    target._history[target._historyCursor] = {
+      reason: reason,
+      changer: target._reason,
+      value: value,
+      ts: Date.now(),
+    }
+  }
 }
 
 export function Peek(this: CommonInternal) {
@@ -89,5 +144,5 @@ export function Peek(this: CommonInternal) {
 }
 
 export function updateDeps(target: CommonInternal) {
-  recording?.add(target as Base)
+  recording?.add(target as CommonInternal)
 }

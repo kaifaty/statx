@@ -47,5 +47,8 @@
   "browserslist": [
     "last 4 chrome versions"
   ],
-  "gitHead": "8c6c4d11a4bca82178a3307b6507bdd7ec92f84a"
+  "gitHead": "8c6c4d11a4bca82178a3307b6507bdd7ec92f84a",
+  "devDependencies": {
+    "graphology-layout-force": "^0.2.4"
+  }
 }

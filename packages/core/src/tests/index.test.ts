@@ -28,7 +28,7 @@ test('Defaul value', () => {
 })
 
 test('Name is settable', () => {
-  assert.is(state(0, {name: 'name'})._name, 'name')
+  assert.is(state(0, {name: 'name'}).name, 'name')
 })
 
 test('Computation test', async () => {
@@ -177,15 +177,6 @@ test('Check right dependencies of computed state', () => {
 
   c()
   assert.is(c(), 6)
-  // console.log(c)
-
-  //assert.is(!!v1._childs[c._id], true)
-  //assert.is(!!v2._childs[c._id], true)
-  //assert.is(!!v3._childs[c._id], true)
-
-  //assert.is(!!c._parents[v1._id], true)
-  //assert.is(!!c._parents[v2._id], true)
-  //assert.is(!!c._parents[v3._id], true)
 })
 
 test('Dont update if value not changed', () => {
@@ -309,9 +300,9 @@ test('asyncState check initial state change', async () => {
   )
 
   res.start()
-  assert.is(res(), 0)
+  assert.is(res(), 0, 'must be 0')
   await delay(200)
-  assert.is(res(), 3)
+  assert.is(res(), 3, 'must be 3')
 })
 
 test('asyncState check state observe deps', async () => {
@@ -415,6 +406,27 @@ test('asyncState is maxWait works with last-win', async () => {
 
   await delay(100)
   assert.is(res(), 4)
+})
+
+test('asyncState can be used with await', async () => {
+  const async = asyncState(
+    async () => {
+      await new Promise((r) => setTimeout(r, 50))
+      return 123
+    },
+    [],
+    {autoStart: true},
+  )
+  const v = await async
+  assert.is(v, 123)
+
+  const v2 = await new Promise((r) =>
+    setTimeout(async () => {
+      const v = await async
+      r(v)
+    }, 100),
+  )
+  assert.is(v2, 123)
 })
 
 test('asyncState can be used with await', async () => {

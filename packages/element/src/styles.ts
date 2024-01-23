@@ -1,68 +1,60 @@
-export type WCStyleSheet = CSSStyleSheet | string;
+export type WCStyleSheet = CSSStyleSheet | string
 
 export const supportsAdoptingStyleSheets =
-  globalThis.ShadowRoot &&
-  "adoptedStyleSheets" in Document.prototype &&
-  "replace" in CSSStyleSheet.prototype;
+  globalThis.ShadowRoot && 'adoptedStyleSheets' in Document.prototype && 'replace' in CSSStyleSheet.prototype
 
 /**
  * Create css styles
  */
 export const createStyle = (styles: string): WCStyleSheet => {
   if (supportsAdoptingStyleSheets) {
-    const result = new CSSStyleSheet();
-    result.replaceSync(styles);
-    return result;
+    const result = new CSSStyleSheet()
+    result.replaceSync(styles)
+    return result
   }
-  return styles;
-};
+  return styles
+}
 
 /**
  * Adoption styles to elelement
  */
-export const adoptToElement = (
-  element: HTMLElement,
-  styles: WCStyleSheet[] | WCStyleSheet
-) => {
+export const adoptToElement = (element: HTMLElement, styles: WCStyleSheet[] | WCStyleSheet) => {
   if (!Array.isArray(styles)) {
-    styles = [styles];
+    styles = [styles]
   }
   if (!styles.length) {
-    return;
+    return
   }
-  if (typeof styles[0] === "string") {
+  if (typeof styles[0] === 'string') {
     styles.forEach((s) => {
-      const v = document.createElement("style");
-      v.textContent = s as string;
-      element.appendChild(v);
-    });
+      const v = document.createElement('style')
+      v.textContent = s as string
+      element.appendChild(v)
+    })
   } else {
     if (element.shadowRoot) {
       element.shadowRoot.adoptedStyleSheets = [
-        ...new Set([
-          ...element.shadowRoot.adoptedStyleSheets,
-          ...(styles as CSSStyleSheet[]),
-        ]),
-      ];
+        ...new Set([...element.shadowRoot.adoptedStyleSheets, ...(styles as CSSStyleSheet[])]),
+      ]
     } else {
-      throw new Error("No shadow root");
+      throw new Error('No shadow root')
     }
   }
-};
+}
 
-export const html = (strings: TemplateStringsArray, ...values: string[]) => {
-  const len = strings.length;
-  let acc = "";
+const html = (strings: TemplateStringsArray, ...values: string[]) => {
+  const len = strings.length
+  let acc = ''
   for (let i = 0; i < len; i++) {
-    acc += strings[i]?.replace(/(\n)(\r)/g, "");
+    acc += strings[i]?.replace(/(\n)(\r)/g, '')
     if (values[i]) {
-      acc += values[i];
+      acc += values[i]
     }
   }
-  return acc;
-};
+  return acc
+}
 
 export const css = (strings: TemplateStringsArray, ...values: string[]) => {
-  const string = html(strings, ...values);
-  return createStyle(string);
-};
+  const string = html(strings, ...values)
+  return createStyle(string)
+}

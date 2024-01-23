@@ -1,26 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {flushStates, startRecord} from '@statx/core'
-import type {Base, UnSubscribe} from '@statx/core'
+import {isEqualSet} from '@statx/utils'
+import type {CommonInternal, UnSubscribe} from '@statx/core'
+import {Constructor} from '../types'
 
-type Constructor<T> = new (...args: any[]) => T
-type Subs = Set<Base>
+type Subs = Set<CommonInternal>
 
 interface BaseUpdatedElement extends HTMLElement {
   updated(..._args: any[]): void
   requestUpdate(..._args: any[]): void
   willUpdate(..._args: any[]): void
-}
-
-const isEqual = (current: Subs, prev?: Subs) => {
-  if (!prev) return false
-  if (current.size !== prev.size) return false
-  for (const state of prev) {
-    if (!current.has(state)) {
-      return false
-    }
-  }
-  return true
 }
 
 export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: T): T => {
@@ -32,11 +22,19 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
       this._subs.length = 0
     }
     private _updater = () => this.requestUpdate()
+    connectedCallback() {
+      //@ts-ignore
+      super.connectedCallback?.()
+      //@ts-ignore
+      const name = customElements.getName?.(this.constructor) ?? this.constructor.name
+      //@ts-ignore
+      this._updater.subscriber = name
+    }
 
     updated(...args: any[]): void {
       super.updated(args)
       const data = flushStates()
-      if (data && isEqual(data, this._prevSnapshot)) {
+      if (data && isEqualSet(data, this._prevSnapshot)) {
         return
       }
       this._prevSnapshot = data

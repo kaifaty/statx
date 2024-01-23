@@ -3,18 +3,8 @@ import {render} from 'lit/html.js'
 import {adoptToElement, type WCStyleSheet} from './styles'
 import type {Properties} from './types'
 import {attrToBoolean} from './utils'
-
-const attributes = new WeakMap<any, Array<string>>()
-
-export const addProperty = (ctx: ClassAccessorDecoratorContext) => {
-  const data = attributes.get(ctx.metadata) ?? []
-  data.push(ctx.name as string)
-  attributes.set(ctx.metadata, data)
-}
-
-export abstract class IXElement extends HTMLElement {
-  static properties: Properties
-}
+import {statable} from './mixins/statable'
+import {attributes} from './decorators/property'
 
 //@ts-ignore
 if (!Symbol.metadata) {
@@ -25,9 +15,9 @@ if (!Symbol.metadata) {
 const req = Symbol()
 const renderTo = Symbol()
 
-class BaseElement extends IXElement {
+class BaseElement extends HTMLElement {
   static styles: WCStyleSheet
-  static properties = {}
+  static properties: Properties = {}
   static get observedAttributes() {
     //@ts-ignore
     return attributes.get((this as any)[Symbol.metadata]) ?? []
@@ -51,6 +41,7 @@ class BaseElement extends IXElement {
   connectedCallback() {
     this[renderTo]()
   }
+  disconnectedCallback() {}
   requestUpdate(): void {
     if (this[req]) {
       return
@@ -88,4 +79,4 @@ class BaseElement extends IXElement {
   }
 }
 
-export class ElementX extends BaseElement {}
+export class ElementX extends statable(BaseElement) {}

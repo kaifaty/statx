@@ -39,8 +39,8 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@parcel/packager-ts": "^2.9.3",
-    "@parcel/transformer-typescript-types": "^2.9.3",
+    "@parcel/packager-ts": "^2.11.0",
+    "@parcel/transformer-typescript-types": "^2.11.0",
     "@types/mocha": "^10.0.6",
     "@types/react": "^16.2.0",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
@@ -50,14 +50,17 @@
     "@web/test-runner-commands": "^0.9.0",
     "@web/test-runner-playwright": "^0.11.0",
     "@xstate/fsm": "^3.0.0-beta.3",
+    "better-color-tools": "^0.12.3",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^8.9.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "force-graph": "^1.43.4",
     "lerna": "^7.4.2",
     "lit": "^3.0.0",
-    "parcel": "^2.10.3",
+    "nvm": "^0.0.4",
+    "parcel": "^2.11.0",
     "parcel-resolver-fix-ts-esm-shit": "^0.0.1",
     "parcel-resolver-typescript-esm": "^1.0.1",
     "prettier": "^3.0.0",
@@ -66,15 +69,12 @@
     "rimraf": "^5.0.1",
     "tsm": "^2.3.0",
     "tsx": "^3.12.7",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "uvu": "^0.5.6",
     "zx": "^7.2.3"
   },
   "engines": {
     "npm": ">=8.0.0"
   },
-  "readme": "README.md",
-  "dependencies": {
-    "nvm": "^0.0.4"
-  }
+  "readme": "README.md"
 }

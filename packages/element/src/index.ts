@@ -1,4 +1,7 @@
 export {ElementX as XElement} from './x-element'
 export {property} from './decorators/property'
 export {statable} from './mixins/statable'
-export {css, html} from './styles'
+export {css} from './styles'
+export {html, svg} from './directives/html'
+export {watch} from './directives/watch'
+export {Constructor} from './types'

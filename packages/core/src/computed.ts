@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getName, getNewFnWithName, isFunction} from './utils'
+import {assert, getNewFnWithName, getNonce, isFunction, stateTypes} from './utils'
 import type {Computed, Nullable, StateType} from './types/types'
-import {Peek, Subscribe, getNounce} from './proto/proto-base'
-import {GetComputedValue, SubscribeComputed} from './proto/proto-computed'
+import {Peek, Subscribe, GetComputedValue, SubscribeComputed} from './proto'
+import {addState} from './states-map'
 
 type Res<T, S extends StatlessFunc<T>> = T extends -1 ? ReturnType<S> : T
 
@@ -30,15 +30,17 @@ export const computed = <
   options?: O,
 ): Computed<T> => {
   assert(!isFunction(value), 'In computed must be functions only')
-
-  const Computed = getNewFnWithName(options)
+  const id = getNonce()
+  const Computed = getNewFnWithName(options, 'computed_' + id)
 
   Object.setPrototypeOf(Computed, ComputeProto)
 
-  Computed._id = getNounce()
+  Computed._id = id
+  Computed._type = stateTypes.computed
   Computed._computed = true
   Computed._listeners = new Set()
-  Computed._name = getName(options?.name)
+
+  addState(Computed)
 
   Computed.initial = options?.initial
   Computed.isComputing = false
