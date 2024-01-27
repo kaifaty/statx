@@ -10,9 +10,10 @@ export type HistoryChange = {
 export interface CommonInternal {
   currentValue: unknown
   prevValue: unknown
+  customDeps?: Array<CommonInternal>
+
   _reason?: Array<CommonInternal>
   _type: number
-  _customDeps?: Array<CommonInternal>
 
   _history: Array<HistoryChange>
   _historyCursor: number
@@ -42,16 +43,20 @@ export interface IComputed extends CommonInternal {
   subscribeState(listner: Listner): UnSubscribe
 }
 export interface IAsync extends CommonInternal {
+  /**
+   * Params
+   */
+  undefinedOnError: boolean
+  strategy: Strategy
+  maxWait: number
+  customDeps: Array<CommonInternal>
+
   _hasParentUpdates: boolean
   _isStarted: boolean
-  _customDeps: Array<CommonInternal>
   _timeRequestStart: number
-  _maxWait: number
   _frameId: number
-  _strategy: Strategy
   _fn: RequestFn<unknown>
   _controller: AbortController | undefined
-  _undefinedOnError: boolean
 
   isMaxWait(): boolean
   onDepsChange(): void

@@ -159,7 +159,7 @@ export class InitGrap {
           res.push({source: state._id, target: listener._id})
         }
       })
-      state._customDeps?.forEach((item) => {
+      state.customDeps?.forEach((item) => {
         res.push({target: state._id, source: item._id})
       })
     })

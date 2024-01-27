@@ -7,7 +7,7 @@ const startFrame = globalThis.requestAnimationFrame ?? setTimeout
 
 export function Start(this: IAsync) {
   this._isStarted = true
-  this._customDeps.map((dep) => {
+  this.customDeps.map((dep) => {
     dep._listeners.add(this)
   })
   this.onDepsChange()
@@ -15,14 +15,14 @@ export function Start(this: IAsync) {
 
 export function Stop(this: IAsync) {
   this._isStarted = false
-  this._customDeps.map((dep) => {
+  this.customDeps.map((dep) => {
     dep._listeners.delete(this)
   })
 }
 
 export function IsMaxWait(this: IAsync) {
-  if (this._maxWait) {
-    return Date.now() - this._timeRequestStart > this._maxWait
+  if (this.maxWait) {
+    return Date.now() - this._timeRequestStart > this.maxWait
   }
   return false
 }
@@ -36,7 +36,7 @@ export function OnDepsChange(this: IAsync) {
     this._timeRequestStart = Date.now()
   }
 
-  if (this._strategy === 'last-win' && !this.isMaxWait() && this.isPending()) {
+  if (this.strategy === 'last-win' && !this.isMaxWait() && this.isPending()) {
     this._controller?.abort('[NEW_CALL]: last-win strategy')
   }
 
@@ -67,7 +67,7 @@ export function OnDepsChange(this: IAsync) {
       if (controller.signal.aborted) {
         this.error.set(e as Error)
 
-        if (this._undefinedOnError) {
+        if (this.undefinedOnError) {
           this.set(undefined)
         }
       }

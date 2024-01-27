@@ -50,7 +50,7 @@ export type HistoryInternal = {
 
 export interface PublicState<T extends StateType> {
   (): T
-  _customDeps?: Array<CommonInternal>
+  customDeps?: Array<CommonInternal>
   readonly name: string
   subscribe(listner: Listner<T>): UnSubscribe
   peek(): T
@@ -104,6 +104,7 @@ export type AsycStateOptions<TResponse> = {
 
   /**
    * Default true. Execute async function on start
+   * If false will execute on dependencies change.
    */
   execOnStart?: boolean
 

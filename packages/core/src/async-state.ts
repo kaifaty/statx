@@ -53,49 +53,52 @@ export function asyncState<TResponse>(
   options?: AsycStateOptions<TResponse>,
 ): TAsyncState<TResponse> {
   const id = getNonce()
-  const AsyncState: IAsync = getNewFnWithName(options, 'asyncState_' + id)
+  const AsyncState: IAsync = getNewFnWithName(options, 'asyncState:' + id)
 
   Object.setPrototypeOf(AsyncState, AsyncStateProto)
 
-  AsyncState._fn = fn
-  AsyncState._listeners = new Set()
-  AsyncState._id = id
+  defaultParams: {
+    AsyncState._fn = fn
+    AsyncState._listeners = new Set()
+    AsyncState._id = id
+    AsyncState._timeRequestStart = 0
+    AsyncState._frameId = 0
+    AsyncState._hasParentUpdates = false
+    AsyncState._isStarted = false
+    AsyncState._type = stateTypes.async
+  }
+  initParams: {
+    AsyncState.maxWait = options?.maxWait ?? 0
+    AsyncState.strategy = options?.stratagy ?? 'last-win'
+    AsyncState.customDeps = deps as any
+    AsyncState.undefinedOnError = options?.undefinedOnError ?? false
+  }
+  initStatusParams: {
+    const asyncDeps = [AsyncState]
+    AsyncState.isPending = state(false, {name: 'isPending::' + AsyncState._id})
+    AsyncState.error = state<undefined | Error>(undefined, {name: 'error::' + AsyncState._id})
+    AsyncState.status = computed<AsyncStatus>(
+      () => {
+        if (AsyncState._isStarted) {
+          return 'pause'
+        }
+        if (AsyncState.isPending()) {
+          return 'pending'
+        }
+        if (AsyncState.error()) {
+          return 'error'
+        }
+        return 'indle'
+      },
+      {name: 'status::' + AsyncState._id},
+    )
+    AsyncState.isPending.customDeps = asyncDeps
+    AsyncState.error.customDeps = asyncDeps
+    AsyncState.status.customDeps = asyncDeps
+  }
 
-  AsyncState._hasParentUpdates = false
-  AsyncState._isStarted = false
-  AsyncState._type = stateTypes.async
-
-  AsyncState._timeRequestStart = 0
-  AsyncState._maxWait = options?.maxWait ?? 0
-  AsyncState._frameId = 0
-  AsyncState._strategy = options?.stratagy ?? 'last-win'
-  AsyncState._undefinedOnError = options?.undefinedOnError ?? false
-  AsyncState._customDeps = deps as any
-
-  const asyncDeps = [AsyncState]
-  AsyncState.isPending = state(false, {name: 'isPending::' + AsyncState._id})
-  AsyncState.error = state<undefined | Error>(undefined, {name: 'error::' + AsyncState._id})
-  AsyncState.status = computed<AsyncStatus>(
-    () => {
-      if (AsyncState._isStarted) {
-        return 'pause'
-      }
-      if (AsyncState.isPending()) {
-        return 'pending'
-      }
-      if (AsyncState.error()) {
-        return 'error'
-      }
-      return 'indle'
-    },
-    {name: 'status::' + AsyncState._id},
-  )
-  AsyncState.isPending._customDeps = asyncDeps
-  AsyncState.error._customDeps = asyncDeps
-  AsyncState.status._customDeps = asyncDeps
-
-  if (!options?.initial) {
-    AsyncState.set(options?.initial)
+  if (options?.initial !== undefined) {
+    AsyncState.set(options.initial)
   }
 
   if (options?.autoStart ?? true) {
