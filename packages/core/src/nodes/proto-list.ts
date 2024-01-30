@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {IList} from './type.js'
+import type {IList} from '../helpers/type.js'
 
 export function Push(this: IList, ...args: Array<unknown>) {
   this.set([...this.currentValue, ...args])

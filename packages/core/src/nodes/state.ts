@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getNewFnWithName, isFunction} from './utils'
-import type {Options, State, StateType} from './types/types'
-import {Peek, Subscribe, nonce, GetStateValue, IState, status, SetValue} from './proto'
-import {addState} from './states-map'
+import {assert, getNewFnWithName, isFunction} from '../utils'
+import type {Options, State, StateType} from '../types/types'
+import {Peek, Subscribe, nonce, GetStateValue, IState, status, SetValue} from '../helpers'
 
 export const StateProto = Object.create(null)
 
@@ -19,12 +18,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
   const State: IState = getNewFnWithName(options, 'state_' + id)
 
   Object.setPrototypeOf(State, StateProto)
-
-  status.initStatus(State, 'state')
-
-  State._id = id
-
-  addState(State)
+  status.initStatus(id, State, 'state')
 
   State.set(value)
 

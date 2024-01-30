@@ -1,4 +1,4 @@
-import type {CommonInternal, Strategy} from '../proto/type'
+import type {CommonInternal, Strategy} from '../helpers/type'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunc = (...args: any[]) => any

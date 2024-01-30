@@ -7,37 +7,30 @@ export type HistoryChange = {
   ts: number
 }
 
-export type MapType = 'parents' | 'children' | 'listeners'
+export type StatusKey = keyof SettableStatus
 
-// type: {length: 3, defaultValue: 1},
-// hasParentUpdate: {length: 1, defaultValue: 0},
-// parentsLen: {length: 5, defaultValue: 0},
-// childrenLen: {length: 5, defaultValue: 0},
-// listeners: {length: 9, defaultValue: 0},
-// historyCursor: {length: 5, defaultValue: 0},
-// computing: {length: 1, defaultValue: 0},
-// async: {length: 1, defaultValue: 1},
-
-export interface CommonInternal {
-  currentValue: unknown
-  prevValue: unknown
-  customDeps?: Array<CommonInternal>
+export interface SettableStatus {
+  id: number
   type: number
   hasParentUpdate: number
-  parentsLen: number
-  childrenLen: number
-  listeners: number
   historyCursor: number
   computing: number
   async: number
+}
+
+export interface CommonInternal extends SettableStatus {
+  listeners: Array<Listner>
+  children: Array<CommonInternal>
+  initial?: unknown
+  currentValue: unknown
+  prevValue: unknown
+  customDeps?: Array<CommonInternal>
 
   _reason?: Array<CommonInternal>
   _history: Array<HistoryChange>
-  _id: number
-  //_isComputing: boolean
+
   readonly name: string
   get(): unknown
-  initial?: unknown
   peek(): unknown
   subscribe(listner: Listner): UnSubscribe
 }
@@ -53,7 +46,6 @@ export interface IList extends CommonInternal {
 }
 
 export interface IComputed extends CommonInternal {
-  _hasParentUpdates: boolean
   compute: SetterFunc
   computeValue(): void
   subscribeState(listner: Listner): UnSubscribe
@@ -67,7 +59,6 @@ export interface IAsync extends CommonInternal {
   maxWait: number
   customDeps: Array<CommonInternal>
 
-  _hasParentUpdates: boolean
   _isStarted: boolean
   _timeRequestStart: number
   _frameId: number

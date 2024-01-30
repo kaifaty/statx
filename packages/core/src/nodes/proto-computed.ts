@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {requester} from './requester'
-import {status} from './status'
-import type {CommonInternal, IComputed, Listner} from './type'
+import {requester} from '../helpers/requester'
+import {status} from '../helpers/status'
+import type {CommonInternal, IComputed, Listner} from '../helpers/type'
 import {assert} from '../utils'
 import type {UnSubscribe} from '../types/types'
-import {nodesMap} from './nodes-map'
-import {recorder} from './recorder'
-import {nodeHistory} from './history'
-import {logs} from './logs'
+import {nodesMap} from '../helpers/nodes-map'
+import {recorder} from '../helpers/recorder'
+import {nodeHistory} from '../helpers/history'
+import {logs} from '../helpers/logs'
 
 export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscribe {
   const sub = this.subscribeState(listner)
@@ -17,14 +17,13 @@ export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscrib
 
 export function GetComputedValue(this: IComputed): unknown {
   const requesterNode = requester.peek()
-  //console.time(this.name)
+
   try {
     requester.push(this)
 
     if (isDontNeedRecalc(this)) {
       return this.currentValue
     }
-    status.setValue(this, 'parentsLen', 0)
 
     if (requesterNode && logs.enabled) {
       if (!requesterNode._reason) {
@@ -55,7 +54,6 @@ export function GetComputedValue(this: IComputed): unknown {
     }
     recorder.add(this)
     requester.pop()
-    //console.timeEnd(this.name)
   }
 }
 

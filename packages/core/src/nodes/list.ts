@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Options, PublicList} from './types/index.js'
-import {At, Pop, Push, Shift, Sort, nonce, UnShift, status} from './proto'
+import type {Options, PublicList} from '../types/index.js'
+import {At, Pop, Push, Shift, Sort, nonce, UnShift, status} from '../helpers/index.js'
 import {StateProto} from './state.js'
-import {getNewFnWithName} from './utils.js'
-import {addState} from './states-map.js'
+import {getNewFnWithName} from '../utils.js'
 
 const ListProto = Object.assign(Object.create(null), StateProto)
 
@@ -19,11 +18,7 @@ export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
   const List = getNewFnWithName(options, 'list_' + id)
 
   Object.setPrototypeOf(List, ListProto)
-
-  List._id = id
-  status.initStatus(List, 'list')
-
-  addState(List)
+  status.initStatus(id, List, 'list')
 
   List.set(value)
 

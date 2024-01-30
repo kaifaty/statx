@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {status} from './proto'
-import {CommonInternal, IAsync, IComputed, Listner} from './proto/type.js'
+import {status} from './helpers'
+import {CommonInternal, IAsync, IComputed, Listner} from './helpers/type.js'
 import type {Func, Options} from './types/types.js'
 const names = new Set()
 

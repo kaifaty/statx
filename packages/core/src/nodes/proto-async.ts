@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {AnyFunc} from '../types'
-import type {IAsync} from './type'
+import type {IAsync} from '../helpers/type'
 
 const cancelFrame = globalThis.cancelAnimationFrame ?? clearTimeout
 const startFrame = globalThis.requestAnimationFrame ?? setTimeout

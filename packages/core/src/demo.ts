@@ -38,7 +38,7 @@ const test = async () => {
   }
   // entry.set(2)
 
-  h()
+  console.log(h())
   /**
    *
    */

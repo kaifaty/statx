@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {State, AsycStateOptions, Computed} from './types'
+import type {State, AsycStateOptions, Computed} from '../types'
 import {state} from './state'
-import {getNewFnWithName} from './utils.js'
+import {getNewFnWithName} from '../utils.js'
 import {
   GetStateValue,
   Peek,
@@ -15,9 +15,9 @@ import {
   IAsync,
   AsyncStatus,
   nonce,
-} from './proto'
+  status,
+} from '../helpers'
 import {computed} from './computed'
-import {addState} from './states-map'
 
 export const AsyncStateProto = Object.create(null)
 
@@ -34,7 +34,7 @@ AsyncStateProto.then = Then
 // TODO statages 'fist-win' | 'first&last-win'
 // TODO isPending isLoaded
 
-export type TAsyncState<T> = State<T | undefined> & {
+export type AsyncState<T> = State<T | undefined> & {
   start(): void
   stop(): void
   isLoading: State<boolean>
@@ -52,18 +52,17 @@ export function asyncState<TResponse>(
   fn: (controller: AbortController) => Promise<TResponse>,
   deps: Array<State<any> | Computed<any>>,
   options?: AsycStateOptions<TResponse>,
-): TAsyncState<TResponse> {
+): AsyncState<TResponse> {
   const id = nonce.get()
   const AsyncState: IAsync = getNewFnWithName(options, 'asyncState:' + id)
 
   Object.setPrototypeOf(AsyncState, AsyncStateProto)
+  status.initStatus(id, AsyncState, 'async')
 
   defaultParams: {
     AsyncState._fn = fn
-    AsyncState._id = id
     AsyncState._timeRequestStart = 0
     AsyncState._frameId = 0
-    AsyncState._hasParentUpdates = false
     AsyncState._isStarted = false
   }
 
@@ -76,8 +75,8 @@ export function asyncState<TResponse>(
 
   initStatusParams: {
     const asyncDeps = [AsyncState]
-    AsyncState.isPending = state(false, {name: 'isPending::' + AsyncState._id})
-    AsyncState.error = state<undefined | Error>(undefined, {name: 'error::' + AsyncState._id})
+    AsyncState.isPending = state(false, {name: 'isPending::' + AsyncState.id})
+    AsyncState.error = state<undefined | Error>(undefined, {name: 'error::' + AsyncState.id})
     AsyncState.status = computed<AsyncStatus>(
       () => {
         if (AsyncState._isStarted) {
@@ -91,7 +90,7 @@ export function asyncState<TResponse>(
         }
         return 'indle'
       },
-      {name: 'status::' + AsyncState._id},
+      {name: 'status::' + AsyncState.id},
     )
     AsyncState.isPending.customDeps = asyncDeps
     AsyncState.error.customDeps = asyncDeps
@@ -106,6 +105,5 @@ export function asyncState<TResponse>(
     AsyncState.start()
   }
 
-  addState(AsyncState)
   return AsyncState as any
 }

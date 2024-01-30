@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Action, ActionOptions} from './types/index.js'
-import {getName} from './utils.js'
+import type {Action, ActionOptions} from '../types/index.js'
+import {getName} from '../utils.js'
 
 export const action = <T extends unknown[]>(
   value: (...args: T) => void,

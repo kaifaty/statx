@@ -2,7 +2,7 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {asyncState, computed, state, list, action, NodeMapValidators, nodesMap} from '../index.js'
+import {asyncState, computed, state, list, action} from '../index.js'
 import {cachedState} from '../cached.js'
 import {delay} from './utils.js'
 
@@ -23,10 +23,6 @@ const createMockFn = (): Mock => {
   return mock as Mock
 }
 
-const nodes = new NodeMapValidators(nodesMap)
-test.before.each(() => {
-  nodes.clearMap()
-})
 test('Defaul value', () => {
   assert.is(state(0)(), 0)
 })

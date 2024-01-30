@@ -6,5 +6,8 @@ class Nonce {
   get() {
     return this.value++
   }
+  peek() {
+    return this.value
+  }
 }
 export const nonce = new Nonce()

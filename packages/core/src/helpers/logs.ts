@@ -1,4 +1,5 @@
-import type {CommonInternal} from '..'
+import {nonce} from './nonce'
+import type {CommonInternal} from './type'
 
 type ValueListener = (base: CommonInternal) => void
 type CommonListener = () => void
@@ -9,6 +10,9 @@ class Logs {
   enabled = false
 
   setEnabled(value: boolean) {
+    if (nonce.peek() > 0) {
+      console.warn('SET LOGS ENABLE BEFORE ANY STATE OR COMPUTED BEEN CREATE')
+    }
     this.enabled = value
   }
   logReason(node: CommonInternal, childNode: CommonInternal, level: number) {

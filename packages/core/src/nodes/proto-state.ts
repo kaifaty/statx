@@ -1,10 +1,10 @@
-import type {IState} from './type'
+import type {IState} from '../helpers/type'
 import {isFunction} from '../utils'
-import {logs} from './logs'
-import {nodesMap} from './nodes-map'
-import {recorder} from './recorder'
-import {nodeHistory} from './history'
-import {requester} from './requester'
+import {logs} from '../helpers/logs'
+import {nodesMap} from '../helpers/nodes-map'
+import {recorder} from '../helpers/recorder'
+import {nodeHistory} from '../helpers/history'
+import {requester} from '../helpers/requester'
 
 export function SetValue(this: IState, value: unknown) {
   const newValue = isFunction(value) ? value(this.currentValue) : value
@@ -13,9 +13,7 @@ export function SetValue(this: IState, value: unknown) {
   }
 
   nodeHistory.push(this, newValue, 'outside')
-  //console.time('invalidate')
   nodesMap.invalidate(this)
-  //console.timeEnd('invalidate')
   nodesMap.notifySubscribers()
   logs.dispatchValueUpdate(this)
 }

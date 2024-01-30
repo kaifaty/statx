@@ -2,12 +2,11 @@ import {status} from './status'
 import type {CommonInternal, HistoryChange} from './type'
 import {logs} from './logs'
 
-const TOTAL_MAX_VALUE = 2 ** status.bitsMap.historyCursor.length - 1
-
 class NodeHistory {
   private MAX = 10
   private init(node: CommonInternal) {
     if (node._history === undefined) {
+      node.historyCursor = 0
       node._history = []
     }
     if (this.MAX !== node._history.length) {
@@ -19,7 +18,7 @@ class NodeHistory {
     status.setValue(node, 'historyCursor', (cursor + 1) % this.MAX)
   }
   changeMax(value: number) {
-    this.MAX = Math.max(value, TOTAL_MAX_VALUE)
+    this.MAX = value
   }
 
   push(node: CommonInternal, value: unknown, reason: HistoryChange['reason']) {
@@ -33,7 +32,7 @@ class NodeHistory {
       node._history[status.getValue(node, 'historyCursor')] = {
         reason: reason,
         changer: node._reason,
-        value: value,
+        value,
         ts: Date.now(),
       }
     }
