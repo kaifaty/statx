@@ -21,7 +21,7 @@ export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
   Object.setPrototypeOf(List, ListProto)
 
   List._id = id
-  List.state = status.initStatus('list')
+  status.initStatus(List, 'list')
 
   addState(List)
 

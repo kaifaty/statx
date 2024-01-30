@@ -39,7 +39,7 @@ test('Links between state and computed', () => {
 
   assert.is(nodes.findListener(b, listener), listener, 'has listener')
   assert.is(nodes.findChild(a, b), b, 'has connection to child')
-  assert.is(nodes.findParent(b, a), a, 'has connection to parent')
+  // assert.is(nodes.findParent(b, a), a, 'has connection to parent')
 
   assert.is(b(), 1, 'right computed')
 })
@@ -55,8 +55,8 @@ test('Right dependecy', () => {
 
   assert.is(nodes.findChild(a1, b1), b1, 'dep 1')
   assert.is(nodes.findChild(b1, b2), b2, 'dep 2')
-  assert.is(nodes.findParent(b1, a1), a1, 'parent 1')
-  assert.is(nodes.findParent(b2, b1), b1, 'parent 2')
+  //assert.is(nodes.findParent(b1, a1), a1, 'parent 1')
+  //assert.is(nodes.findParent(b2, b1), b1, 'parent 2')
   assert.is(nodes.findListener(b1, listener1), listener1, 'listener 1')
   assert.is(nodes.findListener(b2, listener2), listener2, 'listener 1')
 })
@@ -85,8 +85,8 @@ test('Remove listener', async () => {
   const unb1 = b.subscribe(console.log)
   const unb2 = b2.subscribe(console.log)
 
-  assert.is(nodes.findParent(b, a), a)
-  assert.is(nodes.findParent(b2, b), b)
+  //assert.is(nodes.findParent(b, a), a)
+  //assert.is(nodes.findParent(b2, b), b)
 
   assert.is(nodes.findChild(a, b), b)
   assert.is(nodes.findChild(b, b2), b2)
@@ -98,8 +98,8 @@ test('Remove listener', async () => {
   await delay(1)
   unb1()
 
-  assert.is(nodes.findParent(b, a), a)
-  assert.is(nodes.findParent(b2, b), b)
+  //assert.is(nodes.findParent(b, a), a)
+  //assert.is(nodes.findParent(b2, b), b)
 
   assert.is(nodes.findChild(a, b), b)
   assert.is(nodes.findChild(b, b2), b2)
@@ -110,8 +110,8 @@ test('Remove listener', async () => {
   await delay(1)
   unb2()
 
-  assert.is(nodes.findParent(b, a), undefined)
-  assert.is(nodes.findParent(b2, b), undefined)
+  //assert.is(nodes.findParent(b, a), undefined)
+  //assert.is(nodes.findParent(b2, b), undefined)
 
   assert.is(nodes.findChild(a, b), undefined)
   assert.is(nodes.findChild(b, b2), undefined)

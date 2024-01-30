@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {logs} from './proto'
 import type {CommonInternal} from './proto/type'
 
 const statesMap: Map<string, WeakRef<CommonInternal>> = new Map()
@@ -16,6 +17,9 @@ const registry = new FinalizationRegistry((stateName: string) => {
 })
 
 export const addState = (state: CommonInternal) => {
+  if (!logs.enabled) {
+    return
+  }
   if (statesMap.get(state.name)?.deref()) {
     console.warn(state.name, 'alredy exist')
     return

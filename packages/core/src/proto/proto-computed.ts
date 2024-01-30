@@ -17,6 +17,7 @@ export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscrib
 
 export function GetComputedValue(this: IComputed): unknown {
   const requesterNode = requester.peek()
+  //console.time(this.name)
   try {
     requester.push(this)
 
@@ -54,6 +55,7 @@ export function GetComputedValue(this: IComputed): unknown {
     }
     recorder.add(this)
     requester.pop()
+    //console.timeEnd(this.name)
   }
 }
 

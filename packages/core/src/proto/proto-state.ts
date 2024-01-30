@@ -13,7 +13,9 @@ export function SetValue(this: IState, value: unknown) {
   }
 
   nodeHistory.push(this, newValue, 'outside')
+  //console.time('invalidate')
   nodesMap.invalidate(this)
+  //console.timeEnd('invalidate')
   nodesMap.notifySubscribers()
   logs.dispatchValueUpdate(this)
 }

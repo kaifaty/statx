@@ -48,25 +48,22 @@ const getBitsMap = () => {
 class Status {
   bitsMap = getBitsMap()
 
-  initStatus(type: NodeType): number {
-    let stateValue = 0
-    Object.values(this.bitsMap).forEach((item, i) => {
-      if (i === 0) {
-        stateValue |= stateTypes[type] << item.start
-      } else {
-        stateValue |= item.defaultValue << item.start
-      }
-    })
-    return stateValue
+  initStatus(node: CommonInternal, type: NodeType) {
+    node.type = stateTypes[type]
+    node.hasParentUpdate = 0
+    node.parentsLen = 0
+    node.childrenLen = 0
+    node.listeners = 0
+    node.historyCursor = 0
+    node.computing = 0
+    node.async = 0
   }
 
   getValue(node: CommonInternal, type: StatusKey) {
-    const info = this.bitsMap[type]
-    return this.readBits(node.state, info.start, info.end)
+    return node[type]
   }
   setValue(node: CommonInternal, type: StatusKey, value: number) {
-    const info = this.bitsMap[type]
-    node.state = this.replaceBits(node.state, info.start, info.end, value)
+    node[type] = value
   }
 
   getNodeType(node: CommonInternal): NodeType {
@@ -77,18 +74,6 @@ class Status {
       throw new Error('Unknown type:' + nodeType + ' name: ' + node.name)
     }
     return namedType
-  }
-
-  private readBits(num: number, startBit: number, endBit: number) {
-    const mask = ((1 << (endBit - startBit + 1)) - 1) << startBit
-    return (num & mask) >> startBit
-  }
-
-  private replaceBits(num: number, startBit: number, endBit: number, replacement: number) {
-    const mask = ((1 << (endBit - startBit + 1)) - 1) << startBit
-    const clearedNum = num & ~mask
-    const replacedBits = (replacement << startBit) & mask
-    return clearedNum | replacedBits
   }
 }
 

@@ -36,8 +36,7 @@ export const computed = <
   Object.setPrototypeOf(Computed, ComputeProto)
 
   Computed._id = id
-
-  Computed.state = status.initStatus('computed')
+  status.initStatus(Computed, 'computed')
 
   addState(Computed)
 

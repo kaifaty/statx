@@ -35,7 +35,7 @@ test('Name is settable', () => {
   assert.is(state(0, {name: 'name'}).name, 'name')
 })
 
-test.only('Computation test', async () => {
+test('Computation test', async () => {
   const entry = state(0)
   const a = computed(() => entry(), {name: 'a'})
   const b = computed(() => a() + 1, {name: 'b'})

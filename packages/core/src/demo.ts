@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {state, logs, computed} from './index'
-import {delay} from './tests/utils'
-logs.enabled = true
+import {state, computed} from './index'
 
 const test = async () => {
   const entry = state(0)
@@ -38,9 +36,9 @@ const test = async () => {
     // console.log(results.h, _h(), results.h === _h())
     //console.log(h(), _h())
   }
-  entry.set(2)
-  await delay(2)
+  // entry.set(2)
 
+  h()
   /**
    *
    */

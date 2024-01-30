@@ -11,6 +11,18 @@ class Logs {
   setEnabled(value: boolean) {
     this.enabled = value
   }
+  logReason(node: CommonInternal, childNode: CommonInternal, level: number) {
+    if (!this.enabled) {
+      return
+    }
+    if (this.enabled) {
+      if (level === 0) {
+        childNode._reason = [node]
+      } else if (childNode._reason) {
+        childNode._reason.length = 0
+      }
+    }
+  }
 
   dispatchValueUpdate(base: CommonInternal) {
     if (!this.enabled) {

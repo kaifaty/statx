@@ -20,7 +20,7 @@ export function state<T extends StateType = StateType>(value: T, options?: Optio
 
   Object.setPrototypeOf(State, StateProto)
 
-  State.state = status.initStatus('state')
+  status.initStatus(State, 'state')
 
   State._id = id
 

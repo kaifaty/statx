@@ -100,10 +100,10 @@ export class NodesMap {
       status.setValue(sourceNode, 'childrenLen', count + 1)
     }
     addParentToTarget: {
-      const count = status.getValue(targetNode, 'parentsLen')
-      const id = this.createId(targetNode, count)
-      this.parents[id] = sourceNode
-      status.setValue(targetNode, 'parentsLen', count + 1)
+      //const count = status.getValue(targetNode, 'parentsLen')
+      //const id = this.createId(targetNode, count)
+      //this.parents[id] = sourceNode
+      //status.setValue(targetNode, 'parentsLen', count + 1)
     }
   }
   /**
@@ -125,20 +125,19 @@ export class NodesMap {
    */
   invalidate(node: CommonInternal, level = 0) {
     const childenLen = status.getValue(node, 'childrenLen')
-    const parentsLen = status.getValue(node, 'parentsLen')
     const listenersLen = status.getValue(node, 'listeners')
 
     if (listenersLen) {
       this.states2notify.add(node)
     }
 
-    if (parentsLen) {
-      for (let i = 0; i < parentsLen; i++) {
-        const parentId = this.createId(node, i)
-        delete this.parents[parentId]
-      }
-      status.setValue(node, 'parentsLen', 0)
-    }
+    //if (parentsLen) {
+    //  for (let i = 0; i < parentsLen; i++) {
+    //    const parentId = this.createId(node, i)
+    //    delete this.parents[parentId]
+    //  }
+    //  status.setValue(node, 'parentsLen', 0)
+    //}
 
     if (childenLen) {
       for (let i = 0; i < childenLen; i++) {
@@ -146,21 +145,11 @@ export class NodesMap {
         const childNode = this.children[id]
         delete this.children[id]
 
-        check: {
-          if (!childNode) {
-            throw new Error('CANT ACCESS TO CHILD NODE, SOMETHING WRONG')
-          }
+        if (!childNode) {
+          throw new Error('CANT ACCESS TO CHILD NODE, SOMETHING WRONG')
         }
         status.setValue(childNode, 'hasParentUpdate', 1)
-        logReason: {
-          if (logs.enabled) {
-            if (level === 0) {
-              childNode._reason = [node]
-            } else if (childNode._reason) {
-              childNode._reason.length = 0
-            }
-          }
-        }
+        logs.logReason(node, childNode, level)
 
         if (isAsyncComputed(childNode)) {
           childNode.onDepsChange()

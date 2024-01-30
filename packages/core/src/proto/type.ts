@@ -8,12 +8,28 @@ export type HistoryChange = {
 }
 
 export type MapType = 'parents' | 'children' | 'listeners'
-// 1 + 1 + 4 + 8 + 5 + 1 + 3
+
+// type: {length: 3, defaultValue: 1},
+// hasParentUpdate: {length: 1, defaultValue: 0},
+// parentsLen: {length: 5, defaultValue: 0},
+// childrenLen: {length: 5, defaultValue: 0},
+// listeners: {length: 9, defaultValue: 0},
+// historyCursor: {length: 5, defaultValue: 0},
+// computing: {length: 1, defaultValue: 0},
+// async: {length: 1, defaultValue: 1},
+
 export interface CommonInternal {
-  state: number
   currentValue: unknown
   prevValue: unknown
   customDeps?: Array<CommonInternal>
+  type: number
+  hasParentUpdate: number
+  parentsLen: number
+  childrenLen: number
+  listeners: number
+  historyCursor: number
+  computing: number
+  async: number
 
   _reason?: Array<CommonInternal>
   _history: Array<HistoryChange>
