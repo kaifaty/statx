@@ -14,6 +14,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'no-unused-labels': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-unnecessary-type-constraint': 'off',
     'linebreak-style': 'off',

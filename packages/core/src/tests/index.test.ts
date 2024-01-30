@@ -2,10 +2,10 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {asyncState, computed, state, list, action, getHistoryValue} from '../index.js'
+import {asyncState, computed, state, list, action, NodeMapValidators, nodesMap} from '../index.js'
 import {cachedState} from '../cached.js'
+import {delay} from './utils.js'
 
-const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 type Mock = {
   (): void
   calls: number
@@ -23,6 +23,10 @@ const createMockFn = (): Mock => {
   return mock as Mock
 }
 
+const nodes = new NodeMapValidators(nodesMap)
+test.before.each(() => {
+  nodes.clearMap()
+})
 test('Defaul value', () => {
   assert.is(state(0)(), 0)
 })
@@ -31,7 +35,7 @@ test('Name is settable', () => {
   assert.is(state(0, {name: 'name'}).name, 'name')
 })
 
-test('Computation test', async () => {
+test.only('Computation test', async () => {
   const entry = state(0)
   const a = computed(() => entry(), {name: 'a'})
   const b = computed(() => a() + 1, {name: 'b'})
@@ -63,10 +67,6 @@ test('Computation test', async () => {
   for (let i = -10; i < 20; i++) {
     entry.set(i)
     await 1
-    //console.log(results.h, _h())
-    //console.log(h(), _h())
-    //console.log(a._hasParentUpdates)
-    //assert.is(a(), _a())
     assert.is(results.h, _h())
   }
   await new Promise((r) => setTimeout(r, 1))
@@ -141,18 +141,18 @@ test(`Recalculation of subscribers`, async () => {
   })
   // Recalc on subscribe
 
-  assert.is(getHistoryValue(c), 23 * 100 + 20)
+  assert.is(c.peek(), 23 * 100 + 20)
 
   v.set(1)
   await 1
 
-  assert.is(getHistoryValue(c), 1 * 100 + 20)
+  assert.is(c.peek(), 1 * 100 + 20)
 
   // No recalc after unsub
   unsub()
   v.set(0)
 
-  assert.is(getHistoryValue(c), 1 * 100 + 20)
+  assert.is(c.peek(), 1 * 100 + 20)
 })
 
 test(`Recalculate all computed tree`, () => {

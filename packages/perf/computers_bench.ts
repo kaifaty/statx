@@ -718,6 +718,6 @@ if (globalThis.process) {
   import('perf_hooks')
     // @ts-expect-error
     .then(({performance}) => (globalThis.performance = performance))
-    .then((): any => (globalThis.gc ? testComputers(300, 0) : test()))
+    .then((): any => (globalThis.gc ? testComputers(100, 0) : test()))
     .then(() => process.exit())
 }

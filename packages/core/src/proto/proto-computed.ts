@@ -1,58 +1,63 @@
-import {pushHistory, setRequester, getRequester, updateDeps, getLogsEnabled} from './proto-base'
-import type {IComputed, Listner} from './type'
-import {assert, isComputed} from '../utils'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {requester} from './requester'
+import {status} from './status'
+import type {CommonInternal, IComputed, Listner} from './type'
+import {assert} from '../utils'
 import type {UnSubscribe} from '../types/types'
+import {nodesMap} from './nodes-map'
+import {recorder} from './recorder'
+import {nodeHistory} from './history'
+import {logs} from './logs'
 
 export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscribe {
+  const sub = this.subscribeState(listner)
   this.get()
-  return this.subscribeState(listner)
+  return sub
 }
 
 export function GetComputedValue(this: IComputed): unknown {
-  const requesterComputed = getRequester()
-
+  const requesterNode = requester.peek()
   try {
-    setRequester(this)
+    requester.push(this)
 
     if (isDontNeedRecalc(this)) {
       return this.currentValue
     }
-    if (requesterComputed && getLogsEnabled()) {
-      if (!requesterComputed._reason) {
-        requesterComputed._reason = []
+    status.setValue(this, 'parentsLen', 0)
+
+    if (requesterNode && logs.enabled) {
+      if (!requesterNode._reason) {
+        requesterNode._reason = []
       }
-      requesterComputed._reason.push(this)
+      requesterNode._reason.push(this)
     }
-    this._listeners.forEach((item) => {
-      if (isComputed(item)) {
-        this._listeners.delete(item)
-      }
-    })
 
-    assert(this._isComputing, `Loops dosen't allows. Name: ${this.name}`)
+    const isComputingNode = status.getValue(this, 'computing')
+    assert(Boolean(isComputingNode), `Loops dosen't allows. Name: ${this.name}`)
 
-    this._isComputing = true
-    const value = this.reducer(this.currentValue ?? this.initial)
-    pushHistory(this, value, 'calc')
-    this._isComputing = false
-    this._hasParentUpdates = false
+    status.setValue(this, 'computing', 1)
+    const value = this.compute(this.currentValue ?? this.initial)
+    nodeHistory.push(this, value, 'calc')
+    status.setValue(this, 'computing', 0)
+    status.setValue(this, 'hasParentUpdate', 0)
 
     return this.currentValue
   } catch (e) {
     console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`, {sd: this})
-    this._isComputing = false
-    this._hasParentUpdates = false
+
+    status.setValue(this, 'computing', 0)
+    status.setValue(this, 'hasParentUpdate', 0)
     return undefined
   } finally {
-    if (requesterComputed) {
-      this._listeners.add(requesterComputed)
+    if (requesterNode) {
+      nodesMap.addLink(this, requesterNode, 'computation')
     }
-    updateDeps(this)
-    setRequester(undefined)
+    recorder.add(this)
+    requester.pop()
   }
 }
 
-function isDontNeedRecalc(value: IComputed): boolean {
-  // TODO ввести уникальное значение для еще не подсчитанного состояния
-  return value._hasParentUpdates === false && value.currentValue !== undefined
+function isDontNeedRecalc(node: CommonInternal): boolean {
+  // TODO ввести уникальное значение для еще не подсчитанного состояния ??
+  return status.getValue(node, 'hasParentUpdate') === 0 && node.currentValue !== undefined
 }

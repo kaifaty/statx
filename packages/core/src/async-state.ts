@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {State, AsycStateOptions, Computed} from './types'
 import {state} from './state'
-import {getNewFnWithName, getNonce, stateTypes} from './utils.js'
+import {getNewFnWithName} from './utils.js'
 import {
   GetStateValue,
   Peek,
@@ -14,6 +14,7 @@ import {
   IsMaxWait,
   IAsync,
   AsyncStatus,
+  nonce,
 } from './proto'
 import {computed} from './computed'
 import {addState} from './states-map'
@@ -52,27 +53,27 @@ export function asyncState<TResponse>(
   deps: Array<State<any> | Computed<any>>,
   options?: AsycStateOptions<TResponse>,
 ): TAsyncState<TResponse> {
-  const id = getNonce()
+  const id = nonce.get()
   const AsyncState: IAsync = getNewFnWithName(options, 'asyncState:' + id)
 
   Object.setPrototypeOf(AsyncState, AsyncStateProto)
 
   defaultParams: {
     AsyncState._fn = fn
-    AsyncState._listeners = new Set()
     AsyncState._id = id
     AsyncState._timeRequestStart = 0
     AsyncState._frameId = 0
     AsyncState._hasParentUpdates = false
     AsyncState._isStarted = false
-    AsyncState._type = stateTypes.async
   }
+
   initParams: {
     AsyncState.maxWait = options?.maxWait ?? 0
     AsyncState.strategy = options?.stratagy ?? 'last-win'
     AsyncState.customDeps = deps as any
     AsyncState.undefinedOnError = options?.undefinedOnError ?? false
   }
+
   initStatusParams: {
     const asyncDeps = [AsyncState]
     AsyncState.isPending = state(false, {name: 'isPending::' + AsyncState._id})

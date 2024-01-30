@@ -8,7 +8,8 @@ const startFrame = globalThis.requestAnimationFrame ?? setTimeout
 export function Start(this: IAsync) {
   this._isStarted = true
   this.customDeps.map((dep) => {
-    dep._listeners.add(this)
+    // TODO
+    //dep._listeners.add(this)
   })
   this.onDepsChange()
 }
@@ -16,7 +17,8 @@ export function Start(this: IAsync) {
 export function Stop(this: IAsync) {
   this._isStarted = false
   this.customDeps.map((dep) => {
-    dep._listeners.delete(this)
+    // TODO
+    //dep._listeners.delete(this)
   })
 }
 

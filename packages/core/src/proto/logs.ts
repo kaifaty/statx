@@ -1,16 +1,27 @@
-import type {CommonInternal} from './proto'
+import type {CommonInternal} from '..'
 
 type ValueListener = (base: CommonInternal) => void
 type CommonListener = () => void
 
-class EventsX {
-  valueListeners: Array<ValueListener> = []
-  commonListeners: Array<CommonListener> = []
+class Logs {
+  private valueListeners: Array<ValueListener> = []
+  private commonListeners: Array<CommonListener> = []
+  enabled = false
+
+  setEnabled(value: boolean) {
+    this.enabled = value
+  }
 
   dispatchValueUpdate(base: CommonInternal) {
+    if (!this.enabled) {
+      return
+    }
     this.valueListeners.forEach((l) => l(base))
   }
   dispatchUpdate() {
+    if (!this.enabled) {
+      return
+    }
     this.commonListeners.forEach((l) => l())
   }
   onUpdateValue(listener: ValueListener) {
@@ -27,4 +38,4 @@ class EventsX {
   }
 }
 
-export const events = new EventsX()
+export const logs = new Logs()

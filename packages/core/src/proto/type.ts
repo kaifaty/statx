@@ -7,19 +7,18 @@ export type HistoryChange = {
   ts: number
 }
 
+export type MapType = 'parents' | 'children' | 'listeners'
+// 1 + 1 + 4 + 8 + 5 + 1 + 3
 export interface CommonInternal {
+  state: number
   currentValue: unknown
   prevValue: unknown
   customDeps?: Array<CommonInternal>
 
   _reason?: Array<CommonInternal>
-  _type: number
-
   _history: Array<HistoryChange>
-  _historyCursor: number
-  _listeners: Set<Listner | IComputed | IAsync>
   _id: number
-  _isComputing: boolean
+  //_isComputing: boolean
   readonly name: string
   get(): unknown
   initial?: unknown
@@ -29,6 +28,7 @@ export interface CommonInternal {
 export interface IState extends CommonInternal {
   set(value: unknown): void
 }
+export type NodeType = 'state' | 'list' | 'async' | 'computed'
 
 export interface IList extends CommonInternal {
   currentValue: Array<unknown>
@@ -38,7 +38,7 @@ export interface IList extends CommonInternal {
 
 export interface IComputed extends CommonInternal {
   _hasParentUpdates: boolean
-  reducer: SetterFunc
+  compute: SetterFunc
   computeValue(): void
   subscribeState(listner: Listner): UnSubscribe
 }
@@ -72,10 +72,9 @@ export interface IAsync extends CommonInternal {
 
 export type Listner = {
   (value: unknown): void
-  base: CommonInternal
+  base: Array<CommonInternal> | CommonInternal
   source?: CommonInternal
   subscriber?: string
-  willNotify: boolean
 }
 
 export type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'
