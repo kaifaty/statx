@@ -21,10 +21,7 @@ export interface SettableStatus {
 
 //[0, listener, 1, child, 2, parent]
 export interface CommonInternal extends SettableStatus {
-  // listeners: Array<Listner>
-  // children: Set<CommonInternal>
-  // parents: Set<CommonInternal>
-  deps: Array<number | CommonInternal | Listner>
+  deps: Array<number | CommonInternal | Listener>
 
   initial?: unknown
   currentValue: unknown
@@ -37,12 +34,13 @@ export interface CommonInternal extends SettableStatus {
   readonly name: string
   get(): unknown
   peek(): unknown
-  subscribe(listner: Listner): UnSubscribe
+  subscribe(listner: Listener): UnSubscribe
 }
 export interface IState extends CommonInternal {
   set(value: unknown): void
 }
 export type NodeType = 'state' | 'list' | 'async' | 'computed'
+export type DependencyType = 'listener' | 'child' | 'parent'
 
 export interface IList extends CommonInternal {
   currentValue: Array<unknown>
@@ -53,7 +51,7 @@ export interface IList extends CommonInternal {
 export interface IComputed extends CommonInternal {
   compute: SetterFunc
   computeValue(): void
-  subscribeState(listner: Listner): UnSubscribe
+  subscribeState(listner: Listener): UnSubscribe
 }
 export interface IAsync extends CommonInternal {
   /**
@@ -82,12 +80,12 @@ export interface IAsync extends CommonInternal {
   status: Computed<AsyncStatus>
 }
 
-export type Listner = {
+export type Listener = {
   (value: unknown): void
 }
 
 export type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'
 
-export type AsyncStatus = 'indle' | 'pause' | 'pending' | 'error'
+export type AsyncStatus = 'idle' | 'pause' | 'pending' | 'error'
 
 export type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>

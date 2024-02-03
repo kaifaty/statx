@@ -4,9 +4,12 @@ import type {CommonInternal} from './type'
 type ValueListener = (base: CommonInternal) => void
 type CommonListener = () => void
 
+// TODO MINIFY
+
 class Logs {
   private valueListeners: Array<ValueListener> = []
   private commonListeners: Array<CommonListener> = []
+  private nodeCreate: Array<ValueListener> = []
   enabled = false
 
   setEnabled(value: boolean) {
@@ -40,6 +43,12 @@ class Logs {
     }
     this.commonListeners.forEach((l) => l())
   }
+  dispatchNodeCreate(node: CommonInternal) {
+    if (!this.enabled) {
+      return
+    }
+    this.nodeCreate.forEach((l) => l(node))
+  }
   onUpdateValue(listener: ValueListener) {
     this.valueListeners.push(listener)
     return () => {
@@ -50,6 +59,12 @@ class Logs {
     this.commonListeners.push(listener)
     return () => {
       this.commonListeners = this.commonListeners.filter((item) => item !== listener)
+    }
+  }
+  onNodeCreate(listener: CommonListener) {
+    this.nodeCreate.push(listener)
+    return () => {
+      this.nodeCreate = this.nodeCreate.filter((item) => item !== listener)
     }
   }
 }

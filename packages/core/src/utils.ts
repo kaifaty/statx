@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {status} from './helpers'
-import {CommonInternal, IAsync, IComputed, Listner} from './helpers/type.js'
+import {CommonInternal, IAsync, IComputed, Listener} from './helpers/type.js'
 import type {Func, Options} from './types/types.js'
 const names = new Set()
 
@@ -44,7 +44,7 @@ export function isAsyncComputed(v: unknown): v is IAsync {
   return isStatxFn(v) && status.getNodeType(v) === 'async'
 }
 
-export function isListener(v: unknown): v is Listner {
+export function isListener(v: unknown): v is Listener {
   return typeof v === 'function' && 'base' in v
 }
 

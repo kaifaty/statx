@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {nodesMap} from './nodes-map'
-import type {CommonInternal, NodeType, SettableStatus, StatusKey} from './type'
+import {logs} from '.'
+import type {CommonInternal, DependencyType, NodeType, SettableStatus, StatusKey} from './type'
 
 export const stateTypes = {
   state: 0,
@@ -8,6 +8,17 @@ export const stateTypes = {
   async: 2,
   computed: 3,
 } satisfies Record<NodeType, number>
+
+export const LISTENER = 0
+export const CHILD = 1
+export const PARENT = 2
+
+export const dependencyTypes = {
+  listener: 0,
+  child: 1,
+  parent: 2,
+} satisfies Record<DependencyType, number>
+
 const stateArray = Object.entries(stateTypes)
 
 class Status {
@@ -22,7 +33,7 @@ class Status {
     if (type === 'async') {
       node.async = 0
     }
-    nodesMap.addNodeToDebug(node)
+    logs.dispatchNodeCreate(node)
   }
 
   getValue(node: CommonInternal, type: StatusKey) {

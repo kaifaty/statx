@@ -1,17 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {CommonInternal} from './type'
 import {logs} from './logs'
+import {dependencyTypes} from './status'
 
 export class NodesMap {
-  private debuggerRegistry: Map<string, WeakRef<CommonInternal>> = new Map()
-  private finalizationRegistry = new FinalizationRegistry((stateName: string) => {
-    const cachedState = this.debuggerRegistry.get(stateName)
-    if (cachedState && !cachedState.deref()) {
-      this.debuggerRegistry.delete(stateName)
-    }
-  })
-  private nodesResolvers: Record<string, Array<(v: any) => void>> = {}
-
   nodes2notify: Set<CommonInternal> = new Set()
   isNotifying = false
 
@@ -22,20 +14,11 @@ export class NodesMap {
     if (!targetNode.deps) {
       targetNode.deps = []
     }
-    // if (!sourceNode.children) {
-    //   sourceNode.children = new Set()
-    // }
-    // if (!targetNode.parents) {
-    //   targetNode.parents = new Set()
-    // }
     if (sourceNode.id === targetNode.id) {
       throw new Error(`Trying to set loop children ${info}`)
     }
-    sourceNode.deps.push(targetNode, 1)
-    targetNode.deps.push(sourceNode, 2)
-
-    // sourceNode.children.add(targetNode)
-    // targetNode.parents.add(sourceNode)
+    sourceNode.deps.push(targetNode, dependencyTypes.child)
+    targetNode.deps.push(sourceNode, dependencyTypes.parent)
   }
 
   removeLinks(sourceNode: CommonInternal) {
@@ -43,11 +26,11 @@ export class NodesMap {
       return
     }
     for (let i = 0; i < sourceNode.deps.length; i += 2) {
-      if (sourceNode.deps[i + 1] === 2) {
+      if (sourceNode.deps[i + 1] === dependencyTypes.parent) {
         const parent = sourceNode.deps[i] as CommonInternal
 
         for (let j = 0; j < parent.deps.length; j += 2) {
-          if (parent.deps[j + 1] === 1) {
+          if (parent.deps[j + 1] === dependencyTypes.child) {
             const child = parent.deps[j]
             if (parent === child) {
               parent.deps.splice(j, 2)
@@ -59,16 +42,12 @@ export class NodesMap {
         i -= 2
       }
     }
-    // sourceNode.parents?.forEach((parent) => {
-    //   parent.children.delete(sourceNode)
-    // })
-    // sourceNode.parents?.clear()
   }
 
   recalcChilds(sourceNode: CommonInternal, changed: boolean) {
     if (changed && sourceNode.deps) {
       for (let i = 0; i < sourceNode.deps.length; i += 2) {
-        if (sourceNode.deps[i + 1] === 1) {
+        if (sourceNode.deps[i + 1] === dependencyTypes.child) {
           const item = sourceNode.deps[i] as CommonInternal
           this.nodes2notify.add(item)
           item.hasParentUpdate = 1
@@ -77,11 +56,6 @@ export class NodesMap {
           i -= 2
         }
       }
-      // sourceNode.children?.forEach((item) => {
-      //   this.nodes2notify.add(item)
-      //   item.hasParentUpdate = 1
-      // })
-      // sourceNode.children?.clear()
     }
   }
 
@@ -92,10 +66,13 @@ export class NodesMap {
       Promise.resolve().then(() => {
         while (this.nodes2notify.size) {
           const node = this.nodes2notify.values().next().value
-          const listenersLen = node.listeners?.length ?? 0
+          const listenersLen = node.deps?.length ?? 0
+
           const value = node.get()
-          for (let i = 0; i < listenersLen; i++) {
-            node.listeners[i](value)
+          for (let i = 0; i < listenersLen; i += 2) {
+            if (node.deps[i + 1] === dependencyTypes.listener) {
+              node.deps[i](value)
+            }
             logs.dispatchValueUpdate(node)
           }
           this.nodes2notify.delete(node)
@@ -104,6 +81,17 @@ export class NodesMap {
       })
     }
   }
+}
+
+class Debugger {
+  private debuggerRegistry: Map<string, WeakRef<CommonInternal>> = new Map()
+  private finalizationRegistry = new FinalizationRegistry((stateName: string) => {
+    const cachedState = this.debuggerRegistry.get(stateName)
+    if (cachedState && !cachedState.deref()) {
+      this.debuggerRegistry.delete(stateName)
+    }
+  })
+  private nodesResolvers: Record<string, Array<(v: any) => void>> = {}
 
   addNodeToDebug(state: CommonInternal) {
     if (!logs.enabled) {

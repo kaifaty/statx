@@ -88,7 +88,7 @@ export function asyncState<TResponse>(
         if (AsyncState.error()) {
           return 'error'
         }
-        return 'indle'
+        return 'idle'
       },
       {name: 'status::' + AsyncState.id},
     )

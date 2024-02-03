@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {requester} from '../helpers/requester'
 import {status} from '../helpers/status'
-import type {CommonInternal, IComputed, Listner} from '../helpers/type'
+import type {CommonInternal, IComputed, Listener} from '../helpers/type'
 import {assert} from '../utils'
 import type {UnSubscribe} from '../types/types'
 import {nodesMap} from '../helpers/nodes-map'
@@ -9,8 +9,8 @@ import {recorder} from '../helpers/recorder'
 import {nodeHistory} from '../helpers/history'
 import {logs} from '../helpers/logs'
 
-export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscribe {
-  const sub = this.subscribeState(listner)
+export function SubscribeComputed(this: IComputed, listener: Listener): UnSubscribe {
+  const sub = this.subscribeState(listener)
   this.get()
   return sub
 }

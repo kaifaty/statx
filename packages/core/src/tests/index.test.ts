@@ -99,10 +99,10 @@ test('Subscription of computable state', async () => {
   s2.set(6)
   s2.set(1)
   s2.set(2)
-  assert.is(test, 0)
+  assert.is(test, 0, '1')
   // after all mictotasks
   await 1
-  assert.is(test, _c3())
+  assert.is(test, _c3(), '2')
   assert.is(fn.calls, 1, 'calls exeption')
 })
 
