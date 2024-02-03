@@ -30,7 +30,7 @@ export function IsMaxWait(this: IAsync) {
 }
 
 export function OnDepsChange(this: IAsync) {
-  // Skip when stoped
+  // Skip when stopped
   if (!this._isStarted) {
     return
   }
@@ -47,7 +47,7 @@ export function OnDepsChange(this: IAsync) {
   this._frameId = startFrame(async () => {
     const controller = new AbortController()
 
-    AbortControllerIniting: {
+    AbortControllerInit: {
       const prevState = this.currentValue
       this._controller = controller
 
@@ -93,8 +93,8 @@ export function Then(this: IAsync, onFulfilled: AnyFunc) {
   }
 
   //@ts-ignore
-  const unsub = this.subscribe((v) => {
+  const unSub = this.subscribe((v) => {
     onFulfilled(v)
-    unsub()
+    unSub()
   })
 }

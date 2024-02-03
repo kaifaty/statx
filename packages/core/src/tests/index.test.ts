@@ -23,7 +23,7 @@ const createMockFn = (): Mock => {
   return mock as Mock
 }
 
-test('Defaul value', () => {
+test('Default value', () => {
   assert.is(state(0)(), 0)
 })
 
@@ -100,7 +100,7 @@ test('Subscription of computable state', async () => {
   s2.set(1)
   s2.set(2)
   assert.is(test, 0, '1')
-  // after all mictotasks
+  // after all microtasks
   await 1
   assert.is(test, _c3(), '2')
   assert.is(fn.calls, 1, 'calls exeption')
@@ -391,7 +391,7 @@ test('asyncState is maxWait works with last-win', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0, stratagy: 'last-win', maxWait: 120},
+    {initial: 0, strategy: 'last-win', maxWait: 120},
   )
 
   res.start()

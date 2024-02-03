@@ -22,30 +22,30 @@ export class CachedState<T, D, R> {
   private st: State<T>
   private func: (currentValue: T, data: D) => R
   private cache: CachedData
-  private unsub: UnSubscribe
+  private unSub: UnSubscribe
 
   constructor(st: State<T>, func: (currentValue: T, data: D) => R) {
     this.st = st
     this.func = func
     this.cache = CachedState.getCache(st)
-    this.unsub = st.subscribe(() => {
+    this.unSub = st.subscribe(() => {
       this.cache.clear()
     })
   }
 
   destroy = () => {
     this.cache.clear()
-    this.unsub()
+    this.unSub()
     CachedState.allCache.delete(this.st)
     //@ts-ignore
     this.st = null
   }
 
   call = (data: D): R => {
-    const calced = this.cache.get(data)
+    const calcValue = this.cache.get(data)
 
-    if (calced) {
-      return calced as R
+    if (calcValue) {
+      return calcValue as R
     }
 
     const result = this.func(this.st(), data)

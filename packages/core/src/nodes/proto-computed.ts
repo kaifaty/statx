@@ -7,7 +7,6 @@ import type {UnSubscribe} from '../types/types'
 import {nodesMap} from '../helpers/nodes-map'
 import {recorder} from '../helpers/recorder'
 import {nodeHistory} from '../helpers/history'
-import {logs} from '../helpers/logs'
 
 export function SubscribeComputed(this: IComputed, listener: Listener): UnSubscribe {
   const sub = this.subscribeState(listener)
@@ -16,14 +15,7 @@ export function SubscribeComputed(this: IComputed, listener: Listener): UnSubscr
 }
 
 /**
- * Есть 2 сценария запроса вычисления:
- * Снизу-вверх
- * Сверху-вниз
- *
- * При инвалидации какой-то ноды после ее вычисления - нужно проверить изменилось ли значения.
- * И только если изменилось - начинать вычислять нижние.
- *
- * При вычислении новой ноды,
+ * Get or calculate new value
  */
 export function GetComputedValue(this: IComputed): unknown {
   const requesterNode = requester.peek()
@@ -46,7 +38,7 @@ export function GetComputedValue(this: IComputed): unknown {
     const value = this.compute(this.currentValue ?? this.initial)
 
     nodeHistory.push(this, value, 'calc')
-    nodesMap.recalcChilds(this, this.currentValue !== this.prevValue)
+    nodesMap.reCalcChildren(this, this.currentValue !== this.prevValue)
 
     return this.currentValue
   } catch (e) {

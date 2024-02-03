@@ -34,7 +34,7 @@ export interface CommonInternal extends SettableStatus {
   readonly name: string
   get(): unknown
   peek(): unknown
-  subscribe(listner: Listener): UnSubscribe
+  subscribe(listener: Listener): UnSubscribe
 }
 export interface IState extends CommonInternal {
   set(value: unknown): void
@@ -51,7 +51,7 @@ export interface IList extends CommonInternal {
 export interface IComputed extends CommonInternal {
   compute: SetterFunc
   computeValue(): void
-  subscribeState(listner: Listener): UnSubscribe
+  subscribeState(listener: Listener): UnSubscribe
 }
 export interface IAsync extends CommonInternal {
   /**

@@ -44,7 +44,7 @@ export class NodesMap {
     }
   }
 
-  recalcChilds(sourceNode: CommonInternal, changed: boolean) {
+  reCalcChildren(sourceNode: CommonInternal, changed: boolean) {
     if (changed && sourceNode.deps) {
       for (let i = 0; i < sourceNode.deps.length; i += 2) {
         if (sourceNode.deps[i + 1] === dependencyTypes.child) {
@@ -98,7 +98,7 @@ class Debugger {
       return
     }
     if (this.debuggerRegistry.get(state.name)?.deref()) {
-      console.warn(state.name, 'alredy exist')
+      console.warn(state.name, 'already exist')
       return
     }
     this.debuggerRegistry.set(state.name, new WeakRef(state))

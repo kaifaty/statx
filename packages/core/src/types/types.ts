@@ -28,7 +28,7 @@ export type StateType<T extends unknown = unknown> = T extends number
 export type NonFunction<T> = T extends Func ? never : T
 export type IsFunction<T> = T extends Func ? T : never
 
-export type Listner<T extends StateType = StateType> = (value: T) => void
+export type Listener<T extends StateType = StateType> = (value: T) => void
 export type Reducer<T extends StateType = StateType> = (prevState: T) => T
 
 export type SetterValue<T extends Value> = T | ((prevState: T) => T)
@@ -52,7 +52,7 @@ export interface PublicState<T extends StateType> {
   (): T
   customDeps?: Array<CommonInternal>
   readonly name: string
-  subscribe(listner: Listner<T>): UnSubscribe
+  subscribe(listener: Listener<T>): UnSubscribe
   peek(): T
 }
 
@@ -87,14 +87,14 @@ export type AsycStateOptions<TResponse> = {
   /**
    * Default: last-win
    *
-   * last-win - Classic debounce: cancel previouse request if new one comes in.
-   * first-win - Skip new requests if already requseting
+   * last-win - Classic debounce: cancel previous request if new one comes in.
+   * first-win - Skip new requests if already requesting
    * first-last - Awaits request complete, after that call's again if was deps changes.
    */
-  stratagy?: Strategy
+  strategy?: Strategy
 
   /**
-   * Default: 0. Zero meens unlimit wait
+   * Default: 0. Zero means unlimited wait
    */
   maxWait?: number
   /**

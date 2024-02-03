@@ -68,7 +68,7 @@ export function asyncState<TResponse>(
 
   initParams: {
     AsyncState.maxWait = options?.maxWait ?? 0
-    AsyncState.strategy = options?.stratagy ?? 'last-win'
+    AsyncState.strategy = options?.strategy ?? 'last-win'
     AsyncState.customDeps = deps as any
     AsyncState.undefinedOnError = options?.undefinedOnError ?? false
   }

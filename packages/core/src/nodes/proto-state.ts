@@ -14,7 +14,7 @@ export function SetValue(this: IState, value: unknown) {
 
   nodeHistory.push(this, newValue, 'outside')
   nodesMap.nodes2notify.add(this)
-  nodesMap.recalcChilds(this, true)
+  nodesMap.reCalcChildren(this, true)
   nodesMap.notifySubscribers()
   logs.dispatchValueUpdate(this)
 }

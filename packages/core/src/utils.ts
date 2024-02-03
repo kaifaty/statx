@@ -15,8 +15,8 @@ export const getName = (name?: string, defaultName = 'withoutName'): string => {
   return defaultName
 }
 
-export const assert = (condtion: boolean, msg: string) => {
-  if (condtion) {
+export const assert = (condition: boolean, msg: string) => {
+  if (condition) {
     throw new Error(msg)
   }
 }
