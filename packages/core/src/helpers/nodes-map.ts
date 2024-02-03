@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {Listner, CommonInternal} from './type'
-import {status} from './status'
+import type {CommonInternal} from './type'
 import {logs} from './logs'
-import {isAsyncComputed} from '../utils'
 
 export class NodesMap {
   private debuggerRegistry: Map<string, WeakRef<CommonInternal>> = new Map()
@@ -14,35 +12,76 @@ export class NodesMap {
   })
   private nodesResolvers: Record<string, Array<(v: any) => void>> = {}
 
-  private isNotifying = false
-  private states2notify: Set<CommonInternal> = new Set()
+  nodes2notify: Set<CommonInternal> = new Set()
+  isNotifying = false
 
-  addLink(sourceNode: CommonInternal, targetNode: CommonInternal, _?: string) {
-    if (!sourceNode.children) {
-      sourceNode.children = []
+  addLink(sourceNode: CommonInternal, targetNode: CommonInternal, info?: string) {
+    if (!sourceNode.deps) {
+      sourceNode.deps = []
     }
-    sourceNode.children.push(targetNode)
+    if (!targetNode.deps) {
+      targetNode.deps = []
+    }
+    // if (!sourceNode.children) {
+    //   sourceNode.children = new Set()
+    // }
+    // if (!targetNode.parents) {
+    //   targetNode.parents = new Set()
+    // }
+    if (sourceNode.id === targetNode.id) {
+      throw new Error(`Trying to set loop children ${info}`)
+    }
+    sourceNode.deps.push(targetNode, 1)
+    targetNode.deps.push(sourceNode, 2)
+
+    // sourceNode.children.add(targetNode)
+    // targetNode.parents.add(sourceNode)
   }
 
-  invalidate(node: CommonInternal, level = 0) {
-    if (node.listeners?.length) {
-      this.states2notify.add(node)
+  removeLinks(sourceNode: CommonInternal) {
+    if (!sourceNode.deps) {
+      return
     }
-    const len = node.children?.length
-    if (len) {
-      for (let i = 0; i < len; i++) {
-        const childNode = node.children[i]
+    for (let i = 0; i < sourceNode.deps.length; i += 2) {
+      if (sourceNode.deps[i + 1] === 2) {
+        const parent = sourceNode.deps[i] as CommonInternal
 
-        status.setValue(childNode, 'hasParentUpdate', 1)
-        logs.logReason(node, childNode, level)
+        for (let j = 0; j < parent.deps.length; j += 2) {
+          if (parent.deps[j + 1] === 1) {
+            const child = parent.deps[j]
+            if (parent === child) {
+              parent.deps.splice(j, 2)
+              j -= 2
+            }
+          }
+        }
+        sourceNode.deps.splice(i, 2)
+        i -= 2
+      }
+    }
+    // sourceNode.parents?.forEach((parent) => {
+    //   parent.children.delete(sourceNode)
+    // })
+    // sourceNode.parents?.clear()
+  }
 
-        if (isAsyncComputed(childNode)) {
-          childNode.onDepsChange()
-        } else {
-          this.invalidate(childNode, level + 1)
+  recalcChilds(sourceNode: CommonInternal, changed: boolean) {
+    if (changed && sourceNode.deps) {
+      for (let i = 0; i < sourceNode.deps.length; i += 2) {
+        if (sourceNode.deps[i + 1] === 1) {
+          const item = sourceNode.deps[i] as CommonInternal
+          this.nodes2notify.add(item)
+          item.hasParentUpdate = 1
+
+          sourceNode.deps.splice(i, 2)
+          i -= 2
         }
       }
-      node.children.length = 0
+      // sourceNode.children?.forEach((item) => {
+      //   this.nodes2notify.add(item)
+      //   item.hasParentUpdate = 1
+      // })
+      // sourceNode.children?.clear()
     }
   }
 
@@ -51,18 +90,17 @@ export class NodesMap {
       this.isNotifying = true
 
       Promise.resolve().then(() => {
-        this.states2notify.forEach((node) => {
-          const listenersLen = node.listeners.length
+        while (this.nodes2notify.size) {
+          const node = this.nodes2notify.values().next().value
+          const listenersLen = node.listeners?.length ?? 0
           const value = node.get()
           for (let i = 0; i < listenersLen; i++) {
             node.listeners[i](value)
             logs.dispatchValueUpdate(node)
           }
-        })
-
-        this.states2notify.clear()
+          this.nodes2notify.delete(node)
+        }
         this.isNotifying = false
-        logs.dispatchUpdate()
       })
     }
   }

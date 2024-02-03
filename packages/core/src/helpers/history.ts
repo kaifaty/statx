@@ -14,9 +14,10 @@ class NodeHistory {
     }
   }
   private moveHistoryCursor(node: CommonInternal) {
-    const cursor = status.getValue(node, 'historyCursor')
+    const cursor = status.getValue(node, 'historyCursor')!
     status.setValue(node, 'historyCursor', (cursor + 1) % this.MAX)
   }
+
   changeMax(value: number) {
     this.MAX = value
   }
@@ -29,13 +30,22 @@ class NodeHistory {
       this.init(node)
       this.moveHistoryCursor(node)
 
-      node._history[status.getValue(node, 'historyCursor')] = {
+      node._history[status.getValue(node, 'historyCursor')!] = {
         reason: reason,
         changer: node._reason,
         value,
         ts: Date.now(),
       }
     }
+  }
+  pushReason(sourceNode: CommonInternal | undefined, reasonNode: CommonInternal) {
+    if (!logs.enabled || !sourceNode) {
+      return
+    }
+    if (!sourceNode._reason) {
+      sourceNode._reason = []
+    }
+    sourceNode._reason.push(reasonNode)
   }
 }
 

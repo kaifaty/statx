@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {State, PublicList} from '@statx/core'
-import {TAsyncState} from '../../core/build/async-state'
+import type {State, AsyncState, PublicList} from '@statx/core'
 
 type Persist = {
   clear(): void
@@ -35,7 +34,7 @@ export type SyncPersistState<T> = [T] extends [State<any>]
   ? T & Persist
   : [T] extends [PublicList<any>]
   ? T & Persist
-  : [T] extends [TAsyncState<any>]
+  : [T] extends [AsyncState<any>]
   ? T & Persist
   : State<T> & Persist
 

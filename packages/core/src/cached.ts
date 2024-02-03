@@ -37,6 +37,8 @@ export class CachedState<T, D, R> {
     this.cache.clear()
     this.unsub()
     CachedState.allCache.delete(this.st)
+    //@ts-ignore
+    this.st = null
   }
 
   call = (data: D): R => {

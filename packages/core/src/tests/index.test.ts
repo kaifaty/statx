@@ -2,7 +2,7 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {asyncState, computed, state, list, action} from '../index.js'
+import {asyncState, computed, state, list, action, CommonInternal} from '../index.js'
 import {cachedState} from '../cached.js'
 import {delay} from './utils.js'
 
@@ -151,7 +151,7 @@ test(`Recalculation of subscribers`, async () => {
   assert.is(c.peek(), 1 * 100 + 20)
 })
 
-test(`Recalculate all computed tree`, () => {
+test(`Recalculate all computed tree`, async () => {
   const v = state(0, {name: 'v'})
   const c = computed(() => v() + 1, {name: 'c'})
   const c2 = computed(() => c() + 2, {name: 'c2'})
@@ -160,8 +160,12 @@ test(`Recalculate all computed tree`, () => {
   assert.is(c3(), 6)
 
   v.set(1)
+  await 1
 
+  assert.is(v(), 1)
+  assert.is(c(), 2)
   assert.is(c3(), 7)
+  assert.is(c2(), 4)
 })
 
 test('Check right dependencies of computed state', () => {
@@ -247,24 +251,25 @@ test('from compuited  cache', async () => {
     return currentValue * data
   })
 
-  assert.is(calcer(10), 100)
-  assert.is(calls, 1)
-  assert.is(calcer(10), 100)
-  assert.is(calls, 1)
+  assert.is(calcer(10), 100, '1')
+  assert.is(calls, 1, '2')
+  assert.is(calcer(10), 100, '3')
+  assert.is(calls, 1, '4')
   st.set(1)
   await 1
-  assert.is(calcer(10), 10)
-  assert.is(calls, 2)
-  assert.is(calcer(10), 10)
-  assert.is(calls, 2)
-  assert.is(calcer(11), 11)
-  assert.is(calls, 3)
-  assert.is(calcer(12), 12)
-  assert.is(calls, 4)
-  assert.is(calcer(11), 11)
-  assert.is(calls, 4)
-  assert.is(calcer(12), 12)
-  assert.is(calls, 4)
+  assert.is(calcer(10), 10, '5')
+
+  assert.is(calls, 2, '6')
+  assert.is(calcer(10), 10, '7')
+  assert.is(calls, 2, '8')
+  assert.is(calcer(11), 11, '9')
+  assert.is(calls, 3, '10')
+  assert.is(calcer(12), 12, '11')
+  assert.is(calls, 4, '12')
+  assert.is(calcer(11), 11, '13')
+  assert.is(calls, 4, '14')
+  assert.is(calcer(12), 12, '15')
+  assert.is(calls, 4, '16')
 })
 
 test('asyncState check state change', async () => {
@@ -532,6 +537,71 @@ test('List: at', async () => {
   assert.is(res.at(11), undefined)
   assert.is(res.at(-1), 4)
   assert.is(res.at(-11), undefined)
+})
+
+test('Right subscribtion order call', async () => {
+  const a = state(0)
+  const b = computed(() => a() + 1)
+  const b2 = computed(() => b() + '---')
+  let res = ''
+  b.subscribe(() => {
+    res += '1'
+  })
+  b2.subscribe(() => {
+    res += '2'
+  })
+  a.set(1)
+  await 1
+  assert.is(res, '12')
+})
+
+test('Remove listener', async () => {
+  const a = state(0) as any as CommonInternal
+
+  const unb1 = a.subscribe(console.log)
+  const unb2 = a.subscribe(console.log)
+
+  assert.is(a.deps.length, 4, '1')
+  unb1()
+  assert.is(a.deps.length, 2, '2')
+  unb1()
+  assert.is(a.deps.length, 2, '2')
+  unb2()
+  assert.is(a.deps, undefined)
+})
+
+test('Child computation must not to be trigger if value not change', async () => {
+  let res = 0
+  const a = state(1)
+  const b = computed(() => {
+    if (a() > 10) {
+      return 2
+    }
+    return 1
+  })
+  const c = computed(() => {
+    return b() + 1
+  })
+  c.subscribe(() => {
+    res++
+  })
+  a.set(2)
+  await 1
+  a.set(3)
+  await 1
+  a.set(4)
+  await 1
+
+  assert.is(res, 0, '1')
+  assert.is(b(), 1, '2')
+  assert.is(c(), 2, '3')
+  a.set(14)
+  await 1
+
+  assert.is(res, 1, '4')
+  assert.is(b(), 2, '5')
+
+  assert.is(c(), 3, '6')
 })
 
 test.run()

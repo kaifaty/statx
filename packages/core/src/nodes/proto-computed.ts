@@ -15,6 +15,16 @@ export function SubscribeComputed(this: IComputed, listner: Listner): UnSubscrib
   return sub
 }
 
+/**
+ * Есть 2 сценария запроса вычисления:
+ * Снизу-вверх
+ * Сверху-вниз
+ *
+ * При инвалидации какой-то ноды после ее вычисления - нужно проверить изменилось ли значения.
+ * И только если изменилось - начинать вычислять нижние.
+ *
+ * При вычислении новой ноды,
+ */
 export function GetComputedValue(this: IComputed): unknown {
   const requesterNode = requester.peek()
 
@@ -25,33 +35,32 @@ export function GetComputedValue(this: IComputed): unknown {
       return this.currentValue
     }
 
-    if (requesterNode && logs.enabled) {
-      if (!requesterNode._reason) {
-        requesterNode._reason = []
-      }
-      requesterNode._reason.push(this)
-    }
+    nodeHistory.pushReason(requesterNode, this)
 
     const isComputingNode = status.getValue(this, 'computing')
     assert(Boolean(isComputingNode), `Loops dosen't allows. Name: ${this.name}`)
 
     status.setValue(this, 'computing', 1)
+    nodesMap.removeLinks(this)
+
     const value = this.compute(this.currentValue ?? this.initial)
+
     nodeHistory.push(this, value, 'calc')
-    status.setValue(this, 'computing', 0)
-    status.setValue(this, 'hasParentUpdate', 0)
+    nodesMap.recalcChilds(this, this.currentValue !== this.prevValue)
 
     return this.currentValue
   } catch (e) {
-    console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`, {sd: this})
+    console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`, {sd: this}, e)
 
+    throw e
+  } finally {
     status.setValue(this, 'computing', 0)
     status.setValue(this, 'hasParentUpdate', 0)
-    return undefined
-  } finally {
+
     if (requesterNode) {
       nodesMap.addLink(this, requesterNode, 'computation')
     }
+
     recorder.add(this)
     requester.pop()
   }

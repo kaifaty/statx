@@ -162,7 +162,7 @@ export class Router extends Routes {
     window.removeEventListener('click', this._onClick)
   }
   static async back() {
-    if (this.history.length > 1) {
+    if (this.history.length > 0) {
       const name = this.history[this.history.length - 2].name
       this.goto(name)
     }

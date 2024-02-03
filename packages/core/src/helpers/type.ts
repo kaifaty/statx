@@ -16,11 +16,16 @@ export interface SettableStatus {
   historyCursor: number
   computing: number
   async: number
+  invalidated?: number
 }
 
+//[0, listener, 1, child, 2, parent]
 export interface CommonInternal extends SettableStatus {
-  listeners: Array<Listner>
-  children: Array<CommonInternal>
+  // listeners: Array<Listner>
+  // children: Set<CommonInternal>
+  // parents: Set<CommonInternal>
+  deps: Array<number | CommonInternal | Listner>
+
   initial?: unknown
   currentValue: unknown
   prevValue: unknown
@@ -79,9 +84,6 @@ export interface IAsync extends CommonInternal {
 
 export type Listner = {
   (value: unknown): void
-  base: Array<CommonInternal> | CommonInternal
-  source?: CommonInternal
-  subscriber?: string
 }
 
 export type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'

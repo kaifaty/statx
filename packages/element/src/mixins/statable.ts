@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {flushStates, startRecord} from '@statx/core'
+import {recorder} from '@statx/core'
 import {isEqualSet} from '@statx/utils'
 import type {CommonInternal, UnSubscribe} from '@statx/core'
 import {Constructor} from '../types'
@@ -33,7 +33,8 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
 
     updated(...args: any[]): void {
       super.updated(args)
-      const data = flushStates()
+      const data = recorder.flush()
+
       if (data && isEqualSet(data, this._prevSnapshot)) {
         return
       }
@@ -45,7 +46,7 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
     }
     willUpdate(...args: any[]): void {
       super.willUpdate(args)
-      startRecord()
+      recorder.start()
     }
     disconnectedCallback(): void {
       //@ts-ignore

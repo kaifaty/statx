@@ -10,20 +10,21 @@ import {CommonInternal, Listner} from '../helpers/type'
  * When unsubscribing, we need to notify all the subscribers that we have unsubscribed.
  */
 export function Subscribe(this: CommonInternal, listener: Listner): UnSubscribe {
-  if (!listener.base) {
-    listener.base = this
-  } else if (Array.isArray(listener.base)) {
-    listener.base.push(this)
-  } else {
-    listener.base = [listener.base, this]
+  if (!this.deps) {
+    this.deps = []
   }
-  if (!this.listeners) {
-    this.listeners = []
-  }
-  this.listeners.push(listener)
+  const wrapper = (v: unknown) => listener(v)
+  this.deps.push(wrapper, 0)
 
   return () => {
-    this.listeners.filter((item) => item !== listener)
+    const indexListener = this.deps?.indexOf(wrapper) ?? -1
+    if (indexListener >= 0) {
+      this.deps.splice(indexListener, 2)
+      if (this.deps!.length === 0) {
+        //@ts-ignore
+        this.deps = undefined
+      }
+    }
   }
 }
 

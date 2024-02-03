@@ -2,22 +2,20 @@ import type {IComputed} from './type'
 
 class Requester {
   MAXDEEP = 100
-  level = 0
+  level = -1
   private requester: Array<IComputed> = Array.from({length: this.MAXDEEP})
   push(value: IComputed) {
     if (this.level > this.MAXDEEP) {
       throw new Error('Max calculation deep is 100')
     }
-    this.requester[this.level++] = value
+    this.requester.push(value)
   }
   pop() {
-    return this.requester[this.level--]
+    const value = this.requester.pop()
+    return value
   }
   peek() {
-    return this.requester[this.level]
-  }
-  deep() {
-    return this.level
+    return this.requester[this.requester.length - 1]
   }
 }
 

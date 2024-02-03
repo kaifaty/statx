@@ -8,6 +8,7 @@ export const stateTypes = {
   async: 2,
   computed: 3,
 } satisfies Record<NodeType, number>
+const stateArray = Object.entries(stateTypes)
 
 class Status {
   initStatus(id: number, node: CommonInternal, type: NodeType) {
@@ -34,7 +35,7 @@ class Status {
 
   getNodeType(node: CommonInternal): NodeType {
     const nodeType = this.getValue(node, 'type')
-    const namedType = Object.entries(stateTypes).find((item) => item[1] === nodeType)?.[0] as any
+    const namedType = stateArray.find((item) => item[1] === nodeType)?.[0] as any
     if (!namedType) {
       console.error(node)
       throw new Error('Unknown type:' + nodeType + ' name: ' + node.name)
