@@ -1,6 +1,6 @@
 import {status} from './status'
 import type {CommonInternal, HistoryChange} from './type'
-import {logs} from './logs'
+import {events} from './events'
 
 class NodeHistory {
   private MAX = 10
@@ -14,8 +14,8 @@ class NodeHistory {
     }
   }
   private moveHistoryCursor(node: CommonInternal) {
-    const cursor = status.getValue(node, 'historyCursor')!
-    status.setValue(node, 'historyCursor', (cursor + 1) % this.MAX)
+    const cursor = node.historyCursor
+    node.historyCursor = (cursor + 1) % this.MAX
   }
 
   changeMax(value: number) {
@@ -26,11 +26,11 @@ class NodeHistory {
     node.prevValue = node.currentValue
     node.currentValue = value
 
-    if (logs.enabled) {
+    if (events.enabled) {
       this.init(node)
       this.moveHistoryCursor(node)
 
-      node._history[status.getValue(node, 'historyCursor')!] = {
+      node._history[node.historyCursor] = {
         reason: reason,
         changer: node._reason,
         value,
@@ -39,7 +39,7 @@ class NodeHistory {
     }
   }
   pushReason(sourceNode: CommonInternal | undefined, reasonNode: CommonInternal) {
-    if (!logs.enabled || !sourceNode) {
+    if (!events.enabled || !sourceNode) {
       return
     }
     if (!sourceNode._reason) {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {State, AsycStateOptions, Computed} from '../types'
+import type {State, AsyncStateOptions, Computed} from '../types'
 import {state} from './state'
-import {getNewFnWithName} from '../utils.js'
+import {getNewFnWithName} from '../helpers/utils.js'
 import {
   GetStateValue,
   Peek,
@@ -31,7 +31,7 @@ AsyncStateProto.subscribe = Subscribe
 AsyncStateProto.isMaxWait = IsMaxWait
 AsyncStateProto.then = Then
 
-// TODO statages 'fist-win' | 'first&last-win'
+// TODO strategies 'fist-win' | 'first&last-win'
 // TODO isPending isLoaded
 
 export type AsyncState<T> = State<T | undefined> & {
@@ -40,7 +40,7 @@ export type AsyncState<T> = State<T | undefined> & {
   isLoading: State<boolean>
   error: State<Error | undefined>
   /**
-   * Pause: when async state was not started or when stoped
+   * Pause: when async state was not started or when stopped
    * Pending: when state start processing
    * idle: when state was start and before or after pending
    *
@@ -51,7 +51,7 @@ export type AsyncState<T> = State<T | undefined> & {
 export function asyncState<TResponse>(
   fn: (controller: AbortController) => Promise<TResponse>,
   deps: Array<State<any> | Computed<any>>,
-  options?: AsycStateOptions<TResponse>,
+  options?: AsyncStateOptions<TResponse>,
 ): AsyncState<TResponse> {
   const id = nonce.get()
   const AsyncState: IAsync = getNewFnWithName(options, 'asyncState:' + id)
@@ -69,6 +69,7 @@ export function asyncState<TResponse>(
   initParams: {
     AsyncState.maxWait = options?.maxWait ?? 0
     AsyncState.strategy = options?.strategy ?? 'last-win'
+
     AsyncState.customDeps = deps as any
     AsyncState.undefinedOnError = options?.undefinedOnError ?? false
   }

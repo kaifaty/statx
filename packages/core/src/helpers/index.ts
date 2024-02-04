@@ -7,5 +7,7 @@ export * from './type'
 export {OnDepsChange, Start, Stop, Then, IsMaxWait} from '../nodes/proto-async'
 export {nonce} from './nonce'
 export {nodesMap} from './nodes-map'
-export {logs} from './logs'
+export {events} from './events'
 export {recorder} from './recorder'
+
+export {isAsyncComputed, isComputed, isListener, isStatxFn, isState, isList, eachDependency} from './utils.js'

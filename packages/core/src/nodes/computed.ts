@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assert, getNewFnWithName, isFunction} from '../utils'
+import {assert, getNewFnWithName, isFunction} from '../helpers/utils'
 import type {Computed, Nullable, StateType} from '../types/types'
 import {Peek, Subscribe, nonce, status, GetComputedValue, SubscribeComputed} from '../helpers'
 

@@ -2,7 +2,7 @@
 import type {Options, PublicList} from '../types/index.js'
 import {At, Pop, Push, Shift, Sort, nonce, UnShift, status} from '../helpers/index.js'
 import {StateProto} from './state.js'
-import {getNewFnWithName} from '../utils.js'
+import {getNewFnWithName} from '../helpers/utils.js'
 
 const ListProto = Object.assign(Object.create(null), StateProto)
 

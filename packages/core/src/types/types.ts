@@ -78,7 +78,7 @@ export type Options = {
   name?: string
 }
 
-export type AsycStateOptions<TResponse> = {
+export type AsyncStateOptions<TResponse> = {
   /**
    * Initial state
    */

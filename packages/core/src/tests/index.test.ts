@@ -320,12 +320,12 @@ test('asyncState check state observe deps', async () => {
   )
 
   res.start()
-  assert.is(res(), 0)
+  assert.is(res(), 0, '1')
   await delay(200)
-  assert.is(res(), 3)
+  assert.is(res(), 3, '2')
   dep2.set(20)
   await delay(200)
-  assert.is(res(), 21)
+  assert.is(res(), 21, '3')
 })
 
 test('asyncState check state observe can stop', async () => {

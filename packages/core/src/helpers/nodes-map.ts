@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {CommonInternal} from './type'
-import {logs} from './logs'
-import {dependencyTypes} from './status'
+import {events} from './events'
+import {dependencyTypes, stateTypes} from './status'
+import {isAsyncComputed} from './utils'
 
 export class NodesMap {
   nodes2notify: Set<CommonInternal> = new Set()
@@ -49,11 +50,14 @@ export class NodesMap {
       for (let i = 0; i < sourceNode.deps.length; i += 2) {
         if (sourceNode.deps[i + 1] === dependencyTypes.child) {
           const item = sourceNode.deps[i] as CommonInternal
+          if (isAsyncComputed(item)) {
+            item.onDepsChange()
+          } else {
+            item.hasParentUpdate = 1
+            sourceNode.deps.splice(i, 2)
+            i -= 2
+          }
           this.nodes2notify.add(item)
-          item.hasParentUpdate = 1
-
-          sourceNode.deps.splice(i, 2)
-          i -= 2
         }
       }
     }
@@ -73,63 +77,13 @@ export class NodesMap {
             if (node.deps[i + 1] === dependencyTypes.listener) {
               node.deps[i](value)
             }
-            logs.dispatchValueUpdate(node)
+            events.dispatchEvent('ValueUpdate', node)
           }
           this.nodes2notify.delete(node)
         }
         this.isNotifying = false
       })
     }
-  }
-}
-
-class Debugger {
-  private debuggerRegistry: Map<string, WeakRef<CommonInternal>> = new Map()
-  private finalizationRegistry = new FinalizationRegistry((stateName: string) => {
-    const cachedState = this.debuggerRegistry.get(stateName)
-    if (cachedState && !cachedState.deref()) {
-      this.debuggerRegistry.delete(stateName)
-    }
-  })
-  private nodesResolvers: Record<string, Array<(v: any) => void>> = {}
-
-  addNodeToDebug(state: CommonInternal) {
-    if (!logs.enabled) {
-      return
-    }
-    if (this.debuggerRegistry.get(state.name)?.deref()) {
-      console.warn(state.name, 'already exist')
-      return
-    }
-    this.debuggerRegistry.set(state.name, new WeakRef(state))
-    this.finalizationRegistry.register(state, state.name)
-    this.nodesResolvers[state.name]?.forEach((resolve) => {
-      resolve({res: state})
-    })
-    delete this.nodesResolvers[state.name]
-  }
-
-  getNodeByName<T extends CommonInternal>(name: string, timeout?: number): Promise<{res: T}> {
-    return new Promise<{res: T}>((resolve, reject) => {
-      const existValue = this.debuggerRegistry.get(name)?.deref()
-
-      if (existValue) {
-        resolve({res: existValue as T})
-        return
-      }
-
-      if (!this.nodesResolvers[name]) {
-        this.nodesResolvers[name] = []
-      }
-
-      this.nodesResolvers[name].push(resolve)
-
-      if (timeout) {
-        setTimeout(() => {
-          reject(timeout)
-        }, timeout)
-      }
-    })
   }
 }
 

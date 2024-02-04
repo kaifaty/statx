@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {AnyFunc} from '../types'
 import type {IAsync} from '../helpers/type'
+import {nodesMap} from '../helpers/nodes-map'
 
 const cancelFrame = globalThis.cancelAnimationFrame ?? clearTimeout
 const startFrame = globalThis.requestAnimationFrame ?? setTimeout
@@ -8,8 +9,7 @@ const startFrame = globalThis.requestAnimationFrame ?? setTimeout
 export function Start(this: IAsync) {
   this._isStarted = true
   this.customDeps.map((dep) => {
-    // TODO
-    //dep._listeners.add(this)
+    nodesMap.addLink(dep, this, 'async dependency')
   })
   this.onDepsChange()
 }
@@ -17,8 +17,7 @@ export function Start(this: IAsync) {
 export function Stop(this: IAsync) {
   this._isStarted = false
   this.customDeps.map((dep) => {
-    // TODO
-    //dep._listeners.delete(this)
+    nodesMap.removeLinks(dep)
   })
 }
 

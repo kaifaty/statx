@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {isComputed, isAsyncComputed, CommonInternal} from '@statx/core'
+import {isComputed, eachDependency, isAsyncComputed, CommonInternal} from '@statx/core'
 
 import ForceGraph, {GraphData, ForceGraphInstance, LinkObject} from 'force-graph'
 import {Link, NodeObject} from './types'
 
-const getStatesMap = window.getStatesMap
+const nodesMap = window.nodesMap
+
 export type GraphParametrs = {
   nodeSize: number
   arrowSize: number
@@ -48,10 +49,10 @@ export class InitGrap {
         }
       })
 
-    window.events.onUpdateValue((source) => {
+    window.events.on('ValueUpdate', (source) => {
       this.onNodeValuesUpdate(source)
     })
-    window.events.onUpdate(() => {
+    window.events.on('Update', () => {
       this.onNodesUpdate()
     })
     this.updateProps(params)
@@ -59,7 +60,7 @@ export class InitGrap {
   private findLink(source: CommonInternal, target: CommonInternal) {
     const links = this._data.links as Link[]
     const link = links.find((item) => {
-      return item.source.id === source._id && item.target.id === target._id
+      return item.source.id === source.id && item.target.id === target.id
     })
     if (link) {
       this.graph.emitParticle(link)
@@ -85,15 +86,19 @@ export class InitGrap {
   }
   private nodePointerArea(node: NodeObject, color: string, ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = color
-    const bckgDimensions = node.__bgDimensions
-    bckgDimensions &&
-      ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions)
+    const backgroundDimensions = node.__bgDimensions
+    backgroundDimensions &&
+      ctx.fillRect(
+        node.x - backgroundDimensions[0] / 2,
+        node.y - backgroundDimensions[1] / 2,
+        ...backgroundDimensions,
+      )
   }
   private onNodeValuesUpdate(source: CommonInternal) {
-    if (source._history === undefined || source._historyCursor === undefined) {
+    if (source._history === undefined || source.historyCursor === undefined) {
       return
     }
-    const history = source._history[source._historyCursor]
+    const history = source._history[source.historyCursor]
     const reason = history.reason
 
     if (reason === 'outside') {
@@ -147,21 +152,27 @@ export class InitGrap {
     }
   }
   private getStates(): Array<CommonInternal> {
-    return [...getStatesMap().values()].map((item) => item.deref()).filter(Boolean) as Array<CommonInternal>
+    return nodesMap
+      .getNodes()
+      .map((item) => item.deref())
+      .filter(Boolean) as Array<CommonInternal>
   }
 
   private getLinks(data: Array<CommonInternal>): Array<LinkObject> {
     const res: Array<LinkObject> = []
 
-    data.forEach((state) => {
-      state._listeners.forEach((listener) => {
+    eachDependency
+    data.forEach((node) => {
+      /**
+       * state._listeners.forEach((listener) => {
         if (isComputed(listener)) {
-          res.push({source: state._id, target: listener._id})
+          res.push({source: state.id, target: listener.id})
         }
       })
       state.customDeps?.forEach((item) => {
-        res.push({target: state._id, source: item._id})
+        res.push({target: state.id, source: item.id})
       })
+       */
     })
 
     return res
@@ -169,7 +180,7 @@ export class InitGrap {
 
   private getNodes(data: Array<CommonInternal>): Array<NodeObject> {
     return data.map((item) => {
-      const v: NodeObject = {id: item?._id ?? 0, base: item} as any
+      const v: NodeObject = {id: item?.id ?? 0, base: item} as any
       return v
     })
   }

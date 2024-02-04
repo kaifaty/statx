@@ -1,8 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {status} from './helpers'
-import {CommonInternal, IAsync, IComputed, Listener} from './helpers/type.js'
-import type {Func, Options} from './types/types.js'
+import {dependencyTypes, stateTypes} from './status'
+import {CommonInternal, DependencyType, IAsync, IComputed, Listener} from './type.js'
+import type {Func, Options} from '../types/types.js'
 const names = new Set()
+
+const dependencyObject = Object.entries(dependencyTypes).reduce<Record<number, DependencyType>>(
+  (acc, item) => {
+    acc[item[1]] = item[0] as DependencyType
+    return acc
+  },
+  {},
+)
+
+export const eachDependency = (
+  node: CommonInternal,
+  cb: (node: CommonInternal | Listener, type: DependencyType) => void,
+) => {
+  for (let i = 0; i < node.deps.length; i += 2) {
+    cb(node.deps[i] as any, dependencyObject[node.deps[i + 1] as number])
+  }
+}
 
 export const getName = (name?: string, defaultName = 'withoutName'): string => {
   if (name && names.has(name)) {
@@ -26,22 +43,22 @@ export const isFunction = (v: unknown): v is Func => {
 }
 
 export const isStatxFn = (v: unknown): v is CommonInternal => {
-  return typeof v === 'function' && Object.hasOwn(v, '_id') && Object.hasOwn(v, 'status')
+  return typeof v === 'function' && Object.hasOwn(v, 'id') && Object.hasOwn(v, 'status')
 }
 
 export function isState(v: unknown): v is IComputed {
-  return isStatxFn(v) && status.getNodeType(v) === 'state'
+  return isStatxFn(v) && v.type === stateTypes.state
 }
 
 export function isComputed(v: unknown): v is IComputed {
-  return isStatxFn(v) && status.getNodeType(v) === 'computed'
+  return isStatxFn(v) && v.type === stateTypes.computed
 }
 export function isList(v: unknown): v is IComputed {
-  return isStatxFn(v) && status.getNodeType(v) === 'list'
+  return isStatxFn(v) && v.type === stateTypes.list
 }
 
 export function isAsyncComputed(v: unknown): v is IAsync {
-  return isStatxFn(v) && status.getNodeType(v) === 'async'
+  return isStatxFn(v) && v.type === stateTypes.async
 }
 
 export function isListener(v: unknown): v is Listener {

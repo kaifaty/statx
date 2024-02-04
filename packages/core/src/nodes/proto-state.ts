@@ -1,6 +1,6 @@
 import type {IState} from '../helpers/type'
-import {isFunction} from '../utils'
-import {logs} from '../helpers/logs'
+import {isFunction} from '../helpers/utils'
+import {events} from '../helpers/events'
 import {nodesMap} from '../helpers/nodes-map'
 import {recorder} from '../helpers/recorder'
 import {nodeHistory} from '../helpers/history'
@@ -16,7 +16,8 @@ export function SetValue(this: IState, value: unknown) {
   nodesMap.nodes2notify.add(this)
   nodesMap.reCalcChildren(this, true)
   nodesMap.notifySubscribers()
-  logs.dispatchValueUpdate(this)
+
+  events.dispatchEvent('ValueUpdate', this)
 }
 
 export function GetStateValue(this: IState) {

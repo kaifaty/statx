@@ -1,17 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {state, computed} from './index'
+import {state, computed, asyncState} from './index'
+import {delay} from './tests/utils'
 
 const test = async () => {
-  const v = state(0, {name: 'v'})
-  const c = computed(() => v() + 1, {name: 'c1'})
-  const c2 = computed(() => c() + 2, {name: 'c2'})
-  const c3 = computed(() => c2() + 3, {name: 'c3'})
+  const dep1 = state(1)
+  const dep2 = state(2)
 
-  console.log(c3())
-  v.set(1)
-  await 1
-  console.log(c3())
-  console.log({v, c3})
+  const res = asyncState(
+    async () => {
+      await delay(100)
+      return dep1() + dep2()
+    },
+    [dep1, dep2],
+    {initial: 0},
+  )
+
+  res.start()
+  await delay(200)
+  dep2.set(20)
+  await delay(200)
+  console.log({dep2, res}, res())
 }
 
 test()

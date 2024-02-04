@@ -1,18 +1,18 @@
-import {getStatesMap, events, getStateByName, setLogsEnabled} from '@statx/core'
+import {events} from '@statx/core'
 import {DebugElement} from './view/debug-element'
+import {NodesMap} from './nodes-map'
 
 export const initSeparateDebugger = (
   debuggerPath = '/debug.html',
   windowFeatures = 'popup=1; width=1100px; height=700px;',
 ) => {
-  setLogsEnabled(true)
+  events.setEnabled(true)
   const win = window.open(debuggerPath, '_blank', windowFeatures)
   if (!win) {
     console.error('Cant create child window')
     return
   }
-  win.getStatesMap = getStatesMap
-  win.getStateByName = getStateByName
+  win.nodesMap = new NodesMap()
   win.events = events
 
   window.addEventListener('beforeunload', () => {
@@ -26,8 +26,7 @@ export const initDebugger = () => {
 
 declare global {
   interface Window {
-    getStatesMap: typeof getStatesMap
-    getStateByName: typeof getStateByName
+    nodesMap: NodesMap
     events: typeof events
   }
 }

@@ -2,7 +2,7 @@
 import {requester} from '../helpers/requester'
 import {status} from '../helpers/status'
 import type {CommonInternal, IComputed, Listener} from '../helpers/type'
-import {assert} from '../utils'
+import {assert} from '../helpers/utils'
 import type {UnSubscribe} from '../types/types'
 import {nodesMap} from '../helpers/nodes-map'
 import {recorder} from '../helpers/recorder'
@@ -29,10 +29,9 @@ export function GetComputedValue(this: IComputed): unknown {
 
     nodeHistory.pushReason(requesterNode, this)
 
-    const isComputingNode = status.getValue(this, 'computing')
-    assert(Boolean(isComputingNode), `Loops dosen't allows. Name: ${this.name}`)
+    assert(Boolean(this.computing), `Loops dosen't allows. Name: ${this.name}`)
 
-    status.setValue(this, 'computing', 1)
+    this.computing = 1
     nodesMap.removeLinks(this)
 
     const value = this.compute(this.currentValue ?? this.initial)
@@ -46,8 +45,8 @@ export function GetComputedValue(this: IComputed): unknown {
 
     throw e
   } finally {
-    status.setValue(this, 'computing', 0)
-    status.setValue(this, 'hasParentUpdate', 0)
+    this.hasParentUpdate = 0
+    this.computing = 0
 
     if (requesterNode) {
       nodesMap.addLink(this, requesterNode, 'computation')
@@ -60,5 +59,5 @@ export function GetComputedValue(this: IComputed): unknown {
 
 function isDontNeedRecalc(node: CommonInternal): boolean {
   // TODO ввести уникальное значение для еще не подсчитанного состояния ??
-  return status.getValue(node, 'hasParentUpdate') === 0 && node.currentValue !== undefined
+  return node.hasParentUpdate === 0 && node.currentValue !== undefined
 }
