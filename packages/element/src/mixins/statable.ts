@@ -39,6 +39,7 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
       //@ts-ignore
       const name = customElements.getName?.(this.constructor) ?? this.constructor.name
       data?.forEach((state) => {
+        //@ts-ignore
         this._subs.push(state.subscribe(this._updater, name))
       })
     }

@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {CommonInternal, DependencyType, ListenerInternal} from '@statx/core'
-import {isState, isComputed, isAsyncComputed, getNodeType, isList, eachDependency} from '@statx/core'
+import {getNodeType, eachDependency} from '@statx/core'
 import {XElement, css} from '@statx/element'
 import type {TemplateResult} from 'lit/html.js'
 import {html, render} from 'lit/html.js'
-import {styleMap} from 'lit/directives/style-map.js'
 
 import {JsonViewer} from '@alenaksu/json-viewer/dist/JsonViewer.js'
 import type {Colors} from './colors'
