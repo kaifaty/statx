@@ -1,17 +1,17 @@
 import {events} from '@statx/core'
-import {DebugElement} from './view/debug-element'
+import {VisualizerElement} from './view/visualizer-element'
 import {NodesMap} from './nodes-map'
 
-export const initSeparateDebugger = (
-  debuggerPath = '/debug.html',
+export const initSeparateVisualizer = (
+  visualizerPath = '/visualizer.html',
   windowFeatures = 'popup=1; width=1100px; height=700px;',
 ) => {
   events.setEnabled(true)
-  if (window.debugger) {
+  if (window.visualizer) {
     return
   }
 
-  const win = window.open(debuggerPath, '_blank', windowFeatures)
+  const win = window.open(visualizerPath, '_blank', windowFeatures)
 
   if (!win) {
     console.error('Cant create child window')
@@ -21,21 +21,19 @@ export const initSeparateDebugger = (
   win.nodesMap = new NodesMap()
   win.events = events
 
-  console.log(win.nodesMap, events)
-
   window.addEventListener('beforeunload', () => {
     win.close()
   })
 }
 
-export const initDebugger = () => {
-  DebugElement.define()
+export const initVisualizer = () => {
+  VisualizerElement.define()
 }
 
 declare global {
   interface Window {
     nodesMap: NodesMap
     events: typeof events
-    debugger: boolean
+    visualizer: boolean
   }
 }

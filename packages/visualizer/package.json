@@ -37,7 +37,7 @@
     "watch": {
       "context": "browser",
       "distDir": "./dist/",
-      "source": "./debug.html",
+      "source": "./visualizer.html",
       "isLibrary": false,
       "optimize": false,
       "includeNodeModules": true,
@@ -70,5 +70,6 @@
     "@statx/core": "^1.12.0",
     "@statx/element": "^1.12.0",
     "@statx/utils": "^1.12.0"
-  }
+  },
+  "gitHead": "9dda8bd34a07d4ed896c927f83ba8a127930289c"
 }

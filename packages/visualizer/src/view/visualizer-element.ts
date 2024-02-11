@@ -8,13 +8,13 @@ import {Colors} from './colors'
 
 const sidebarWidth = 360
 
-export class DebugElement extends XElement {
+export class VisualizerElement extends XElement {
   static define() {
-    if (!customElements.get('debug-element')) {
-      customElements.define('debug-element', this)
+    if (!customElements.get('visualizer-element')) {
+      customElements.define('visualizer-element', this)
     }
     ViewNode.define()
-    document.body.appendChild(document.createElement('debug-element'))
+    document.body.appendChild(document.createElement('visualizer-element'))
   }
   static styles = css`
     :host {

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {computed, list, asyncState, state} from '@statx/core'
 import {html} from '@statx/element'
-import {initSeparateDebugger} from '../init-debugger'
+import {initSeparateVisualizer} from '../init-visualizer'
 import {GithubAPI} from './api'
 
-initSeparateDebugger()
+initSeparateVisualizer()
 
 const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 
