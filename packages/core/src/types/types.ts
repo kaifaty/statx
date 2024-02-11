@@ -43,16 +43,11 @@ export type Settings = {
   historyLength: number
 }
 
-export type HistoryInternal = {
-  _historyCursor: number
-  _history: unknown[]
-}
-
 export interface PublicState<T extends StateType> {
   (): T
   customDeps?: Array<CommonInternal>
   readonly name: string
-  subscribe(listener: Listener<T>): UnSubscribe
+  subscribe(listener: Listener<T>, subscriberName?: string): UnSubscribe
   peek(): T
 }
 
@@ -92,6 +87,7 @@ export type AsyncStateOptions<TResponse> = {
    * first-last - Awaits request complete, after that call's again if was deps changes.
    */
   strategy?: Strategy
+  strategyDelay?: number
 
   /**
    * Default: 0. Zero means unlimited wait

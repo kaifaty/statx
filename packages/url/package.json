@@ -39,6 +39,7 @@
     "lint": "tsc --noEmit",
     "demo": "parcel serve ./src/demo/index.html",
     "dev": "parcel watch",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test": "wtr --config wtr-config.js --node-resolve",
     "test:watch": "wtr **/*.test.js --node-resolve --watch"
   },

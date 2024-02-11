@@ -1,24 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {dependencyTypes, stateTypes} from './status'
-import {CommonInternal, DependencyType, IAsync, IComputed, Listener} from './type.js'
+import type {CommonInternal, DependencyType, IAsync, IComputed, ListenerInternal, NodeType} from './type.js'
 import type {Func, Options} from '../types/types.js'
 const names = new Set()
 
-const dependencyObject = Object.entries(dependencyTypes).reduce<Record<number, DependencyType>>(
-  (acc, item) => {
+const replaceKeyWithValues = <T extends Record<string, unknown>>(data: T) => {
+  return Object.entries(data).reduce((acc, item) => {
+    //@ts-ignore
     acc[item[1]] = item[0] as DependencyType
     return acc
-  },
-  {},
-)
+  }, {})
+}
+const dependencyObject = replaceKeyWithValues(dependencyTypes) as Record<number, DependencyType>
+const statesObject = replaceKeyWithValues(stateTypes) as Record<number, NodeType>
 
 export const eachDependency = (
   node: CommonInternal,
-  cb: (node: CommonInternal | Listener, type: DependencyType) => void,
+  cb: (node: CommonInternal | ListenerInternal, type: DependencyType) => void,
 ) => {
+  if (!node.deps) {
+    return
+  }
   for (let i = 0; i < node.deps.length; i += 2) {
     cb(node.deps[i] as any, dependencyObject[node.deps[i + 1] as number])
   }
+}
+
+export const getNodeType = (node: CommonInternal): NodeType => {
+  return statesObject[node.type]
+}
+export const getDependencyType = (type: number): DependencyType => {
+  return dependencyObject[type]
 }
 
 export const getName = (name?: string, defaultName = 'withoutName'): string => {
@@ -43,7 +55,7 @@ export const isFunction = (v: unknown): v is Func => {
 }
 
 export const isStatxFn = (v: unknown): v is CommonInternal => {
-  return typeof v === 'function' && Object.hasOwn(v, 'id') && Object.hasOwn(v, 'status')
+  return typeof v === 'function' && Object.hasOwn(v, 'id')
 }
 
 export function isState(v: unknown): v is IComputed {
@@ -61,7 +73,7 @@ export function isAsyncComputed(v: unknown): v is IAsync {
   return isStatxFn(v) && v.type === stateTypes.async
 }
 
-export function isListener(v: unknown): v is Listener {
+export function isListener(v: unknown): v is ListenerInternal {
   return typeof v === 'function' && 'base' in v
 }
 

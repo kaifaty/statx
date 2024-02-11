@@ -7,13 +7,21 @@ export const initSeparateDebugger = (
   windowFeatures = 'popup=1; width=1100px; height=700px;',
 ) => {
   events.setEnabled(true)
+  if (window.debugger) {
+    return
+  }
+
   const win = window.open(debuggerPath, '_blank', windowFeatures)
+
   if (!win) {
     console.error('Cant create child window')
     return
   }
+
   win.nodesMap = new NodesMap()
   win.events = events
+
+  console.log(win.nodesMap, events)
 
   window.addEventListener('beforeunload', () => {
     win.close()
@@ -28,5 +36,6 @@ declare global {
   interface Window {
     nodesMap: NodesMap
     events: typeof events
+    debugger: boolean
   }
 }

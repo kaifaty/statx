@@ -41,6 +41,7 @@
     "build:tsc": "tsc",
     "lint": "tsc --noEmit",
     "demo": "parcel --target=demo",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test": "tsx src/index.test.ts"
   },
   "browserslist": [

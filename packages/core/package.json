@@ -41,6 +41,7 @@
     "build:tsc": "tsc",
     "demo": "parcel serve ./demo.html",
     "dev": "tsc watch",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "lint": "tsc --noEmit",
     "test": "uvu -r tsm ./src/tests"
   },

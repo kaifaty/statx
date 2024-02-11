@@ -19,7 +19,6 @@ const test = async () => {
   await delay(200)
   dep2.set(20)
   await delay(200)
-  console.log({dep2, res}, res())
 }
 
 test()

@@ -38,6 +38,7 @@
     "build:tsc": "tsc",
     "lint": "tsc --noEmit",
     "demo": "parcel serve ./src/demo/index.html",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "dev": "parcel watch",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"

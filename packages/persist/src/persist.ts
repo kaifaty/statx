@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {isState, isAsyncComputed, State, state, StateType} from '@statx/core'
+import type {State, StateType} from '@statx/core'
+import {isState, isAsyncComputed, state} from '@statx/core'
 
 import {indexedDBAdapter} from './adapters/indexeddb-storage.js'
 
 import {localStorageAdapter} from './adapters/local-storage.js'
 
-import {
+import type {
   AsyncStorage,
   PersistCreatorOptions,
   PersistOptions,

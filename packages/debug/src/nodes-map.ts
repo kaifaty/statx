@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {CommonInternal, events} from '@statx/core'
+import type {CommonInternal} from '@statx/core'
+import {events, isStatxFn} from '@statx/core'
 
 export class NodesMap {
   private debuggerRegistry: Map<string, WeakRef<CommonInternal>> = new Map()
@@ -10,6 +11,13 @@ export class NodesMap {
     }
   })
   private nodesResolvers: Record<string, Array<(v: any) => void>> = {}
+  constructor() {
+    events.on('NodeCreate', (node) => {
+      if (isStatxFn(node)) {
+        this.addNodeToDebug(node)
+      }
+    })
+  }
 
   addNodeToDebug(state: CommonInternal) {
     if (!events.enabled) {

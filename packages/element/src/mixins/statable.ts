@@ -3,7 +3,7 @@
 import {recorder} from '@statx/core'
 import {isEqualSet} from '@statx/utils'
 import type {CommonInternal, UnSubscribe} from '@statx/core'
-import {Constructor} from '../types'
+import type {Constructor} from '../types'
 
 type Subs = Set<CommonInternal>
 
@@ -25,10 +25,6 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
     connectedCallback() {
       //@ts-ignore
       super.connectedCallback?.()
-      //@ts-ignore
-      const name = customElements.getName?.(this.constructor) ?? this.constructor.name
-      //@ts-ignore
-      this._updater.subscriber = name
     }
 
     updated(...args: any[]): void {
@@ -40,8 +36,10 @@ export const statable = <T extends Constructor<BaseUpdatedElement>>(superClass: 
       }
       this._prevSnapshot = data
       this._unsubAll()
+      //@ts-ignore
+      const name = customElements.getName?.(this.constructor) ?? this.constructor.name
       data?.forEach((state) => {
-        this._subs.push(state.subscribe(this._updater as any))
+        this._subs.push(state.subscribe(this._updater, name))
       })
     }
     willUpdate(...args: any[]): void {

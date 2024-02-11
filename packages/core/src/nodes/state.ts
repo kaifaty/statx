@@ -2,7 +2,8 @@
 
 import {assert, getNewFnWithName, isFunction} from '../helpers/utils'
 import type {Options, State, StateType} from '../types/types'
-import {Peek, Subscribe, nonce, GetStateValue, IState, status, SetValue} from '../helpers'
+import type {IState} from '../helpers'
+import {Peek, Subscribe, nonce, GetStateValue, status, SetValue} from '../helpers'
 
 export const StateProto = Object.create(null)
 

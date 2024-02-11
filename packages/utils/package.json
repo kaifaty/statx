@@ -41,6 +41,7 @@
     "lint": "tsc --noEmit",
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },

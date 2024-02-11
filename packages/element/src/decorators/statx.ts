@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {state} from '@statx/core'
 
 export const statx = (_: any, ctx: ClassAccessorDecoratorContext) => {

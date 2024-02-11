@@ -1,3 +1,5 @@
+export {nodeHistory} from './history'
+
 export {GetStateValue, SetValue} from '../nodes/proto-state'
 export {GetComputedValue, SubscribeComputed} from '../nodes/proto-computed'
 export {At, Pop, Push, Shift, Sort, UnShift} from '../nodes/proto-list'
@@ -9,5 +11,18 @@ export {nonce} from './nonce'
 export {nodesMap} from './nodes-map'
 export {events} from './events'
 export {recorder} from './recorder'
+export {reason} from './reason'
+export {requester} from './requester'
 
-export {isAsyncComputed, isComputed, isListener, isStatxFn, isState, isList, eachDependency} from './utils.js'
+export {
+  isAsyncComputed,
+  getNodeType,
+  isComputed,
+  isListener,
+  isStatxFn,
+  isFunction,
+  isState,
+  isList,
+  eachDependency,
+  getDependencyType,
+} from './utils.js'

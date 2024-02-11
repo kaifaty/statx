@@ -1,28 +1,37 @@
-import type {IState} from '../helpers/type'
-import {isFunction} from '../helpers/utils'
-import {events} from '../helpers/events'
-import {nodesMap} from '../helpers/nodes-map'
-import {recorder} from '../helpers/recorder'
-import {nodeHistory} from '../helpers/history'
-import {requester} from '../helpers/requester'
+import {
+  reason,
+  type IState,
+  events,
+  nodesMap,
+  recorder,
+  isFunction,
+  nodeHistory,
+  requester,
+  stateTypes,
+  type CommonInternal,
+} from '../helpers'
 
-export function SetValue(this: IState, value: unknown) {
+export function SetValue(this: IState, value: unknown, setReason?: CommonInternal['reason']) {
   const newValue = isFunction(value) ? value(this.currentValue) : value
   if (newValue === this.currentValue) {
     return
   }
-
-  nodeHistory.push(this, newValue, 'outside')
+  if (this.type === stateTypes.state) {
+    reason.setReason(this, setReason ?? 'setValue')
+  }
+  if (this.type === stateTypes.async) {
+    reason.setReason(this, setReason ?? 'asyncCalc')
+  }
+  nodeHistory.push(this, newValue)
   nodesMap.nodes2notify.add(this)
   nodesMap.reCalcChildren(this, true)
   nodesMap.notifySubscribers()
-
-  events.dispatchEvent('ValueUpdate', this)
 }
 
 export function GetStateValue(this: IState) {
   recorder.add(this)
   const requesterNode = requester.peek()
+
   if (requesterNode) {
     nodesMap.addLink(this, requesterNode, 'read state')
   }

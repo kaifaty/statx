@@ -39,6 +39,7 @@
     "lint": "tsc --noEmit",
     "demo": "parcel serve --target=demo",
     "dev": "parcel watch",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test": "uvu -r tsm ./src/tests"
   },
   "browserslist": [

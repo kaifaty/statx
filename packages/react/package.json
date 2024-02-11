@@ -41,6 +41,7 @@
     "build": "rimraf ./build/ && npm run build:tsc",
     "build:tsc": "tsc",
     "lint": "tsc --noEmit",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "demo": "parcel serve",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"

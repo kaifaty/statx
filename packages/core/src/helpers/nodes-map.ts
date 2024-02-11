@@ -3,6 +3,7 @@ import type {CommonInternal} from './type'
 import {events} from './events'
 import {dependencyTypes, stateTypes} from './status'
 import {isAsyncComputed} from './utils'
+import {reason} from '.'
 
 export class NodesMap {
   nodes2notify: Set<CommonInternal> = new Set()
@@ -33,7 +34,7 @@ export class NodesMap {
         for (let j = 0; j < parent.deps.length; j += 2) {
           if (parent.deps[j + 1] === dependencyTypes.child) {
             const child = parent.deps[j]
-            if (parent === child) {
+            if (sourceNode === child) {
               parent.deps.splice(j, 2)
               j -= 2
             }
@@ -50,14 +51,15 @@ export class NodesMap {
       for (let i = 0; i < sourceNode.deps.length; i += 2) {
         if (sourceNode.deps[i + 1] === dependencyTypes.child) {
           const item = sourceNode.deps[i] as CommonInternal
+          reason.setReason(item, sourceNode)
           if (isAsyncComputed(item)) {
-            item.onDepsChange()
+            item.onDepsChange(sourceNode.name)
           } else {
+            this.nodes2notify.add(item)
             item.hasParentUpdate = 1
             sourceNode.deps.splice(i, 2)
             i -= 2
           }
-          this.nodes2notify.add(item)
         }
       }
     }
@@ -77,7 +79,6 @@ export class NodesMap {
             if (node.deps[i + 1] === dependencyTypes.listener) {
               node.deps[i](value)
             }
-            events.dispatchEvent('ValueUpdate', node)
           }
           this.nodes2notify.delete(node)
         }

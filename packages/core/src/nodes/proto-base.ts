@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {UnSubscribe} from '../types'
-import {CommonInternal, Listener} from '../helpers/type'
+import type {Listener, UnSubscribe} from '../types'
+import type {CommonInternal, ListenerInternal} from '../helpers/type'
 
 /**
  * If the state value has never been calculated, it needs to be updated.
@@ -9,11 +9,12 @@ import {CommonInternal, Listener} from '../helpers/type'
  * Parents can change, so after each calculation, we need to update the dependencies of the tree.
  * When unsubscribing, we need to notify all the subscribers that we have unsubscribed.
  */
-export function Subscribe(this: CommonInternal, listener: Listener): UnSubscribe {
+export function Subscribe(this: CommonInternal, listener: Listener, subscriberName?: string): UnSubscribe {
   if (!this.deps) {
     this.deps = []
   }
-  const wrapper = (v: unknown) => listener(v)
+  const wrapper: ListenerInternal = (v: unknown) => listener(v)
+  wrapper.subscriber = subscriberName
   this.deps.push(wrapper, 0)
 
   return () => {

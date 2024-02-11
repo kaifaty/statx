@@ -9,7 +9,6 @@ type EventMap = {
   NodeCreate: CommonInternal
   ValueUpdate: CommonInternal
   ListenerUpdate: CommonListener
-  Update: void
 }
 type Listeners = {
   type: Event
@@ -25,18 +24,6 @@ class Events {
       console.warn('SET LOGS ENABLE BEFORE ANY STATE OR COMPUTED BEEN CREATE')
     }
     this.enabled = value
-  }
-  logReason(node: CommonInternal, childNode: CommonInternal, level: number) {
-    if (!this.enabled) {
-      return
-    }
-    if (this.enabled) {
-      if (level === 0) {
-        childNode._reason = [node]
-      } else if (childNode._reason) {
-        childNode._reason.length = 0
-      }
-    }
   }
   dispatchEvent<T extends Event>(event: T, value: EventMap[T]) {
     this.listeners.forEach((item) => {

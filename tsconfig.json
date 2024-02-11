@@ -21,6 +21,7 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
+    "verbatimModuleSyntax": true,
     "moduleDetection": "force"
   },
   "exclude": ["node_modules", "build", "dist"]

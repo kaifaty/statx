@@ -1,4 +1,5 @@
-import {Fragment, useMemo, createElement, ReactElement, ReactNode, useEffect, useState} from 'react'
+import type {ReactElement, ReactNode} from 'react'
+import {Fragment, useMemo, createElement, useEffect, useState} from 'react'
 import type {PublicState, StateType} from '@statx/core'
 
 export const useStatx = <T extends StateType>(state: PublicState<T>): T => {

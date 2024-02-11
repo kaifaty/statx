@@ -14,8 +14,10 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'no-unused-labels': 'off',
+    'no-missing-import': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/no-unnecessary-type-constraint': 'off',
     'linebreak-style': 'off',
     quotes: [

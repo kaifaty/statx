@@ -1,16 +1,15 @@
-import {status} from './status'
-import type {CommonInternal, HistoryChange} from './type'
+import type {CommonInternal} from './type'
 import {events} from './events'
 
 class NodeHistory {
   private MAX = 10
   private init(node: CommonInternal) {
-    if (node._history === undefined) {
+    if (node.history === undefined) {
       node.historyCursor = 0
-      node._history = []
+      node.history = []
     }
-    if (this.MAX !== node._history.length) {
-      node._history.length = this.MAX
+    if (this.MAX !== node.history.length) {
+      node.history.length = this.MAX
     }
   }
   private moveHistoryCursor(node: CommonInternal) {
@@ -22,7 +21,7 @@ class NodeHistory {
     this.MAX = value
   }
 
-  push(node: CommonInternal, value: unknown, reason: HistoryChange['reason']) {
+  push(node: CommonInternal, value: unknown) {
     node.prevValue = node.currentValue
     node.currentValue = value
 
@@ -30,22 +29,15 @@ class NodeHistory {
       this.init(node)
       this.moveHistoryCursor(node)
 
-      node._history[node.historyCursor] = {
-        reason: reason,
-        changer: node._reason,
+      events.dispatchEvent('ValueUpdate', node)
+
+      node.history[node.historyCursor] = {
+        reason: node.reason,
+
         value,
         ts: Date.now(),
       }
     }
-  }
-  pushReason(sourceNode: CommonInternal | undefined, reasonNode: CommonInternal) {
-    if (!events.enabled || !sourceNode) {
-      return
-    }
-    if (!sourceNode._reason) {
-      sourceNode._reason = []
-    }
-    sourceNode._reason.push(reasonNode)
   }
 }
 

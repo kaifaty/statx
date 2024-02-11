@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {Computed, SetterFunc, State, UnSubscribe} from '../types'
+import type {Computed, SetterFunc, State, UnSubscribe} from '../types'
 export type HistoryChange = {
-  reason: 'outside' | 'calc'
-  changer: Array<CommonInternal> | undefined
+  reason: CommonInternal['reason']
   value: unknown
   ts: number
 }
@@ -21,20 +20,20 @@ export interface SettableStatus {
 
 //[0, listener, 1, child, 2, parent]
 export interface CommonInternal extends SettableStatus {
-  deps: Array<number | CommonInternal | Listener>
+  deps: Array<number | CommonInternal | ListenerInternal>
 
   initial?: unknown
   currentValue: unknown
   prevValue: unknown
   customDeps?: Array<CommonInternal>
 
-  _reason?: Array<CommonInternal>
-  _history: Array<HistoryChange>
+  reason?: CommonInternal | 'setValue' | 'asyncCalc' | string
+  history: Array<HistoryChange>
 
   readonly name: string
   get(): unknown
   peek(): unknown
-  subscribe(listener: Listener): UnSubscribe
+  subscribe(listener: ListenerInternal): UnSubscribe
 }
 export interface IState extends CommonInternal {
   set(value: unknown): void
@@ -51,7 +50,7 @@ export interface IList extends CommonInternal {
 export interface IComputed extends CommonInternal {
   compute: SetterFunc
   computeValue(): void
-  subscribeState(listener: Listener): UnSubscribe
+  subscribeState(listener: ListenerInternal, subscriberName?: string): UnSubscribe
 }
 export interface IAsync extends CommonInternal {
   /**
@@ -59,6 +58,7 @@ export interface IAsync extends CommonInternal {
    */
   undefinedOnError: boolean
   strategy: Strategy
+  strategyDelay: number
   maxWait: number
   customDeps: Array<CommonInternal>
 
@@ -69,23 +69,27 @@ export interface IAsync extends CommonInternal {
   _controller: AbortController | undefined
 
   isMaxWait(): boolean
-  onDepsChange(): void
+  onDepsChange(reason: string): void
   set(value: unknown): void
   start(): void
   stop(): void
   then(onFulfilled: any): void
 
-  isPending: State<boolean>
-  error: State<Error | undefined>
-  status: Computed<AsyncStatus>
+  isPending: State<boolean> & {asyncDep: true}
+  error: State<Error | undefined> & {asyncDep: true}
+  status: Computed<AsyncStatus> & {asyncDep: true}
 }
 
-export type Listener = {
+export type ListenerInternal = {
   (value: unknown): void
+  subscriber?: string
 }
 
 export type Strategy = 'last-win' // | 'fist-win' | 'first&last-win'
 
 export type AsyncStatus = 'idle' | 'pause' | 'pending' | 'error'
 
-export type RequestFn<TResponse> = (controller: AbortController) => Promise<TResponse>
+export type RequestFn<TResponse> = (
+  controller: AbortController,
+  prevValue: TResponse | undefined,
+) => Promise<TResponse>

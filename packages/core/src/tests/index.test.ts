@@ -2,7 +2,8 @@
 import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
-import {asyncState, computed, state, list, action, CommonInternal} from '../index.js'
+import type {CommonInternal} from '../index.js'
+import {asyncState, computed, state, list, action} from '../index.js'
 import {cachedState} from '../cached.js'
 import {delay} from './utils.js'
 

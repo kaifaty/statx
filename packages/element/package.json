@@ -39,6 +39,7 @@
     "demo": "parcel serve ./src/demo/index.html",
     "dev": "parcel watch",
     "lint": "tsc --noEmit",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test": "tsx src/index.test.ts",
     "test:watch": "tsx watch src/index.test.ts"
   },

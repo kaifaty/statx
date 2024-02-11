@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type PropertyData = {
-  //@ts-ignore
-  type: Boolean | String | Object | string[]
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: boolean | string | Object | string[]
   attrbute?: boolean
   reflect?: boolean
   onChange?: (ctx: any, value: any) => void

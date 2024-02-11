@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {requester} from '../helpers/requester'
 import {status} from '../helpers/status'
-import type {CommonInternal, IComputed, Listener} from '../helpers/type'
+import type {CommonInternal, IComputed, ListenerInternal} from '../helpers/type'
 import {assert} from '../helpers/utils'
 import type {UnSubscribe} from '../types/types'
 import {nodesMap} from '../helpers/nodes-map'
 import {recorder} from '../helpers/recorder'
 import {nodeHistory} from '../helpers/history'
 
-export function SubscribeComputed(this: IComputed, listener: Listener): UnSubscribe {
-  const sub = this.subscribeState(listener)
+export function SubscribeComputed(
+  this: IComputed,
+  listener: ListenerInternal,
+  subscriberName?: string,
+): UnSubscribe {
+  const sub = this.subscribeState(listener, subscriberName)
   this.get()
   return sub
 }
@@ -27,8 +31,6 @@ export function GetComputedValue(this: IComputed): unknown {
       return this.currentValue
     }
 
-    nodeHistory.pushReason(requesterNode, this)
-
     assert(Boolean(this.computing), `Loops dosen't allows. Name: ${this.name}`)
 
     this.computing = 1
@@ -36,7 +38,7 @@ export function GetComputedValue(this: IComputed): unknown {
 
     const value = this.compute(this.currentValue ?? this.initial)
 
-    nodeHistory.push(this, value, 'calc')
+    nodeHistory.push(this, value)
     nodesMap.reCalcChildren(this, this.currentValue !== this.prevValue)
 
     return this.currentValue

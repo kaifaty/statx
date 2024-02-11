@@ -59,6 +59,7 @@
     "demo": "parcel serve --target=demo",
     "dev": "parcel watch --target=watch",
     "test": "tsx src/index.test.ts",
+    "fix": "eslint --fix \"**/*.{ts,tsx}\"",
     "test:watch": "tsx watch src/index.test.ts"
   },
   "browserslist": [
@@ -67,6 +68,7 @@
   "dependencies": {
     "@statx/utils": "*",
     "@statx/core": "*",
+    "@alenaksu/json-viewer": "2.0.1",
     "@statx/element": "*"
 
   }

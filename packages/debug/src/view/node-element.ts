@@ -1,23 +1,73 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  CommonInternal,
-  getNodeType,
-  isState,
-  isComputed,
-  isAsyncComputed,
-  isStatxFn,
-  isList,
-} from '@statx/core'
-import {XElement, html, css} from '@statx/element'
+import type {CommonInternal, DependencyType, ListenerInternal} from '@statx/core'
+import {isState, isComputed, isAsyncComputed, getNodeType, isList, eachDependency} from '@statx/core'
+import {XElement, css} from '@statx/element'
+import type {TemplateResult} from 'lit/html.js'
+import {html, render} from 'lit/html.js'
+import {styleMap} from 'lit/directives/style-map.js'
+
+import {JsonViewer} from '@alenaksu/json-viewer/dist/JsonViewer.js'
+import type {Colors} from './colors'
+
+customElements.define('json-viewer', JsonViewer)
 
 const formatTime = (ts: number) => {
   return new Date(ts).toLocaleString().replace('T', ' ')
 }
+
 const getLastUpdate = (node: CommonInternal) => {
-  if (!node?._history) {
+  if (!node?.history) {
     return '-'
   }
-  return formatTime(node._history[node._historyCursor].ts)
+  return formatTime(node.history[node.historyCursor].ts)
+}
+
+const isTemplateResult = (value: unknown): value is TemplateResult => {
+  return Boolean(typeof value === 'object' && value && '_$litType$' in value)
+}
+
+const renderDialog = (value: unknown, colors: Colors) => {
+  const dialog = document.createElement('dialog')
+  dialog.open = true
+  dialog.style.setProperty('--background-color', colors.dialogBackground)
+  dialog.style.setProperty('color', colors.dialogColor)
+
+  render(
+    html`
+      <section>${value}</section>
+      <button>X</button>
+    `,
+    dialog,
+  )
+  dialog.querySelector('button')?.addEventListener('click', () => {
+    dialog.close()
+    dialog.remove()
+  })
+  render(dialog, document.body)
+}
+const renderDialogJSON = (value: unknown, colors: Colors) => {
+  const viewer = document.createElement('json-viewer')
+  viewer.style.setProperty('--background-color', colors.dialogBackground)
+  //@ts-ignore
+  viewer.data = value
+  return renderDialog(viewer, colors)
+}
+
+class Deps {
+  private static createMapper =
+    <T extends CommonInternal | ListenerInternal>(type: DependencyType) =>
+    (node: CommonInternal): Array<T> => {
+      const res: CommonInternal[] = []
+      eachDependency(node, (item, _type) => {
+        if (_type === type) {
+          res.push(item as CommonInternal)
+        }
+      })
+      return res as Array<T>
+    }
+  static getChildren = this.createMapper<CommonInternal>('child')
+  static getParents = this.createMapper<CommonInternal>('parent')
+  static getListeners = this.createMapper<ListenerInternal>('listener')
 }
 
 export class ViewNode extends XElement {
@@ -32,18 +82,28 @@ export class ViewNode extends XElement {
       padding: 0;
       border-radius: 1px;
       display: block;
-      color: hsl(230, 31%, 31%);
-      background-color: hsl(230, 28%, 98%);
-      padding: 5px 10px;
-      font-size: 14px;
+      font-size: 16px;
+      border-right: 1px solid var(--node-background-color);
     }
     h3 {
       text-align: center;
     }
-    table {
+    header {
+      padding: 12px 20px;
       width: 100%;
-      td {
-        padding: 3px 10px;
+      box-sizing: border-box;
+      background-color: var(--node-background-color);
+      color: var(--node-color);
+      .row-between {
+        display: flex;
+        justify-content: space-between;
+      }
+      .type {
+        font-weight: bold;
+        text-transform: capitalize;
+      }
+      h2 {
+        margin: 7px 0 0 0;
       }
     }
     .selected {
@@ -54,6 +114,7 @@ export class ViewNode extends XElement {
       grid-template-columns: min-content auto;
       white-space: nowrap;
       gap: 5px 20px;
+      padding: 20px;
       .row {
         display: grid;
         grid-template-columns: subgrid;
@@ -65,81 +126,88 @@ export class ViewNode extends XElement {
           white-space: nowrap;
         }
       }
-      .row:nth-child(2n) {
-        background-color: hsl(230, 28%, 90%);
+    }
+    table {
+      padding: 20px 10px;
+      font-size: 14px;
+      width: 100%;
+      td {
+        padding: 3px 5px;
       }
+      th {
+        padding: 3px 5px;
+        text-align: left;
+      }
+    }
+    .no-data {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
     }
   `
   set stateName(value: string) {
-    window.getStateByName(value).then(({res}) => {
+    window.nodesMap.getNodeByName(value).then(({res}) => {
       this.node = res
       if (res) {
+        this.updateColors(res)
         this.requestUpdate()
       }
     })
   }
 
   node?: CommonInternal
+  colors!: Colors
 
-  reqUpdate = () => this.requestUpdate()
+  private updateColors(node: CommonInternal) {
+    this.style.setProperty('--node-background-color', this.colors.getNodeColorBackground(node.type))
+    this.style.setProperty('--node-color', this.colors.getNodeColor(node.type))
+  }
+  reqUpdate = (node: CommonInternal) => {
+    if (this.node?.type === node.type) {
+      this.requestUpdate()
+    }
+  }
   unsub?: () => void
   connectedCallback(): void {
     super.connectedCallback()
-    this.unsub = window.events.onUpdate(this.reqUpdate)
+    this.unsub = window.events.on('ValueUpdate', this.reqUpdate)
   }
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.unsub?.()
   }
 
-  renderValue(value: unknown): string {
-    if (Array.isArray(value)) {
-      return value.map((item) => this.renderValue(item)).join(', ')
+  renderValue(value: unknown): string | TemplateResult {
+    if (isTemplateResult(value)) {
+      return html`<button @click="${() => renderDialog(value, this.colors)}">View Template</button>`
     }
-    if (typeof value === 'object') {
-      return JSON.stringify(value)
+    if (typeof value === 'object' && value) {
+      if (Array.isArray(value) && value.length === 0) {
+        return '[]'
+      }
+      return html`<button @click="${() => renderDialogJSON(value, this.colors)}">View JSON</button>`
     }
     return String(value)
   }
-  renderStateTable(node: CommonInternal) {
+
+  renderTable(node: CommonInternal) {
     return html` <tr>
-        <th>At</th>
+        <th>Time</th>
+        <th>Reason</th>
         <th>Value</th>
       </tr>
-      ${node._history?.map((item, i) => {
-        return html`<tr class="${i === node._historyCursor ? 'selected' : ''}">
+      ${node.history?.map((item, i) => {
+        return html`<tr class="${i === node.historyCursor ? 'selected' : ''}">
           <td>${formatTime(item.ts)}</td>
+          <td>${typeof item.reason === 'string' ? item.reason : item.reason?.name}</td>
           <td>${this.renderValue(item.value)}</td>
         </tr>`
       })}`
   }
-  renderComputedTable(node: CommonInternal) {
-    return html`
-      <tr>
-        <th>At</th>
-        <th>Changer</th>
-        <th>Value</th>
-      </tr>
-      ${node._history?.map((item, i) => {
-        return html`<tr class="${i === node._historyCursor ? 'selected' : ''}">
-          <td>${formatTime(item.ts)}</td>
-          <td>${item.changer?.map((v) => html`${v.name}<br />`)}</td>
-          <td>${this.renderValue(item.value)}</td>
-        </tr>`
-      })}
-    `
-  }
-  renderTable(node: CommonInternal) {
-    if (isState(node) || isList(node)) {
-      return this.renderStateTable(node)
-    }
-    if (isComputed(node) || isAsyncComputed(node)) {
-      return this.renderComputedTable(node)
-    }
-  }
+
   renderHistory(node?: CommonInternal) {
-    if (!node?._history) {
-      return 'No history data'
+    if (!node?.history) {
+      return html`<div class="no-data">No history data</div>`
     }
     return html`<table class="popup">
       ${this.renderTable(node)}
@@ -148,37 +216,37 @@ export class ViewNode extends XElement {
 
   renderCard(node: CommonInternal) {
     return html`
-      <div class="wrapper">
-        <div class="row">
-          <div>Updated</div>
+      <header>
+        <div class="row-between">
+          <div class="type">${getNodeType(node)}</div>
           <div class="no-wrap">${getLastUpdate(node)}</div>
         </div>
-        <div class="row">
-          <div>Type</div>
-          <div>${getNodeType(node)}</div>
-        </div>
-        <div class="row">
-          <div>Name</div>
-          <div>${node.name}</div>
-        </div>
-        <div class="row">
-          <div>Current value</div>
-          <div>${node.currentValue}</div>
-        </div>
-        <div class="row">
-          <div>Prev value</div>
-          <div>${node.prevValue}</div>
-        </div>
+        <h2>${node.name}</h2>
+      </header>
+      <div class="wrapper">
         <div class="row">
           <div>Listeners</div>
           <div>
-            ${[...node._listeners.values()]
-              .map((listener) => {
-                if (isStatxFn(listener)) {
-                  return listener.name
-                }
-                return (listener as any).subscriber ?? 'unknown'
+            ${Deps.getListeners(node)
+              .map((node) => {
+                return node.subscriber ?? 'unknown'
               })
+              .join(', ')}
+          </div>
+        </div>
+        <div class="row">
+          <div>Parents</div>
+          <div>
+            ${Deps.getParents(node)
+              .map((node) => node.name)
+              .join(', ')}
+          </div>
+        </div>
+        <div class="row">
+          <div>Children</div>
+          <div>
+            ${Deps.getChildren(node)
+              .map((node) => node.name)
               .join(', ')}
           </div>
         </div>
@@ -186,6 +254,7 @@ export class ViewNode extends XElement {
       ${this.renderHistory(node)}
     `
   }
+
   render() {
     const node = this.node
     if (!node) {

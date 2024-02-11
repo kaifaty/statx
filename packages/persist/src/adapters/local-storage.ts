@@ -1,7 +1,7 @@
 import type {StateType} from '@statx/core'
 import {throttle} from '@statx/utils'
 import {PREFIX, NOT_ALLOWED_TYPES} from '../consts.js'
-import {SyncStorage} from '../types.js'
+import type {SyncStorage} from '../types.js'
 
 export const localStorageAdapter = <T extends StateType>(
   name: string,

@@ -10,7 +10,7 @@ const withWatch =
     return coreTag(
       strings,
       ...values.map((v) => {
-        return isStatxFn(v) ? watch(v as any) : v
+        return isStatxFn(v) ? watch(v as never) : v
       }),
     )
   }

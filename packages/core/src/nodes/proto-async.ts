@@ -5,13 +5,14 @@ import {nodesMap} from '../helpers/nodes-map'
 
 const cancelFrame = globalThis.cancelAnimationFrame ?? clearTimeout
 const startFrame = globalThis.requestAnimationFrame ?? setTimeout
+const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 
 export function Start(this: IAsync) {
   this._isStarted = true
   this.customDeps.map((dep) => {
     nodesMap.addLink(dep, this, 'async dependency')
   })
-  this.onDepsChange()
+  this.onDepsChange('start')
 }
 
 export function Stop(this: IAsync) {
@@ -47,21 +48,28 @@ export function OnDepsChange(this: IAsync) {
     const controller = new AbortController()
 
     AbortControllerInit: {
-      const prevState = this.currentValue
       this._controller = controller
-
-      controller.signal.onabort = () => {
-        this.set(prevState)
-      }
     }
 
     try {
-      this.isPending.set(true)
-      const response = await this._fn(controller)
+      const isPendingBefore = this.isPending()
+      if (!isPendingBefore) {
+        //@ts-ignore
+        this.isPending.set(true, 'start calc')
+      }
+      if (this.strategyDelay && isPendingBefore) {
+        await delay(this.strategyDelay)
+      }
+      if (controller.signal.aborted) {
+        return
+      }
+
+      const response = await this._fn(controller, this.prevValue)
 
       if (!controller.signal.aborted) {
         this._timeRequestStart = 0
-        this.set(response)
+        //@ts-ignore
+        this.set(response, 'asyncCalc')
         this.error.set(undefined)
       }
     } catch (e) {
@@ -74,7 +82,8 @@ export function OnDepsChange(this: IAsync) {
       }
     } finally {
       if (!controller.signal.aborted) {
-        this.isPending.set(false)
+        //@ts-ignore
+        this.isPending.set(false, 'finish calc')
         this._timeRequestStart = Date.now()
       }
     }

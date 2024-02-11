@@ -1,8 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {isComputed, eachDependency, isAsyncComputed, CommonInternal} from '@statx/core'
+import type {CommonInternal} from '@statx/core'
+import {
+  isComputed,
+  eachDependency,
+  isStatxFn,
+  isAsyncComputed,
+  getDependencyType,
+  getNodeType,
+} from '@statx/core'
 
-import ForceGraph, {GraphData, ForceGraphInstance, LinkObject} from 'force-graph'
-import {Link, NodeObject} from './types'
+import type {GraphData, ForceGraphInstance, LinkObject} from 'force-graph'
+import ForceGraph from 'force-graph'
+import type {Link, NodeObject} from './types'
 
 const nodesMap = window.nodesMap
 
@@ -13,17 +22,17 @@ export type GraphParametrs = {
   particleColor: string
   linkColor: string
   bgColor: string
-  nodeColors: {
-    0: string
-    1: string
-    2: string
-    3: string
-  }
+  nodeColors: Record<number, string>
 }
-export class InitGrap {
+
+export class InitGraph {
   private _data: GraphData
   graph: ForceGraphInstance
   private _params: GraphParametrs
+  options = {
+    showAsyncSubStates: false,
+  }
+
   constructor(element: HTMLElement, params: GraphParametrs) {
     this.graph = ForceGraph()(element)
     this._data = this.data()
@@ -50,14 +59,14 @@ export class InitGrap {
       })
 
     window.events.on('ValueUpdate', (source) => {
-      this.onNodeValuesUpdate(source)
+      requestAnimationFrame(() => {
+        this.onNodeValuesUpdate(source)
+      })
     })
-    window.events.on('Update', () => {
-      this.onNodesUpdate()
-    })
+
     this.updateProps(params)
   }
-  private findLink(source: CommonInternal, target: CommonInternal) {
+  private emitParticleIfLink(source: CommonInternal, target: CommonInternal) {
     const links = this._data.links as Link[]
     const link = links.find((item) => {
       return item.source.id === source.id && item.target.id === target.id
@@ -95,30 +104,11 @@ export class InitGrap {
       )
   }
   private onNodeValuesUpdate(source: CommonInternal) {
-    if (source._history === undefined || source.historyCursor === undefined) {
-      return
-    }
-    const history = source._history[source.historyCursor]
-    const reason = history.reason
-
-    if (reason === 'outside') {
-      const stack = [source]
-
-      while (stack.length) {
-        const src = stack.pop()
-        src?._listeners.forEach((target) => {
-          if (isComputed(target)) {
-            this.findLink(src, target)
-            stack.push(target)
-          } else if (isAsyncComputed(target)) {
-            this.findLink(src, target)
-            if (target.currentValue !== target.prevValue) {
-              stack.push(target)
-            }
-          }
-        })
+    eachDependency(source, (dep, type) => {
+      if (type === 'child' && isStatxFn(dep)) {
+        this.emitParticleIfLink(source, dep)
       }
-    }
+    })
   }
   private onNodesUpdate() {
     //forceGraph.pauseAnimation()
@@ -155,24 +145,32 @@ export class InitGrap {
     return nodesMap
       .getNodes()
       .map((item) => item.deref())
-      .filter(Boolean) as Array<CommonInternal>
+      .filter((node) => {
+        if (!node) {
+          return false
+        }
+        if (!this.options.showAsyncSubStates) {
+          if ('asyncDep' in node) {
+            return false
+          }
+        }
+        return true
+      }) as Array<CommonInternal>
   }
 
   private getLinks(data: Array<CommonInternal>): Array<LinkObject> {
     const res: Array<LinkObject> = []
 
-    eachDependency
     data.forEach((node) => {
-      /**
-       * state._listeners.forEach((listener) => {
-        if (isComputed(listener)) {
-          res.push({source: state.id, target: listener.id})
+      console.log('>', node.name, {node})
+      eachDependency(node, (dep, type) => {
+        if (type === 'child' && isStatxFn(dep)) {
+          res.push({source: node.id, target: dep.id})
         }
       })
-      state.customDeps?.forEach((item) => {
-        res.push({target: state.id, source: item.id})
+      node.customDeps?.forEach((item) => {
+        res.push({target: node.id, source: item.id})
       })
-       */
     })
 
     return res
@@ -187,6 +185,13 @@ export class InitGrap {
 
   private getNodeColor(base: CommonInternal) {
     //@ts-ignore
-    return this._params.nodeColors[base._type] as any
+    return this._params.nodeColors[base.type] as any
+  }
+
+  replaceOptions(value: Partial<typeof this.options>) {
+    this.options = {...this.options, ...value}
+    this._data = this.data()
+    console.log(this.options)
+    this.graph.graphData(this._data)
   }
 }

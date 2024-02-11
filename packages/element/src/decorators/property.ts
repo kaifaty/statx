@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {ElementX} from '../x-element'
+import type {ElementX} from '../x-element'
 import type {Properties, PropertyData} from '../types'
 
 export const attributes = new WeakMap<any, Array<string>>()
