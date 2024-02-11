@@ -1,6 +1,6 @@
 {
   "name": "@statx/debug",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -67,9 +67,9 @@
   ],
   "dependencies": {
     "@alenaksu/json-viewer": "2.0.1",
-    "@statx/core": "^1.12.0",
-    "@statx/element": "^1.12.0",
-    "@statx/utils": "^1.12.0"
+    "@statx/core": "^1.12.1",
+    "@statx/element": "^1.12.1",
+    "@statx/utils": "^1.12.1"
   },
   "gitHead": "9dda8bd34a07d4ed896c927f83ba8a127930289c"
 }
