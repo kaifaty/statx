@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {computed, list, asyncState, state} from '@statx/core'
 import {html} from '@statx/element'
-import {initSeparateVisualizer} from '../init-visualizer'
+import {openVisualizer} from '../open-visualizer'
 import {GithubAPI} from './api'
 
-initSeparateVisualizer()
-
-const delay = (t: number) => new Promise((r) => setTimeout(r, t))
+openVisualizer()
 
 type Repo = {
   id: number

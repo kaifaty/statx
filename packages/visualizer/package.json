@@ -1,5 +1,5 @@
 {
-  "name": "@statx/debug",
+  "name": "@statx/visualizer",
   "version": "1.12.2",
   "private": false,
   "description": "Extry tiny smart statx manager",

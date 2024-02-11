@@ -1,5 +1,5 @@
 export class GithubAPI {
-  token = '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'
+  token = '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'
   base = `https://api.github.com`
   apiCall = async (method: string, subPath: string) => {
     const url = `${this.base}/${method}/${subPath}`

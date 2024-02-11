@@ -5,7 +5,8 @@ import {XElement, css} from '@statx/element'
 import type {TemplateResult} from 'lit/html.js'
 import {html, render} from 'lit/html.js'
 
-import {JsonViewer} from '@alenaksu/json-viewer/JsonViewer.js'
+//@ts-ignore
+import {JsonViewer} from '@alenaksu/json-viewer/dist/JsonViewer.js'
 import type {Colors} from './colors'
 
 customElements.define('json-viewer', JsonViewer)

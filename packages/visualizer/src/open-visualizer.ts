@@ -1,8 +1,7 @@
 import {events} from '@statx/core'
-import {VisualizerElement} from './view/visualizer-element'
 import {NodesMap} from './nodes-map'
 
-export const initSeparateVisualizer = (
+export const openVisualizer = (
   visualizerPath = '/visualizer.html',
   windowFeatures = 'popup=1; width=1100px; height=700px;',
 ) => {
@@ -24,16 +23,4 @@ export const initSeparateVisualizer = (
   window.addEventListener('beforeunload', () => {
     win.close()
   })
-}
-
-export const initVisualizer = () => {
-  VisualizerElement.define()
-}
-
-declare global {
-  interface Window {
-    nodesMap: NodesMap
-    events: typeof events
-    visualizer: boolean
-  }
 }
