@@ -44,6 +44,7 @@ export function OnDepsChange(this: IAsync) {
 
   cancelFrame(this._frameId)
 
+  // TODO лишнее перевычисление когда значение computed не меняется
   this._frameId = startFrame(async () => {
     const controller = new AbortController()
 

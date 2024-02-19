@@ -23,7 +23,7 @@ export const createI18n = <const T extends TransStore, L extends Lang>(data: T, 
       return value as I18nResult<T, K, L, V>
     }
 
-    return replaceValues(value, data) as I18nResult<T, K, L, V>
+    return replaceValues(value, values) as I18nResult<T, K, L, V>
   }
 
   const res = {
