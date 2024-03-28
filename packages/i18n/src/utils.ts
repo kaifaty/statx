@@ -12,7 +12,9 @@ export function getValue(key: string, values: TValues): string | undefined {
 }
 
 export const setDocumentLang = (value: string) => {
-  document?.querySelector('html')?.setAttribute('lang', value)
+  if (typeof window !== 'undefined') {
+    document?.querySelector('html')?.setAttribute('lang', value)
+  }
 }
 
 export const replaceValues = (value: string, data: TValues): string => {
