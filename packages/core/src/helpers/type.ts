@@ -18,10 +18,25 @@ export interface SettableStatus {
   invalidated?: number
 }
 
+export interface INode {
+  next?: INode
+  prev?: INode
+  value: CommonInternal | ListenerInternal
+  type: number
+}
+
+export interface ILinkedList {
+  head?: INode
+  tail?: INode
+  length: number
+  push(value: CommonInternal | ListenerInternal, type: number): ILinkedList
+  remove(node: INode): ILinkedList
+  find(value: CommonInternal | ListenerInternal): INode | undefined
+}
+
 //[0, listener, 1, child, 2, parent]
 export interface CommonInternal extends SettableStatus {
-  deps: Array<number | CommonInternal | ListenerInternal>
-
+  deps: ILinkedList
   initial?: unknown
   currentValue: unknown
   prevValue: unknown
@@ -52,6 +67,7 @@ export interface IComputed extends CommonInternal {
   computeValue(): void
   subscribeState(listener: ListenerInternal, subscriberName?: string): UnSubscribe
 }
+
 export interface IAsync extends CommonInternal {
   /**
    * Params

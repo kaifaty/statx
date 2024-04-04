@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {dependencyTypes, stateTypes} from './status'
-import type {CommonInternal, DependencyType, IAsync, IComputed, ListenerInternal, NodeType} from './type.js'
-import type {Func, Options} from '../types/types.js'
+import type {
+  CommonInternal,
+  DependencyType,
+  IAsync,
+  IComputed,
+  ILinkedList,
+  INode,
+  ListenerInternal,
+  NodeType,
+} from './type.js'
+import type {Computed, Func, Options, State} from '../types/types.js'
 const names = new Set()
 
 const replaceKeyWithValues = <T extends Record<string, unknown>>(data: T) => {
@@ -21,8 +30,79 @@ export const eachDependency = (
   if (!node.deps) {
     return
   }
-  for (let i = 0; i < node.deps.length; i += 2) {
-    cb(node.deps[i] as any, dependencyObject[node.deps[i + 1] as number])
+  let current = node.deps.head
+  while (current) {
+    cb(current.value, dependencyObject[current.type])
+    current = current.next
+  }
+}
+
+export class Node implements INode {
+  next?: INode
+  prev?: INode
+
+  constructor(
+    public value: CommonInternal | ListenerInternal,
+    public type: number,
+  ) {}
+}
+
+export class LinkedList implements ILinkedList {
+  head?: INode
+  tail?: INode
+  length: number
+  constructor(value: CommonInternal | ListenerInternal, type: number) {
+    this.head = new Node(value, type)
+    this.tail = this.head
+    this.length = 1
+  }
+  push(value: CommonInternal | ListenerInternal, type: number) {
+    const newNode = new Node(value, type)
+    if (!this.head) {
+      this.head = newNode
+      this.tail = newNode
+    } else {
+      const prev = this.tail
+      this.tail = newNode
+      prev!.next = newNode
+      newNode.prev = prev
+    }
+    this.length++
+    return this
+  }
+  remove(node: Node) {
+    if (node === this.tail) {
+      if (node.prev) {
+        this.tail = node.prev
+        node.prev.next = undefined
+      } else {
+        this.head = undefined
+        this.tail = undefined
+      }
+    } else if (node === this.head) {
+      if (node.next) {
+        this.head = node.next
+        node.next.prev = undefined
+      } else {
+        this.head = undefined
+        this.tail = undefined
+      }
+    } else {
+      node.prev!.next = node.next
+      node.next!.prev = node.prev
+    }
+    this.length--
+    return this
+  }
+  find(value: CommonInternal | ListenerInternal): INode | undefined {
+    let current = this.head
+    while (current) {
+      if (current.value === value) {
+        return current
+      }
+      current = current.next
+    }
+    return undefined
   }
 }
 
@@ -88,4 +168,8 @@ export const getNewFnWithName = (options?: Options, defaultName?: string) => {
     value: name,
   })
   return Node as any
+}
+
+export const asInternal = (state: State<any> | Computed<any>): CommonInternal => {
+  return state as any as CommonInternal
 }

@@ -6,6 +6,8 @@ import type {CommonInternal} from '../index.js'
 import {asyncState, computed, state, list, action} from '../index.js'
 import {cachedState} from '../cached.js'
 import {delay} from './utils.js'
+import {asInternal, LinkedList} from '../helpers/utils'
+import {dependencyTypes} from '../helpers/status.js'
 
 type Mock = {
   (): void
@@ -30,6 +32,66 @@ test('Default value', () => {
 
 test('Name is settable', () => {
   assert.is(state(0, {name: 'name'}).name, 'name')
+})
+test('list test', () => {
+  const entry = state(0)
+  const a = computed(() => entry() + 1, {name: 'a'})
+  const a2 = computed(() => entry() + 1, {name: 'a'})
+  const list = new LinkedList(asInternal(entry), 1)
+
+  list.remove(list.head!)
+
+  assert.is(list.head, undefined)
+  assert.is(list.tail, undefined)
+
+  list.push(asInternal(entry), 1)
+  assert.is(list.head?.value, entry)
+  assert.is(list.tail?.value, entry)
+
+  list.push(a, 2)
+
+  assert.is(list.length, 2)
+
+  let current = list.head
+  let cnt = 0
+  while (current) {
+    cnt++
+    current = current.next
+  }
+
+  assert.is(cnt, 2)
+
+  if (list.tail) {
+    list.remove(list.tail)
+  }
+
+  assert.is(list.tail?.value, entry)
+  assert.is(list.head?.value, entry)
+
+  list.push(a, 2)
+
+  assert.is(list.tail?.value, a)
+  assert.is(list.head?.value, entry)
+
+  list.push(a2, 2)
+
+  assert.is(list.tail?.prev?.value, a)
+  assert.is(list.tail?.value, a2)
+  assert.is(list.head?.value, entry)
+  assert.is(list.head?.next?.value, a)
+  assert.is(list.head?.next?.next?.prev?.prev?.value, entry)
+  assert.is(list.head?.next?.next?.value, a2)
+  assert.is(list.tail?.prev?.prev?.value, entry)
+})
+
+test('simple computation text', async () => {
+  const entry = state(0)
+  const a = computed(() => entry() + 1, {name: 'a'})
+  let res = 0
+  a.subscribe((v: any) => (res = v))
+  entry.set(1)
+  await 1
+  assert.is(res, 2)
 })
 
 test('Computation test', async () => {
@@ -562,13 +624,13 @@ test('Remove listener', async () => {
   const unb1 = a.subscribe(console.log)
   const unb2 = a.subscribe(console.log)
 
-  assert.is(a.deps.length, 4, '1')
+  assert.is(a.deps.length, 2, '1')
   unb1()
-  assert.is(a.deps.length, 2, '2')
+  assert.is(a.deps.length, 1, '2')
   unb1()
-  assert.is(a.deps.length, 2, '2')
+  assert.is(a.deps.length, 1, '3')
   unb2()
-  assert.is(a.deps, undefined)
+  assert.is(a.deps, undefined, '4')
 })
 
 test('Child computation must not to be trigger if value not change', async () => {

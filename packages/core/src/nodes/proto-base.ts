@@ -2,6 +2,8 @@
 
 import type {Listener, UnSubscribe} from '../types'
 import type {CommonInternal, ListenerInternal} from '../helpers/type'
+import {LinkedList} from '../helpers/utils'
+import {dependencyTypes} from '../helpers/status'
 
 /**
  * If the state value has never been calculated, it needs to be updated.
@@ -10,20 +12,21 @@ import type {CommonInternal, ListenerInternal} from '../helpers/type'
  * When unsubscribing, we need to notify all the subscribers that we have unsubscribed.
  */
 export function Subscribe(this: CommonInternal, listener: Listener, subscriberName?: string): UnSubscribe {
-  if (!this.deps) {
-    this.deps = []
-  }
   const wrapper: ListenerInternal = (v: unknown) => listener(v)
   wrapper.subscriber = subscriberName
-  this.deps.push(wrapper, 0)
+  if (!this.deps) {
+    this.deps = new LinkedList(wrapper, dependencyTypes.listener)
+  } else {
+    this.deps.push(wrapper, dependencyTypes.listener)
+  }
 
   return () => {
-    const indexListener = this.deps?.indexOf(wrapper) ?? -1
-    if (indexListener >= 0) {
-      this.deps.splice(indexListener, 2)
-      if (this.deps!.length === 0) {
+    const node = this.deps.find(wrapper)
+    if (node) {
+      this.deps.remove(node)
+      if (this.deps.length === 0) {
         //@ts-ignore
-        this.deps = undefined
+        delete this.deps
       }
     }
   }
