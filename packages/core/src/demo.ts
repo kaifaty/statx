@@ -1,24 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {state, computed, asyncState} from './index'
-import {delay} from './tests/utils'
+import {makeObservable} from './make-observable'
 
-const test = async () => {
-  const dep1 = state(1)
-  const dep2 = state(2)
+class ServiceInfo {
+  private _status = 'open'
 
-  const res = asyncState(
-    async () => {
-      await delay(100)
-      return dep1() + dep2()
-    },
-    [dep1, dep2],
-    {initial: 0},
-  )
-
-  res.start()
-  await delay(200)
-  dep2.set(20)
-  await delay(200)
+  constructor() {
+    makeObservable(this)
+  }
+  set status(value: string) {
+    this._status = value
+  }
+  get isOpen() {
+    return this.status === 'open'
+  }
+  setStatus(value: string) {
+    this.status = value
+  }
 }
-
-test()
+const service = new ServiceInfo()
+const service2 = new ServiceInfo()
