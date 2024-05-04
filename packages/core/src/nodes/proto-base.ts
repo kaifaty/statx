@@ -13,7 +13,8 @@ import {dependencyTypes} from '../helpers/status'
  */
 export function Subscribe(this: CommonInternal, listener: Listener, subscriberName?: string): UnSubscribe {
   const wrapper: ListenerInternal = (v: unknown) => listener(v)
-  wrapper.subscriber = subscriberName
+  wrapper.subscriber = subscriberName ?? 'to_' + this.name
+
   if (!this.deps) {
     this.deps = new LinkedList(wrapper, dependencyTypes.listener)
   } else {

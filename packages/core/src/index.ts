@@ -10,6 +10,7 @@ export {
   isStatxFn,
   isState,
   isList,
+  assert,
   eachDependency,
   stateTypes,
   reason,
@@ -19,5 +20,6 @@ export {
   type ListenerInternal,
 } from './helpers'
 export type * from './types'
-export {list, action, state, asyncState, computed, type AsyncState} from './nodes'
+export {list, state, asyncState, computed} from './nodes'
 export {cachedState} from './cached.js'
+export {makeAutoObservable} from './make-auto-observable'

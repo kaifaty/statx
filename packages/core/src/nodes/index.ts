@@ -1,5 +1,5 @@
-export {action} from './action'
-export {asyncState, type AsyncState} from './async'
+export {effect} from './effect'
+export {asyncState} from './async'
 export {computed} from './computed'
 export {list} from './list'
 export {state} from './state'

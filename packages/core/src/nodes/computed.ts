@@ -2,7 +2,8 @@
 
 import {assert, getNewFnWithName, isFunction} from '../helpers/utils'
 import type {Computed, Nullable, StateType} from '../types/types'
-import {Peek, Subscribe, nonce, status, GetComputedValue, SubscribeComputed} from '../helpers'
+import {Peek, Subscribe, nonce, status} from '../helpers'
+import {GetComputedValue, SubscribeComputed} from './proto-computed'
 
 type Res<T, S extends StatelessFunc<T>> = T extends -1 ? ReturnType<S> : T
 
@@ -19,6 +20,7 @@ ComputeProto.get = GetComputedValue
 ComputeProto.peek = Peek
 ComputeProto.subscribe = SubscribeComputed
 ComputeProto.subscribeState = Subscribe
+ComputeProto.bind = Object.bind
 
 export const computed = <
   T extends StateType = -1,

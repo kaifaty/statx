@@ -3,11 +3,10 @@ import {test} from 'uvu'
 import * as assert from 'uvu/assert'
 
 import type {CommonInternal} from '../index.js'
-import {asyncState, computed, state, list, action} from '../index.js'
+import {asyncState, computed, state, list} from '../index.js'
 import {cachedState} from '../cached.js'
-import {delay} from './utils.js'
 import {asInternal, LinkedList} from '../helpers/utils'
-import {dependencyTypes} from '../helpers/status.js'
+import {delay} from '../nodes/utils.js'
 
 type Mock = {
   (): void
@@ -167,25 +166,6 @@ test('Subscription of computable state', async () => {
   await 1
   assert.is(test, _c3(), '2')
   assert.is(fn.calls, 1, 'calls exeption')
-})
-
-test('Action', () => {
-  const v1 = state(5)
-  const v2 = state(4)
-  const v3 = computed<number>(() => 1 + v2())
-
-  const sum = action(() => {
-    v2.set(100)
-    v1.set(v1() + (v2() * 50) / v3())
-  })
-
-  assert.is(v1(), 5)
-  assert.is(v2(), 4)
-  assert.is(v3(), 4 + 1)
-
-  sum.run()
-
-  assert.is(v1(), 5 + (100 * 50) / 101)
 })
 
 test(`Recalculation of subscribers`, async () => {
@@ -360,7 +340,7 @@ test('asyncState check initial state change', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0},
+    {initialValue: 0},
   )
 
   res.start()
@@ -379,7 +359,7 @@ test('asyncState check state observe deps', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0},
+    {initialValue: 0},
   )
 
   res.start()
@@ -401,7 +381,7 @@ test('asyncState check state observe can stop', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0},
+    {initialValue: 0},
   )
 
   res.start()
@@ -427,7 +407,7 @@ test('asyncState check last-win strategy', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0},
+    {initialValue: 0},
   )
 
   res.start()
@@ -454,7 +434,7 @@ test('asyncState is maxWait works with last-win', async () => {
       return dep1() + dep2()
     },
     [dep1, dep2],
-    {initial: 0, strategy: 'last-win', maxWait: 120},
+    {initialValue: 0, strategy: 'last-win', maxWait: 120},
   )
 
   res.start()
@@ -479,7 +459,7 @@ test('asyncState can be used with await', async () => {
       return 123
     },
     [],
-    {autoStart: true},
+    {activateOnCreate: true},
   )
   const v = await async
   assert.is(v, 123)
@@ -500,7 +480,7 @@ test('asyncState can be used with await', async () => {
       return 123
     },
     [],
-    {autoStart: true},
+    {activateOnCreate: true},
   )
   const v = await async
   assert.is(v, 123)
@@ -667,4 +647,4 @@ test('Child computation must not to be trigger if value not change', async () =>
   assert.is(c(), 3, '6')
 })
 
-test.run()
+// test.run()

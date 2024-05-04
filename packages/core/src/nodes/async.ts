@@ -1,22 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {State, AsyncStateOptions, Computed} from '../types'
+import type {State, AsyncStateOptions, Computed, AsyncState} from '../types'
 import {state} from './state'
 import {getNewFnWithName} from '../helpers/utils.js'
 import type {IAsync, AsyncStatus} from '../helpers'
-import {
-  GetStateValue,
-  Peek,
-  SetValue,
-  Subscribe,
-  OnDepsChange,
-  Start,
-  Stop,
-  Then,
-  IsMaxWait,
-  nonce,
-  status,
-} from '../helpers'
+import {Peek, Subscribe, nonce, status} from '../helpers'
 import {computed} from './computed'
+import {GetStateValue, SetValue} from './proto-state'
+import {OnDepsChange, Stop, Start, IsMaxWait, Then} from './proto-async'
 
 export const AsyncStateProto = Object.create(null)
 
@@ -29,23 +19,6 @@ AsyncStateProto.stop = Stop
 AsyncStateProto.subscribe = Subscribe
 AsyncStateProto.isMaxWait = IsMaxWait
 AsyncStateProto.then = Then
-
-// TODO strategies 'fist-win' | 'first&last-win'
-// TODO isPending isLoaded
-
-export type AsyncState<T> = State<T | undefined> & {
-  start(): void
-  stop(): void
-  isPending: State<boolean>
-  error: State<Error | undefined>
-  /**
-   * Pause: when async state was not started or when stopped
-   * Pending: when state start processing
-   * idle: when state was start and before or after pending
-   *
-   */
-  status: Computed<AsyncStatus>
-}
 
 export function asyncState<TResponse>(
   fn: (controller: AbortController, prevValue: TResponse | undefined) => Promise<TResponse>,
@@ -101,11 +74,11 @@ export function asyncState<TResponse>(
     AsyncState.status.asyncDep = true
   }
 
-  if (options?.initial !== undefined) {
-    AsyncState.set(options.initial)
+  if (options?.initialValue !== undefined) {
+    AsyncState.set(options.initialValue)
   }
 
-  if (options?.autoStart ?? true) {
+  if (options?.activateOnCreate ?? true) {
     AsyncState.start()
   }
 

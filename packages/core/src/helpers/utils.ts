@@ -5,6 +5,7 @@ import type {
   DependencyType,
   IAsync,
   IComputed,
+  IState,
   ILinkedList,
   INode,
   ListenerInternal,
@@ -115,7 +116,7 @@ export const getDependencyType = (type: number): DependencyType => {
 
 export const getName = (name?: string, defaultName = 'withoutName'): string => {
   if (name && names.has(name)) {
-    console.error(`Name ${name} already used! Replaced to undefined`)
+    console.error(`[Name error]: ${name} already used! Replaced to undefined`)
     return defaultName
   }
   if (name) {
@@ -138,7 +139,7 @@ export const isStatxFn = (v: unknown): v is CommonInternal => {
   return typeof v === 'function' && Object.hasOwn(v, 'id')
 }
 
-export function isState(v: unknown): v is IComputed {
+export function isState(v: unknown): v is IState {
   return isStatxFn(v) && v.type === stateTypes.state
 }
 

@@ -2,10 +2,7 @@
 import type {AnyFunc} from '../types'
 import type {IAsync} from '../helpers/type'
 import {nodesMap} from '../helpers/nodes-map'
-
-const cancelFrame = globalThis.cancelAnimationFrame ?? clearTimeout
-const startFrame = globalThis.requestAnimationFrame ?? setTimeout
-const delay = (t: number) => new Promise((r) => setTimeout(r, t))
+import {cancelFrame, delay, startFrame} from './utils'
 
 export function Start(this: IAsync) {
   this._isStarted = true

@@ -1,5 +1,6 @@
 import type {CommonInternal} from './type'
 import {events} from './events'
+import {isList} from './utils'
 
 class NodeHistory {
   private MAX = 10
@@ -22,7 +23,9 @@ class NodeHistory {
   }
 
   push(node: CommonInternal, value: unknown) {
-    node.prevValue = node.currentValue
+    if (!isList(node)) {
+      node.prevValue = node.currentValue
+    }
     node.currentValue = value
 
     if (events.enabled) {

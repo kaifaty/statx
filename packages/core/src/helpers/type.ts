@@ -42,6 +42,7 @@ export interface CommonInternal extends SettableStatus {
   prevValue: unknown
   customDeps?: Array<CommonInternal>
 
+  compute?: SetterFunc
   reason?: CommonInternal | 'setValue' | 'asyncCalc' | string
   history: Array<HistoryChange>
 
@@ -49,6 +50,7 @@ export interface CommonInternal extends SettableStatus {
   get(): unknown
   peek(): unknown
   subscribe(listener: ListenerInternal): UnSubscribe
+  subscribeState?(listener: ListenerInternal): UnSubscribe
 }
 export interface IState extends CommonInternal {
   set(value: unknown): void
@@ -57,8 +59,8 @@ export type NodeType = 'state' | 'list' | 'async' | 'computed'
 export type DependencyType = 'listener' | 'child' | 'parent'
 
 export interface IList extends CommonInternal {
-  currentValue: Array<unknown>
-  prevValue: Array<unknown>
+  currentValue: Array<State<unknown>>
+  prevValue: Array<State<unknown>> | undefined
   set(value: Array<unknown>): void
 }
 

@@ -6,17 +6,17 @@ type Constructor = {
   constructor: Function
 }
 
-export const makeObservable = <T extends Constructor>(data: T) => {
-  const properties = Object.getOwnPropertyNames(data)
-  const className = data.constructor.name
+export const makeAutoObservable = <T extends Constructor>(Class: T) => {
+  const properties = Object.getOwnPropertyNames(Class)
+  const className = Class.constructor.name
 
   properties.forEach((propName) => {
-    const value = (data as any)[propName as any]
+    const value = (Class as any)[propName as any]
     if (typeof value !== 'function' && typeof value !== 'symbol') {
       const stateValue = state(value, {
         name: className + '.' + propName,
       })
-      Object.defineProperty(data, propName, {
+      Object.defineProperty(Class, propName, {
         get: stateValue,
         set(value) {
           stateValue.set(value)
@@ -25,12 +25,9 @@ export const makeObservable = <T extends Constructor>(data: T) => {
     }
   })
 
-  const prototype = data.constructor.prototype
+  const prototype = Class.constructor.prototype
   const classFields = Object.getOwnPropertyNames(prototype)
 
-  if (prototype.__isInited__) {
-    return
-  }
   classFields.forEach((name) => {
     if (name === 'constructor') {
       return
@@ -38,13 +35,13 @@ export const makeObservable = <T extends Constructor>(data: T) => {
     const d = Object.getOwnPropertyDescriptor(prototype, name)
     const get = d?.get
     if (get) {
-      const computedValue = computed(get, {
+      const computedValue = computed(get.bind(Class), {
         name: className + '.' + name,
       })
-      Object.defineProperty(prototype, name, {
+      Object.defineProperty(Class, name, {
         get: computedValue,
+        set: d?.set,
       })
     }
   })
-  prototype.__isInited__ = true
 }

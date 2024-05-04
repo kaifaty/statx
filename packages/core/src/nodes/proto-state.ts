@@ -1,7 +1,6 @@
 import {
   reason,
   type IState,
-  events,
   nodesMap,
   recorder,
   isFunction,
@@ -11,8 +10,16 @@ import {
   type CommonInternal,
 } from '../helpers'
 
+export function notify(state: IState, value: unknown) {
+  nodeHistory.push(state, value)
+  nodesMap.nodes2notify.add(state)
+  nodesMap.reCalcChildren(state, true)
+  nodesMap.notifySubscribers()
+}
+
 export function SetValue(this: IState, value: unknown, setReason?: CommonInternal['reason']) {
   const newValue = isFunction(value) ? value(this.currentValue) : value
+
   if (newValue === this.currentValue) {
     return
   }
@@ -22,10 +29,7 @@ export function SetValue(this: IState, value: unknown, setReason?: CommonInterna
   if (this.type === stateTypes.async) {
     reason.setReason(this, setReason ?? 'asyncCalc')
   }
-  nodeHistory.push(this, newValue)
-  nodesMap.nodes2notify.add(this)
-  nodesMap.reCalcChildren(this, true)
-  nodesMap.notifySubscribers()
+  notify(this, newValue)
 }
 
 export function GetStateValue(this: IState) {

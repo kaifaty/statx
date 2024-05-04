@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {requester} from '../helpers/requester'
-import {status} from '../helpers/status'
 import type {CommonInternal, IComputed, ListenerInternal} from '../helpers/type'
 import {assert} from '../helpers/utils'
 import type {UnSubscribe} from '../types/types'
@@ -31,7 +30,7 @@ export function GetComputedValue(this: IComputed): unknown {
       return this.currentValue
     }
 
-    assert(Boolean(this.computing), `Loops dosen't allows. Name: ${this.name}`)
+    assert(Boolean(this.computing), `Loops doesn't allows. Name: ${this.name}`)
 
     this.computing = 1
     nodesMap.removeLinks(this)
@@ -43,7 +42,7 @@ export function GetComputedValue(this: IComputed): unknown {
 
     return this.currentValue
   } catch (e) {
-    console.error(`Error in computed name: ${this.name}. Message: ${(e as Error).message}`, {sd: this}, e)
+    console.error(`[Error in computed name]: ${this.name}. Message: ${(e as Error).message}`, {sd: this}, e)
 
     throw e
   } finally {

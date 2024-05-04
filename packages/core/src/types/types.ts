@@ -1,4 +1,4 @@
-import type {CommonInternal, Strategy} from '../helpers/type'
+import type {AsyncStatus, CommonInternal, Strategy} from '../helpers/type'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyFunc = (...args: any[]) => any
@@ -51,14 +51,21 @@ export interface PublicState<T extends StateType> {
   peek(): T
 }
 
+type MapFn<T extends Array<T[number]>> = {
+  map: <P>(fn: (v: State<[T[number]]>, vv: [T[0]]) => P) => Array<P>
+}
+
 export interface PublicList<T extends Array<unknown>>
   extends State<T>,
+    MapFn<T>,
     Pick<Array<T[number]>, 'sort' | 'push' | 'pop' | 'shift' | 'unshift' | 'at'> {}
 
 export type State<T extends StateType> = PublicState<T> & {
   set: (value: T) => void
 }
-export type Computed<T extends StateType> = PublicState<T>
+export type Computed<T extends StateType> = PublicState<T> & {
+  subscribeState(listener: Listener<T>, subscriberName?: string): UnSubscribe
+}
 
 export interface Action<T extends unknown[]> {
   name: string
@@ -77,7 +84,7 @@ export type AsyncStateOptions<TResponse> = {
   /**
    * Initial state
    */
-  initial?: TResponse
+  initialValue?: TResponse
 
   /**
    * Default: last-win
@@ -94,15 +101,9 @@ export type AsyncStateOptions<TResponse> = {
    */
   maxWait?: number
   /**
-   * Default false. Auto start watching on props.
+   * Default true. Auto start watching on props.
    */
-  autoStart?: boolean
-
-  /**
-   * Default true. Execute async function on start
-   * If false will execute on dependencies change.
-   */
-  execOnStart?: boolean
+  activateOnCreate?: boolean
 
   /**
    * Default false. Set state to undefined on error
@@ -110,4 +111,21 @@ export type AsyncStateOptions<TResponse> = {
   undefinedOnError?: boolean
 
   name?: string
+}
+
+// TODO strategies 'fist-win' | 'first&last-win'
+// TODO isPending isLoaded
+
+export type AsyncState<T> = State<T | undefined> & {
+  start(): void
+  stop(): void
+  isPending: State<boolean>
+  error: State<Error | undefined>
+  /**
+   * Pause: when async state was not started or when stopped
+   * Pending: when state start processing
+   * idle: when state was start and before or after pending
+   *
+   */
+  status: Computed<AsyncStatus>
 }

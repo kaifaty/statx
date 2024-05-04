@@ -30,7 +30,7 @@ export class NodesMap {
       while (current) {
         if (current.type === dependencyTypes.parent) {
           const value = current.value as CommonInternal
-          let currentChild: INode | undefined = value.deps.head
+          let currentChild: INode | undefined = value.deps?.head
 
           while (currentChild) {
             if (currentChild.type === dependencyTypes.child && currentChild.value === sourceNode) {

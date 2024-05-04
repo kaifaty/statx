@@ -3,7 +3,8 @@
 import {assert, getNewFnWithName, isFunction} from '../helpers/utils'
 import type {Options, State, StateType} from '../types/types'
 import type {IState} from '../helpers'
-import {Peek, Subscribe, nonce, GetStateValue, status, SetValue} from '../helpers'
+import {Peek, Subscribe, nonce, status} from '../helpers'
+import {GetStateValue, SetValue} from './proto-state'
 
 export const StateProto = Object.create(null)
 
