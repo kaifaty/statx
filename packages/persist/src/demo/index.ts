@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {list} from '@statx/core'
-import {stateLocalStorage, stateSessionStorage, indexeddbStorage} from '../index.js'
-
+import {isStatxFn, state, type State} from '@statx/core'
+import {stateLocalStorage, stateSessionStorage, indexedDBStorage} from '../index.js'
+/*
 const logElement = document.getElementById('log')
 
 const createWatcher = (storage: any) => {
@@ -10,10 +10,7 @@ const createWatcher = (storage: any) => {
 
   storage.subscribe((v: any) => {
     element.value = v as any
-    logElement?.insertAdjacentText(
-      'beforeend',
-      'Subscription of ' + storage.name + `. Value: ${v}. IsLoading: ` + storage.isLoading + '\n',
-    )
+    logElement?.insertAdjacentText('beforeend', 'Subscription of ' + storage.name + `. Value: ${v}.\n`)
   })
   element.value = storage()
   element.oninput = (e: Event) => storage.set((e.target as HTMLInputElement).value)
@@ -45,7 +42,7 @@ const testList = stateLocalStorage(list(['test']), {
   name: 'local-list',
   throttle: 500,
 })
-const testList2 = indexeddbStorage(list(['test']), {
+const testList2 = indexedDBStorage(list(['test']), {
   name: 'local-list',
   throttle: 500,
 })
@@ -72,3 +69,20 @@ document.getElementById('pop-list')?.addEventListener('click', () => {
 document.getElementById('clear-list')?.addEventListener('click', () => {
   testList.clear()
 })
+
+*/
+class Test {
+  id = 'test'
+  constructor(private value: string) {}
+  toJSON() {
+    return {value: this.value}
+  }
+}
+const b = stateLocalStorage([new Test('1'), new Test('2')], {
+  name: 'array',
+  throttle: 0,
+  restoreFn: (data: {value: string}[]) => {
+    return data.map((item) => new Test(item.value))
+  },
+})
+//state.set([new Test('1'), new Test('2'), new Test('55')])

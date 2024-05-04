@@ -42,7 +42,7 @@
     "build:tsc": "tsc",
     "demo": "parcel serve --target=demo",
     "fix": "eslint --fix \"**/*.{ts,tsx}\"",
-    "test": "tsx src/index.test.ts",
+    "test": "uvu -r tsm ./src/tests",
     "test:watch": "tsx watch src/index.test.ts"
   },
   "browserslist": [
