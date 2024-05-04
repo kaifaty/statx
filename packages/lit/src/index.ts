@@ -1,2 +1,1 @@
-export {html, watch, svg} from '@statx/element'
-export {statableLit} from './statable-lit.js'
+export {XLitElement} from './XLitElement.js'
