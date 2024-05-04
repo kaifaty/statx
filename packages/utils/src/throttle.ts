@@ -7,19 +7,23 @@ export const throttle = <F extends AnyFunc>(
   f: F,
   time: number,
 ): ((...args: Parameters<F>) => Promise<ReturnType<F>>) => {
-  let lastCall = 0
+  let lastCalcTime = 0
   let timer: NodeJS.Timeout | number = 0
+  let lastArgs: any
 
   const promises: Promises<ReturnType<F>>[] = []
 
   return (...args: any[]) => {
     return new Promise<ReturnType<F>>((r) => {
-      const currtime = Date.now()
-      const diffTime = currtime - lastCall
+      const currentTime = Date.now()
+      const diffTime = currentTime - lastCalcTime
+      lastArgs = args
 
-      if (diffTime > time || lastCall === 0) {
-        r(f(...args))
-        lastCall = currtime
+      if (diffTime > time || lastCalcTime === 0) {
+        r(f(...lastArgs))
+        lastCalcTime = currentTime
+        clearTimeout(timer)
+        timer = 0
         return
       }
       promises.push(r)
@@ -27,10 +31,10 @@ export const throttle = <F extends AnyFunc>(
         return
       }
       timer = setTimeout(() => {
-        const data = f(...args)
+        const data = f(...lastArgs)
         promises.forEach((r) => r(data))
         timer = 0
-        lastCall = currtime
+        lastCalcTime = currentTime
       }, time)
     })
   }
