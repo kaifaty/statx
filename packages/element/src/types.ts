@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PropertyData = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  type: boolean | string | Object | string[]
-  attrbute?: boolean
+export interface AttributeConverter<T> {
+  /**
+   * Called to convert an attribute value to a property
+   * value.
+   */
+  fromAttribute?(value: string | null): T
+  /**
+   * Called to convert a property value to an attribute
+   * value.
+   */
+  toAttribute?(value: T): string
+}
+export type ObservedAttribute = {
   reflect?: boolean
-  onChange?: (ctx: any, value: any) => void
+  converter?: AttributeConverter<any>
 }
-
-export type Properties = {
-  [key: string]: PropertyData
-}
-
-export type Constructor<T> = new (...args: any[]) => T
+export type ObservedAttributeMap = Record<string, ObservedAttribute>

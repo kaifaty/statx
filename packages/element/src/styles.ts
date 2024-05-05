@@ -16,7 +16,7 @@ export const createStyle = (styles: string): WCStyleSheet => {
 }
 
 /**
- * Adoption styles to elelement
+ * Adoption styles to element
  */
 export const adoptToElement = (element: HTMLElement, styles: WCStyleSheet[] | WCStyleSheet) => {
   if (!Array.isArray(styles)) {
@@ -42,12 +42,12 @@ export const adoptToElement = (element: HTMLElement, styles: WCStyleSheet[] | WC
   }
 }
 
-const html = (strings: TemplateStringsArray, ...values: string[]) => {
+const concat = (strings: TemplateStringsArray, values: string[]) => {
   const len = strings.length
   let acc = ''
   for (let i = 0; i < len; i++) {
     acc += strings[i]?.replace(/(\n)(\r)/g, '')
-    if (values[i]) {
+    if (values[i] !== undefined) {
       acc += values[i]
     }
   }
@@ -55,6 +55,6 @@ const html = (strings: TemplateStringsArray, ...values: string[]) => {
 }
 
 export const css = (strings: TemplateStringsArray, ...values: string[]) => {
-  const string = html(strings, ...values)
+  const string = concat(strings, values)
   return createStyle(string)
 }

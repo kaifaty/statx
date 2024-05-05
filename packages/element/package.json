@@ -40,8 +40,8 @@
     "dev": "parcel watch",
     "lint": "tsc --noEmit",
     "fix": "eslint --fix \"**/*.{ts,tsx}\"",
-    "test": "tsx src/index.test.ts",
-    "test:watch": "tsx watch src/index.test.ts"
+    "test": "wtr --config web-test-runner.js",
+    "test:watch": "wtr --config web-test-runner.js --watch"
   },
   "browserslist": [
     "last 4 chrome versions"

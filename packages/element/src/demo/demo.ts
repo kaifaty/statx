@@ -1,38 +1,146 @@
-import {html} from '@statx/lit'
-
-import {ElementX} from '../x-element'
 import {css} from '../styles'
-import {statable} from '../mixins/statable'
-import {statx} from '../decorators/statx'
-import {property} from '../decorators/property'
+import type {State} from '@statx/core'
+import {list, state} from '@statx/core'
+import {html} from '../html/html'
+import type {ObservedAttributeMap} from '../types'
+import {StatxHTML} from '../StatxHTML'
 
-type ButtonState = {
-  disabled: boolean
-  variant: 'primary' | 'default'
+const createArray = (length: number) => {
+  return Array.from({length}).map((_, i) => {
+    return i
+  })
 }
+const arr = list<number[]>(createArray(11), {name: 'Array_1'})
 
-class TestButton extends statable(ElementX) {
-  @statx
-  accessor config: ButtonState = {disabled: false, variant: 'default'}
-
-  @property({type: String})
-  accessor test: string = '12'
-
+class StatxTest extends StatxHTML {
+  static attributes: ObservedAttributeMap = {
+    type: {
+      reflect: true,
+      converter: {
+        fromAttribute: (value) => {
+          return Number(value)
+        },
+        toAttribute: (value: number) => {
+          return String(value)
+        },
+      },
+    },
+  }
   static styles = css`
-    [variant='primary'] {
-      color: blue;
+    :host {
+      --hue: 300;
+      font-family: Helvetica, Arial;
     }
-    [variant='default'] {
-      color: green;
+    button {
+      font-weight: bold;
+      padding: 3px 10px;
+      color: magenta;
+      background-color: hsl(330, 80%, 20%);
+      border: 1px solid magenta;
+      cursor: pointer;
+    }
+    span {
+      display: flex;
+      contain: content;
+      width: 100px;
+      align-items: center;
+    }
+    input {
+      height: 100%;
+      color: #000;
+    }
+    ul {
+      contain: content;
+    }
+    li {
+      box-sizing: border-box;
+      padding: 5px;
+      ::marker {
+        content: '';
+      }
+      input {
+        font-weight: bold;
+        font-size: 18px;
+        color: hsl(var(--hue), 80%, 40%);
+      }
+    }
+    label {
+      font-size: 16px;
+      padding-right: 10px;
+    }
+    .row {
+      height: 40px;
+      contain: content;
+      display: flex;
+      gap: 3px;
+      input,
+      label,
+      button {
+        display: flex;
+        height: 30px;
+        box-sizing: border-box;
+        align-items: center;
+      }
     }
   `
+  count = state(11)
+
+  handleMove(id: number, direction = 1) {
+    const i = arr().findIndex((item) => item.peek() === id)
+    const curr = arr.at(i)?.peek()
+    const prev = arr.at(i + direction)?.peek()
+    if (curr !== undefined) {
+      arr.at(i + direction)?.set(curr)
+    }
+    if (prev !== undefined) {
+      arr.at(i)?.set(prev)
+    }
+  }
+
+  handleMoveUp(item: State<number>) {
+    const index = arr.indexOf(item)
+    this.handleMove(index, -1)
+  }
+
+  handleMoveDown(item: State<number>) {
+    const index = arr.indexOf(item)
+    this.handleMove(index, 1)
+  }
+
+  handleAdd() {
+    arr.set(createArray(this.count()))
+  }
+
+  handleDelete(item: State<number>) {
+    const index = arr.indexOf(item)
+    arr.splice(index, 1)
+  }
+
+  handlerCount(e: Event) {
+    const newCount = (e.target as HTMLInputElement).value
+    this.count.set(Number(newCount))
+  }
 
   render() {
-    const cfg = this.config
-    return html`<button ?disabled="${cfg.disabled}" variant="${cfg.variant}">
-      <slot>Variant: ${cfg.variant}</slot>
-    </button>`
+    return html`
+      <div class="row">
+        <label for="input">Set list of count: </label
+        ><input id="input" @change="${this.handlerCount}" .value="${this.count}" />
+        <button @click=${this.handleAdd}>Add</button>
+        <button @click="${() => arr.set([])}">🗑️</button>
+      </div>
+      <ul>
+        ${arr.map((item) => {
+          return html`<li class="row">
+            <input .value="${item}" />
+            <button @click="${() => this.handleMoveUp(item)}">👆</button>
+            <button @click="${() => this.handleMoveDown(item)}">👇</button>
+            <button @click="${() => this.handleDelete(item)}">🗑️</button>
+          </li>`
+        })}
+      </ul>
+    `
   }
 }
 
-customElements.define('test-button', TestButton)
+customElements.define('statx-temp', StatxTest)
