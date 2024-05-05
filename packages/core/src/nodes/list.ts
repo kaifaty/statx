@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {Options, PublicList} from '../types/index.js'
 import {Peek, Subscribe, nonce, status} from '../helpers/index.js'
-import {At, Pop, Push, Shift, Sort, Map, SetValue, UnShift} from './proto-list.js'
+import {At, Pop, Push, Shift, IndexOf, Splice, Sort, Map, SetValue, UnShift} from './proto-list.js'
 import {getNewFnWithName} from '../helpers/utils.js'
 import {GetStateValue} from './proto-state.js'
 
@@ -18,6 +18,8 @@ ListProto.set = SetValue
 ListProto.get = GetStateValue
 ListProto.peek = Peek
 ListProto.subscribe = Subscribe
+ListProto.splice = Splice
+ListProto.indexOf = IndexOf
 
 export const list = <T extends Array<unknown>>(value: T, options?: Options) => {
   const id = nonce.get()

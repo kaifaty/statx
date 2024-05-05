@@ -51,14 +51,20 @@ export interface PublicState<T extends StateType> {
   peek(): T
 }
 
-type MapFn<T extends Array<T[number]>> = {
-  map: <P>(fn: (v: State<[T[number]]>, vv: [T[0]]) => P) => Array<P>
-}
-
 export interface PublicList<T extends Array<unknown>>
-  extends State<T>,
-    MapFn<T>,
-    Pick<Array<T[number]>, 'sort' | 'push' | 'pop' | 'shift' | 'unshift' | 'at'> {}
+  extends Pick<
+    Array<State<T[number]>>,
+    'sort' | 'push' | 'pop' | 'indexOf' | 'splice' | 'shift' | 'unshift' | 'at'
+  > {
+  (): Array<State<T[number]>>
+  customDeps?: Array<CommonInternal>
+  readonly name: string
+  subscribe(listener: Listener<Array<State<T[number]>>>, subscriberName?: string): UnSubscribe
+  peek(): Array<State<T[number]>>
+  set: (value: T) => void
+  delete: (i: number) => void
+  map: <P>(fn: (v: State<T[number]>) => P) => Array<P>
+}
 
 export type State<T extends StateType> = PublicState<T> & {
   set: (value: T) => void

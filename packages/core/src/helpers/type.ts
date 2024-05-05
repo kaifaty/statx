@@ -57,11 +57,14 @@ export interface IState extends CommonInternal {
 }
 export type NodeType = 'state' | 'list' | 'async' | 'computed'
 export type DependencyType = 'listener' | 'child' | 'parent'
-
+;[].splice
 export interface IList extends CommonInternal {
-  currentValue: Array<State<unknown>>
-  prevValue: Array<State<unknown>> | undefined
+  currentValue: Array<IState>
+  prevValue: Array<IState> | undefined
+  prevLen: number
   set(value: Array<unknown>): void
+  maps?: Array<{data: Array<unknown>; fn: (valueState: CommonInternal) => unknown}>
+  splice(i: number, deleteCount?: number): Array<IState>
 }
 
 export interface IComputed extends CommonInternal {
