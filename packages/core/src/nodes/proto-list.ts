@@ -82,50 +82,7 @@ export function Map(this: IList, fn: (valueState: CommonInternal) => unknown) {
   const res = computed(
     () => {
       this.get() as Array<CommonInternal>
-
       return mappedList
-      /*
-      let mappedListLen = mappedList.length
-      const newListLen = newList.length
-
-      //
-      //1. Обновлять существующие не нужно, есть подписка
-      //
-
-      //
-      //2. Создать новые
-      //
-      if (newListLen > mappedListLen) {
-        for (let i = mappedListLen; i < newListLen; i++) {
-          mappedList[i] = computed(
-            () => {
-              return fn(newList[i], i)
-            },
-            {name: this.name + `.${i}`},
-          )
-        }
-      }
-      //
-      //. Удалить старые
-      //
-
-      this.patch?.forEach((patch) => {
-        if (patch.type === 'delete') {
-          mappedList.splice(patch.i, 1)
-          mappedListLen--
-        }
-      })
-      if (newListLen < mappedListLen) {
-        for (let i = newListLen; i < mappedListLen; i++) {
-          const item = mappedList[i] as any as CommonInternal
-          if (item.deps?.length) {
-            item.deps.length = 0
-          }
-        }
-        mappedList.length = newListLen
-      }
-
-      */
     },
     {name: this.name + '.map'},
   )
@@ -134,9 +91,6 @@ export function Map(this: IList, fn: (valueState: CommonInternal) => unknown) {
 }
 
 export function SetValue(this: IList, value: Array<unknown>) {
-  if (value === this.currentValue) {
-    //return
-  }
   const needRecompute = value.length !== this.prevLen
   const max = Math.max(value.length, this.currentValue.length)
 
@@ -158,7 +112,6 @@ export function SetValue(this: IList, value: Array<unknown>) {
     } else if (this.currentValue[i] === undefined) {
       if (isStatxFn(newItem)) {
         this.currentValue[i] = newItem as any
-        //TODO ALL MAPS
         console.warn('Don use signals in list items. Values already reactive.')
       } else {
         //@ts-expect-error
@@ -169,8 +122,6 @@ export function SetValue(this: IList, value: Array<unknown>) {
       })
     }
   }
-
-  console.log('needRecompute', needRecompute)
   //Recompute root computed value only if length changed
   if (needRecompute) {
     notify(this, this.currentValue)

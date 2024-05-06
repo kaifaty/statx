@@ -28,6 +28,8 @@ export function Subscribe(this: CommonInternal, listener: Listener, subscriberNa
       if (this.deps.length === 0) {
         //@ts-ignore
         delete this.deps
+        //@ts-ignore
+        delete this.maps
       }
     }
   }
