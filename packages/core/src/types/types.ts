@@ -53,7 +53,7 @@ export interface PublicState<T extends StateType> {
 
 export interface PublicList<T extends Array<unknown>>
   extends Pick<
-    Array<State<T[number]>>,
+    Array<T[number]>,
     'sort' | 'push' | 'pop' | 'indexOf' | 'splice' | 'shift' | 'unshift' | 'at'
   > {
   (): Array<State<T[number]>>

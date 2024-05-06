@@ -500,7 +500,7 @@ test('List: create, subscribe', async () => {
   assert.is(res()[2], 2)
 
   res.subscribe((v) => {
-    test = v[0]
+    test = v[0].peek()
   })
   res.set([3])
 
