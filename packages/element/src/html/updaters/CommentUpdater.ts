@@ -9,10 +9,10 @@ export class CommentUpdater implements NodeUpdater {
   private commentStartNode?: Comment
   private parent: Element
   constructor(
-    private commentNode: Comment,
+    private commentEndNode: Comment,
     private value: unknown,
   ) {
-    this.parent = commentNode.parentElement!
+    this.parent = commentEndNode.parentElement!
     Promise.resolve().then(() => this.subscribe())
   }
 
@@ -60,14 +60,11 @@ export class CommentUpdater implements NodeUpdater {
   }
 
   private firstRender(nodesToInsert: Node[]) {
-    /**
-     * First update
-     */
     if (this.wasInitialRender === 0) {
       const fr = document.createDocumentFragment()
       this.commentStartNode = document.createComment('start')
       fr.append(this.commentStartNode, ...nodesToInsert)
-      this.parent.insertBefore(fr, this.commentNode)
+      this.parent.insertBefore(fr, this.commentEndNode)
       this.wasInitialRender = 1
       return
     }
@@ -75,87 +72,67 @@ export class CommentUpdater implements NodeUpdater {
 
   private nextRenders(nodesToInsert: Node[], prevResult: number) {
     const NEW_LIST_LENGTH = this.insertedLen
-    const PREV_LIST_LENGTH = prevResult
-    const MIN_INDEX = Math.min(NEW_LIST_LENGTH, PREV_LIST_LENGTH)
+    let PREV_LIST_LENGTH = prevResult
+    let MAX_INDEX = Math.max(NEW_LIST_LENGTH, PREV_LIST_LENGTH)
 
     let current: ChildNode | null = this.commentStartNode?.nextSibling ?? null
 
-    /**
-     * 1. Update existed DOM state
-     */
-    for (let i = 0; i < MIN_INDEX; i++) {
-      const nodeToUpdate = nodesToInsert[i]
-
+    for (let i = 0; i < MAX_INDEX; i++) {
+      const nodeToUpdate: Node | undefined = nodesToInsert[i]
       if (!current) {
         console.warn(`[NodeUpdateError]: Cannot find current node to compare`)
         break
       }
 
-      if (!nodeToUpdate) {
-        console.warn(`[NodeUpdateError]: Cannot find nodeToUpdate`, {
-          i,
-          MIN_INDEX,
-          NEW_LIST_LENGTH,
-          PREV_LIST_LENGTH,
-          nodesToInsert,
-        })
+      /**
+       * Insert new nodes
+       */
+      if (NEW_LIST_LENGTH > PREV_LIST_LENGTH && i >= PREV_LIST_LENGTH) {
+        this.parent.insertBefore(nodeToUpdate, this.commentEndNode)
+        current = nodeToUpdate as ChildNode
+        continue
+      }
+
+      if (current === this.commentEndNode) {
+        console.error(`[NodeUpdateError]: Current node is Comment end`)
         break
       }
 
       /**
-       * Update text nodes if needed
+       * Remove old nodes
+       */
+      if (NEW_LIST_LENGTH < PREV_LIST_LENGTH) {
+        if (i >= NEW_LIST_LENGTH) {
+          const next = current.nextSibling
+          this.parent.removeChild(current)
+          current = next as ChildNode | null
+          continue
+        }
+        if (nodeToUpdate?.nodeType === 1 && current?.nodeType === 1 && nodeToUpdate !== current) {
+          const next = current.nextSibling
+          const currSaved = current
+          if (next === nodeToUpdate) {
+            Promise.resolve().then((r) => currSaved.remove())
+            current = next
+            PREV_LIST_LENGTH--
+            MAX_INDEX--
+          } else {
+            current.replaceWith(nodeToUpdate)
+            current = nodeToUpdate.nextSibling
+          }
+          continue
+        }
+      }
+
+      /**
+       * Update text nodes
        */
       if (nodeToUpdate.nodeType === 3 && current.nodeType === 3) {
         if (nodeToUpdate.textContent !== current.textContent) {
           current.textContent = nodeToUpdate.textContent
         }
-      } else if (nodeToUpdate !== current) {
-        /**
-         * Update Elements nodes if needed
-         */
-        const next = current.nextSibling
-
-        current.remove()
-        this.parent.insertBefore(nodeToUpdate, next)
-        current = (nodeToUpdate as ChildNode) ?? null
-      } else {
-        //console.warn('[UNHANDLED UPDATE CASE]')
       }
-
-      current = current?.nextSibling
-    }
-
-    /**
-     * 2.Remove old nodes
-     */
-    if (PREV_LIST_LENGTH > NEW_LIST_LENGTH) {
-      for (let i = NEW_LIST_LENGTH; i < PREV_LIST_LENGTH; i++) {
-        const next = current?.nextSibling
-
-        if (!current) {
-          console.warn(`[NodeRemoveError]: Cannot find current node to remove`)
-          break
-        }
-        this.parent.removeChild(current)
-
-        current = next as ChildNode | null
-      }
-    }
-
-    /**
-     * 3.Insert new nodes
-     */
-    if (NEW_LIST_LENGTH > PREV_LIST_LENGTH) {
-      for (let i = PREV_LIST_LENGTH; i < NEW_LIST_LENGTH; i++) {
-        const nodeToUpdate = nodesToInsert[i]
-
-        if (nodeToUpdate === undefined) {
-          console.warn(`[NodeInsertError]: Cannot find nodeToUpdate`, {i, NEW_LIST_LENGTH, PREV_LIST_LENGTH})
-          break
-        }
-
-        this.parent.insertBefore(nodeToUpdate, this.commentNode)
-      }
+      current = current.nextSibling
     }
   }
 
