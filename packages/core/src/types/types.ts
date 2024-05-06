@@ -52,16 +52,17 @@ export interface PublicState<T extends StateType> {
 }
 
 export interface PublicList<T extends Array<unknown>>
-  extends Pick<Array<T[number]>, 'push' | 'pop' | 'indexOf' | 'splice' | 'shift' | 'unshift' | 'at'> {
+  extends Pick<Array<T[number]>, 'push' | 'pop' | 'splice' | 'shift' | 'unshift'> {
   (): Array<State<T[number]>>
   customDeps?: Array<CommonInternal>
   readonly name: string
   subscribe(listener: Listener<Array<State<T[number]>>>, subscriberName?: string): UnSubscribe
   peek(): Array<State<T[number]>>
   set: (value: T) => void
-  delete: (i: number) => void
+  at: (index: number) => State<Array<T[number]>>
   map: <P>(fn: (v: State<T[number]>) => P) => Array<P>
   sort: (fn?: (a: T[number], b: T[number]) => number) => Array<State<T[number]>>
+  indexOf: (item: State<T[number]>) => number
 }
 
 export type State<T extends StateType> = PublicState<T> & {
