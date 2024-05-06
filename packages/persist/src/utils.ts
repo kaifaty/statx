@@ -48,7 +48,7 @@ export const createPersistState = <T>(
   options: PersistOptions<any>,
 ): PersistState<T> => {
   let stateValue: State<any>
-  let initialValue
+  let initialValue: any
 
   const name = options.name
 

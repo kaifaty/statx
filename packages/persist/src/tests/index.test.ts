@@ -113,7 +113,9 @@ test('Function initialization', async () => {
 })
 
 test('Async adapter', async () => {
-  const state = testAsyncStorage('qwe', {})
+  const state = testAsyncStorage('qwe', {
+    name: 'test',
+  })
 })
 
 test('sessionStorage value can be set and read', async () => {
