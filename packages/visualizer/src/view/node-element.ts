@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {CommonInternal, DependencyType, ListenerInternal} from '@statx/core'
 import {getNodeType, eachDependency} from '@statx/core'
-import {XElement, css} from '@statx/element'
+import {StatxHTML, css} from '@statx/element'
 import type {TemplateResult} from 'lit/html.js'
 import {html, render} from 'lit/html.js'
 
@@ -70,7 +70,7 @@ class Deps {
   static getListeners = this.createMapper<ListenerInternal>('listener')
 }
 
-export class ViewNode extends XElement {
+export class ViewNode extends StatxHTML {
   static define() {
     if (!customElements.get('view-node')) {
       customElements.define('view-node', this)
@@ -150,7 +150,7 @@ export class ViewNode extends XElement {
       this.node = res
       if (res) {
         this.updateColors(res)
-        this.requestUpdate()
+        //!this.requestUpdate()
       }
     })
   }
@@ -164,7 +164,7 @@ export class ViewNode extends XElement {
   }
   reqUpdate = (node: CommonInternal) => {
     if (this.node?.type === node.type) {
-      this.requestUpdate()
+      //!this.requestUpdate()
     }
   }
   unsub?: () => void

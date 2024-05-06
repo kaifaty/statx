@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {throttle} from '@statx/utils'
-import {XElement, html, css} from '@statx/element'
+import {StatxHTML, html, css} from '@statx/element'
 import type {GraphParametrs} from '../force-graph'
-import {InitGraph} from '../force-graph'
+import type {InitGraph} from '../force-graph'
 import {ViewNode} from './node-element'
 import {Colors} from './colors'
 
 const sidebarWidth = 360
 
-export class VisualizerElement extends XElement {
+export class VisualizerElement extends StatxHTML {
   static define() {
     if (!customElements.get('visualizer-element')) {
       customElements.define('visualizer-element', this)
@@ -74,17 +74,17 @@ export class VisualizerElement extends XElement {
 
   private nodeUpdate = (e: CustomEvent<string>) => {
     this._node = e.detail
-    this.requestUpdate()
+    ///!this.requestUpdate()
   }
   connectedCallback(): void {
     super.connectedCallback()
     window.addEventListener('resize', this.resize as EventListener)
     window.addEventListener('nodeChange', this.nodeUpdate as EventListener)
-    this.style.setProperty('--bg-color', this.graphProps().bgColor)
+    //!this.style.setProperty('--bg-color', this.graphProps().bgColor)
     setTimeout(() => {
-      this._graph = new InitGraph(this.shadowRoot!.getElementById('grahp')!, this.graphProps())
-      this.colors.setGraph(this._graph.graph)
-      this.resize()
+      // ! this._graph = new InitGraph(this.shadowRoot!.getElementById('grahp')!, this.graphProps())
+      // ! this.colors.setGraph(this._graph.graph)
+      // ! this.resize()
     })
   }
   disconnectedCallback(): void {
