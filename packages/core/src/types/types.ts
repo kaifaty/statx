@@ -52,7 +52,7 @@ export interface PublicState<T extends StateType> {
 }
 
 export interface PublicList<T extends Array<unknown>>
-  extends Pick<Array<T[number]>, 'push' | 'pop' | 'splice' | 'shift' | 'unshift'> {
+  extends Pick<Array<T[number]>, 'push' | 'pop' | 'shift' | 'unshift'> {
   (): Array<State<T[number]>>
   customDeps?: Array<CommonInternal>
   readonly name: string
@@ -60,9 +60,10 @@ export interface PublicList<T extends Array<unknown>>
   peek(): Array<State<T[number]>>
   set: (value: T) => void
   at: (index: number) => State<Array<T[number]>>
-  map: <P>(fn: (v: State<T[number]>) => P) => Array<P>
+  map: <P>(fn: (v: State<T[number]>) => P) => Computed<Array<Computed<P>>>
   sort: (fn?: (a: T[number], b: T[number]) => number) => Array<State<T[number]>>
   indexOf: (item: State<T[number]>) => number
+  splice: (start: number, deleteCount?: number) => Array<State<T[number]>>
 }
 
 export type State<T extends StateType> = PublicState<T> & {

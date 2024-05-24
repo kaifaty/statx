@@ -14,28 +14,38 @@ const createMappedItem = (
   return computed(() => fn(item), {name: name + `.mappedItem`})
 }
 
+const createStateItem = (newItem: unknown, name: string) => {
+  return state(newItem, {name: name + '.item'})
+}
+
 export function Push(this: IList, ...args: Array<unknown>) {
-  this.currentValue.push(...(args as any))
+  const addedStates = args.map((item) => createStateItem(item, this.name) as any)
+  this.currentValue.push(...addedStates)
   this.maps?.forEach((mapItem) => {
-    mapItem.data.push(...args.map((item) => mapItem.fn(item as any)))
+    mapItem.data.push(...addedStates.map((item) => mapItem.fn(item as any)))
   })
+
+  notify(this, this.currentValue)
   return this.currentValue.length
 }
 
 export function UnShift(this: IList, ...args: Array<unknown>) {
-  const res = this.currentValue.unshift()
+  const addedStates = args.map((item) => createStateItem(item, this.name) as any)
+  const res = this.currentValue.unshift(...addedStates)
   this.maps?.forEach((mapItem) => {
-    mapItem.data.unshift(...args.map((item) => mapItem.fn(item as any)))
+    mapItem.data.unshift(...addedStates.map((item) => createMappedItem(this.name, item, mapItem.fn)))
   })
-  return res
+
+  notify(this, this.currentValue)
+  return this.currentValue.length
 }
 
 export function Pop(this: IList) {
-  return this.splice(-1)
+  return this.splice(this.currentValue.length - 1)[0].get()
 }
 
 export function Shift(this: IList) {
-  return this.splice(0, 1)
+  return this.splice(0, 1)[0].get()
 }
 
 export function At(this: IList, position: number) {
@@ -53,11 +63,15 @@ export function Sort(this: IList, fn?: (a: unknown, b: unknown) => number) {
 }
 
 export function Splice(this: IList, start: number, deleteCount?: number) {
-  const res = this.currentValue.splice(start, deleteCount)
+  const res =
+    deleteCount === undefined ? this.currentValue.splice(start) : this.currentValue.splice(start, deleteCount)
+
   this.maps?.forEach((mapItem) => {
     mapItem.data.splice(start, deleteCount)
   })
+
   notify(this, this.currentValue)
+
   return res
 }
 
@@ -115,7 +129,7 @@ export function SetValue(this: IList, value: Array<unknown>) {
         console.warn('Don use signals in list items. Values already reactive.')
       } else {
         //@ts-expect-error
-        this.currentValue[i] = state(newItem, {name: this.name + '.' + i})
+        this.currentValue[i] = createStateItem(newItem, this.name)
       }
       this.maps?.forEach((map) => {
         map.data[i] = createMappedItem(this.name, this.currentValue[i], map.fn)

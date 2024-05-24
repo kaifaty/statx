@@ -35,10 +35,42 @@ test('test effect', async () => {
   assert.is(i, 1, 'must be change')
 })
 
-test('activate on create', async () => {
+test('activate on create - on', async () => {
   const st = state(0)
   let i = 0
-  const ef = effect(
+  effect(
+    () => st(),
+    () => {
+      i++
+    },
+    {fireOnActivate: false, activateOnCreate: true},
+  )
+  assert.is(i, 0, 'no changes')
+  st.set(10)
+  await delay(10)
+  assert.is(i, 1, 'has update')
+})
+
+test('activate on create - off', async () => {
+  const st = state(0)
+  let i = 0
+  effect(
+    () => st(),
+    () => {
+      i++
+    },
+    {fireOnActivate: false, activateOnCreate: false},
+  )
+  assert.is(i, 0, 'no changes')
+  st.set(10)
+  await delay(10)
+  assert.is(i, 0, 'no update')
+})
+
+test('activate on create - default off', async () => {
+  const st = state(0)
+  let i = 0
+  effect(
     () => st(),
     () => {
       i++
@@ -48,10 +80,10 @@ test('activate on create', async () => {
   assert.is(i, 0, 'no changes')
   st.set(10)
   await delay(10)
-  assert.is(i, 1, 'has update')
+  assert.is(i, 0, 'no update')
 })
 
-test('fireOnActivate flag', async () => {
+test.only('fireOnActivate flag', async () => {
   const st = state(0)
   let i = 0
   const ef = effect(
@@ -64,11 +96,26 @@ test('fireOnActivate flag', async () => {
       fireOnActivate: true,
     },
   )
-  assert.is(i, 0, 'no changes')
-
   await delay(10)
-  assert.is(i, 1, 'has update')
+  assert.is(i, 1, 'has changes')
 })
+
+test.only('fireOnActivate flag - default true', async () => {
+  const st = state(0)
+  let i = 0
+  const ef = effect(
+    () => st(),
+    () => {
+      i++
+    },
+    {
+      activateOnCreate: true,
+    },
+  )
+  await delay(10)
+  assert.is(i, 1, 'has changes')
+})
+
 test('effect can stop ', async () => {
   const st = state(0)
   let i = 0

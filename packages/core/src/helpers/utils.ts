@@ -165,6 +165,12 @@ export const getNewFnWithName = (options?: Options, defaultName?: string) => {
     //@ts-ignore
     return Node.get()
   }
+  //@ts-ignore
+  Node[Symbol.toPrimitive] = () => {
+    //@ts-ignore
+    return Node.get()
+  }
+
   Object.defineProperty(Node, 'name', {
     value: name,
   })

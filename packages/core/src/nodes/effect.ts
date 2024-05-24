@@ -38,7 +38,7 @@ export const effect = <T extends DepsFn>(depsFn: T, fn: EffectFn<T>, options?: E
 
   Object.setPrototypeOf(Effect, EffectProto)
 
-  Effect.computedDeps = computed(depsFn, {})
+  Effect.computedDeps = computed(depsFn, {name: 'effect_computed_deps_' + id})
   Effect.fn = fn as any
 
   initOptions: {

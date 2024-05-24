@@ -48,7 +48,7 @@ test('test fields 2', () => {
   assert.is(serviceInfo2.isOpen, true, '4')
 })
 
-test.only('check cache', () => {
+test('check cache', () => {
   let i = 0
   class Check {
     test = 10
@@ -74,3 +74,5 @@ test.only('check cache', () => {
   assert.is(check.calc, 20 ** 20, '5')
   assert.is(i, 2, '6')
 })
+
+test.run()
