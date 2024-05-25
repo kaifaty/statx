@@ -65,7 +65,7 @@
       "outputFormat": "esmodule"
     }
   },
-  "gitHead": "4af6054e12ac55f0d1a3eeda1a5f4a1963a9a1ca",
+  "gitHead": "da95edb27868b75d90f52484e72553ab29e703db",
   "devDependencies": {
     "@types/react-dom": "^18.0.0",
     "react-dom": "^18.0.0"
