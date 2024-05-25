@@ -20,8 +20,13 @@ export function Subscribe(this: CommonInternal, listener: Listener, subscriberNa
   } else {
     this.deps.push(wrapper, dependencyTypes.listener)
   }
+  if (this.listenersCount === undefined) {
+    this.listenersCount = 0
+  }
+  this.listenersCount++
 
   return () => {
+    this.listenersCount--
     const node = this.deps.find(wrapper)
     if (node) {
       this.deps.remove(node)

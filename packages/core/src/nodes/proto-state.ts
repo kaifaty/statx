@@ -23,6 +23,8 @@ export function SetValue(this: IState, value: unknown, setReason?: CommonInterna
   if (newValue === this.currentValue) {
     return
   }
+  this.needRecompute = 1
+
   if (this.type === stateTypes.state) {
     reason.setReason(this, setReason ?? 'setValue')
   }

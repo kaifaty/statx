@@ -38,27 +38,27 @@ export const eachDependency = (
   }
 }
 
-export class Node implements INode {
-  next?: INode
-  prev?: INode
+export class Node<T> implements INode<T> {
+  next?: INode<T>
+  prev?: INode<T>
 
   constructor(
-    public value: CommonInternal | ListenerInternal,
+    public value: T,
     public type: number,
   ) {}
 }
 
-export class LinkedList implements ILinkedList {
-  head?: INode
-  tail?: INode
+export class LinkedList<T> implements ILinkedList<T> {
+  head?: INode<T>
+  tail?: INode<T>
   length: number
-  constructor(value: CommonInternal | ListenerInternal, type: number) {
-    this.head = new Node(value, type)
+  constructor(value: T, type: number) {
+    this.head = new Node<T>(value, type)
     this.tail = this.head
     this.length = 1
   }
-  push(value: CommonInternal | ListenerInternal, type: number) {
-    const newNode = new Node(value, type)
+  push(value: T, type: number) {
+    const newNode = new Node<T>(value, type)
     if (!this.head) {
       this.head = newNode
       this.tail = newNode
@@ -71,7 +71,7 @@ export class LinkedList implements ILinkedList {
     this.length++
     return this
   }
-  remove(node: Node) {
+  remove(node: Node<T>) {
     if (node === this.tail) {
       if (node.prev) {
         this.tail = node.prev
@@ -95,7 +95,7 @@ export class LinkedList implements ILinkedList {
     this.length--
     return this
   }
-  find(value: CommonInternal | ListenerInternal): INode | undefined {
+  find(value: T): INode<T> | undefined {
     let current = this.head
     while (current) {
       if (current.value === value) {
@@ -104,6 +104,11 @@ export class LinkedList implements ILinkedList {
       current = current.next
     }
     return undefined
+  }
+  clear() {
+    this.head = undefined
+    this.tail = undefined
+    this.length = 0
   }
 }
 

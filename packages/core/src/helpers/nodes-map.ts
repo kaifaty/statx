@@ -8,41 +8,48 @@ export class NodesMap {
   nodes2notify: Set<CommonInternal> = new Set()
   isNotifying = false
 
-  addLink(sourceNode: CommonInternal, targetNode: CommonInternal, info?: string) {
-    if (sourceNode.id === targetNode.id) {
-      throw new Error(`Trying to set loop children ${info}`)
+  private addParent(sourceNode: CommonInternal, targetNode: CommonInternal) {
+    if (!targetNode.parents) {
+      targetNode.parents = new LinkedList<CommonInternal>(sourceNode, dependencyTypes.parent)
+    } else {
+      targetNode.parents.push(sourceNode, dependencyTypes.parent)
     }
+  }
+
+  private addChild(sourceNode: CommonInternal, targetNode: CommonInternal) {
     if (!sourceNode.deps) {
       sourceNode.deps = new LinkedList(targetNode, dependencyTypes.child)
     } else {
       sourceNode.deps.push(targetNode, dependencyTypes.child)
     }
-    if (!targetNode.deps) {
-      targetNode.deps = new LinkedList(sourceNode, dependencyTypes.parent)
-    } else {
-      targetNode.deps.push(sourceNode, dependencyTypes.parent)
+  }
+
+  addLink(sourceNode: CommonInternal, targetNode: CommonInternal, info?: string) {
+    if (sourceNode.id === targetNode.id) {
+      throw new Error(`Trying to set loop children ${info}`)
     }
+    this.addChild(sourceNode, targetNode)
+    this.addParent(sourceNode, targetNode)
   }
 
   removeLinks(sourceNode: CommonInternal) {
-    if (sourceNode.deps) {
-      let current: INode | undefined = sourceNode.deps.head
-      while (current) {
-        if (current.type === dependencyTypes.parent) {
-          const value = current.value as CommonInternal
-          let currentChild: INode | undefined = value.deps?.head
-
-          while (currentChild) {
-            if (currentChild.type === dependencyTypes.child && currentChild.value === sourceNode) {
-              value.deps.remove(currentChild)
-            }
-            currentChild = currentChild.next
-          }
-          sourceNode.deps.remove(current)
-        }
-        current = current.next
-      }
+    if (!sourceNode.parents?.length) {
+      return
     }
+    let current: INode<CommonInternal> | undefined = sourceNode.parents.head
+    while (current) {
+      const value = current.value as CommonInternal
+      let currentChild: INode<CommonInternal | ListenerInternal> | undefined = value.deps?.head
+
+      while (currentChild) {
+        if (currentChild.type === dependencyTypes.child && currentChild.value === sourceNode) {
+          value.deps.remove(currentChild)
+        }
+        currentChild = currentChild.next
+      }
+      current = current.next
+    }
+    sourceNode.parents.clear()
   }
 
   reCalcChildren(sourceNode: CommonInternal, changed: boolean) {
@@ -51,6 +58,7 @@ export class NodesMap {
     }
 
     let current = sourceNode.deps.head
+
     while (current) {
       if (current.type === dependencyTypes.child) {
         const value = current.value as CommonInternal
@@ -59,9 +67,11 @@ export class NodesMap {
         if (isAsyncComputed(value)) {
           value.onDepsChange(sourceNode.name)
         } else {
-          this.nodes2notify.add(value)
-          value.hasParentUpdate = 1
-          sourceNode.deps.remove(current)
+          if (value.listenersCount > 0) {
+            this.nodes2notify.add(value)
+          }
+          value.needRecompute = 1
+          this.reCalcChildren(value, true)
         }
       }
       current = current.next

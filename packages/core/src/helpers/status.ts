@@ -19,7 +19,6 @@ class Status {
   initStatus(id: number, node: CommonInternal, type: NodeType) {
     node.id = id
     node.type = stateTypes[type]
-    node.hasParentUpdate = 0
 
     if (type === 'computed') {
       node.computing = 0

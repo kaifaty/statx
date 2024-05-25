@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {requester} from '../helpers/requester'
-import type {CommonInternal, IComputed, ListenerInternal} from '../helpers/type'
-import {assert} from '../helpers/utils'
+import {requester, assert, nodesMap, nodeHistory, recorder} from '../helpers'
+import type {CommonInternal, IComputed, INode, ListenerInternal} from '../helpers'
 import type {UnSubscribe} from '../types/types'
-import {nodesMap} from '../helpers/nodes-map'
-import {recorder} from '../helpers/recorder'
-import {nodeHistory} from '../helpers/history'
 
 export function SubscribeComputed(
   this: IComputed,
@@ -26,7 +22,7 @@ export function GetComputedValue(this: IComputed): unknown {
   try {
     requester.push(this)
 
-    if (isDontNeedRecalc(this)) {
+    if (!isNeedRecalc(this)) {
       return this.currentValue
     }
 
@@ -36,6 +32,7 @@ export function GetComputedValue(this: IComputed): unknown {
     nodesMap.removeLinks(this)
 
     const value = this.compute(this.currentValue ?? this.initial)
+    this.needRecompute = 0
 
     nodeHistory.push(this, value)
     nodesMap.reCalcChildren(this, this.currentValue !== this.prevValue)
@@ -46,7 +43,6 @@ export function GetComputedValue(this: IComputed): unknown {
 
     throw e
   } finally {
-    this.hasParentUpdate = 0
     this.computing = 0
 
     if (requesterNode) {
@@ -58,7 +54,7 @@ export function GetComputedValue(this: IComputed): unknown {
   }
 }
 
-function isDontNeedRecalc(node: CommonInternal): boolean {
-  // TODO ввести уникальное значение для еще не подсчитанного состояния ??
-  return node.hasParentUpdate === 0 && node.currentValue !== undefined
+function isNeedRecalc(computationgNode: CommonInternal): boolean {
+  const parentNode: INode<CommonInternal> | undefined = computationgNode.parents?.head
+  return Boolean(computationgNode.needRecompute) || !parentNode
 }

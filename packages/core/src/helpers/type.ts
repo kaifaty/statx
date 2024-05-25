@@ -11,37 +11,40 @@ export type StatusKey = keyof SettableStatus
 export interface SettableStatus {
   id: number
   type: number
-  hasParentUpdate: number
   historyCursor: number
   computing: number
   async: number
   invalidated?: number
 }
 
-export interface INode {
-  next?: INode
-  prev?: INode
-  value: CommonInternal | ListenerInternal
+export interface INode<T> {
+  next?: INode<T>
+  prev?: INode<T>
+  value: T
   type: number
 }
 
-export interface ILinkedList {
-  head?: INode
-  tail?: INode
+export interface ILinkedList<T> {
+  head?: INode<T>
+  tail?: INode<T>
   length: number
-  push(value: CommonInternal | ListenerInternal, type: number): ILinkedList
-  remove(node: INode): ILinkedList
-  find(value: CommonInternal | ListenerInternal): INode | undefined
+  push(value: T, type: number): ILinkedList<T>
+  remove(node: INode<T>): ILinkedList<T>
+  find(value: T): INode<T> | undefined
+  clear(): void
 }
 
-//[0, listener, 1, child, 2, parent]
 export interface CommonInternal extends SettableStatus {
-  deps: ILinkedList
+  listenersCount: number
+  deps: ILinkedList<CommonInternal | ListenerInternal>
+  parents: ILinkedList<CommonInternal>
+
   initial?: unknown
   currentValue: unknown
   prevValue: unknown
   customDeps?: Array<CommonInternal>
 
+  needRecompute: number | undefined
   compute?: SetterFunc
   reason?: CommonInternal | 'setValue' | 'asyncCalc' | string
   history: Array<HistoryChange>

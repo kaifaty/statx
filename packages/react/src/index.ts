@@ -1,56 +1,58 @@
-import type {ReactElement, ReactNode} from 'react'
-import {Fragment, useMemo, createElement, useEffect, useState, PureComponent} from 'react'
-import {computed, isComputed, type PublicState, type StateType} from '@statx/core'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type {ReactNode} from 'react'
+import {createElement, PureComponent} from 'react'
+import type {State, Computed} from '@statx/core'
+import {computed, state} from '@statx/core'
 
-export const useStatx = <T extends StateType>(state: PublicState<T>): T => {
-  const [inner, setInner] = useState<T>(state())
+type Props = Record<string, unknown>
+type PropsX = Record<string, State<unknown>>
 
-  useEffect(() => {
-    return state.subscribe(setInner)
-  }, [])
-
-  return inner
+type ConvertedRecord<T extends Props> = {
+  [K in keyof T]: State<T[K]>
 }
 
-export const useSXComponent = <T extends StateType>(
-  state: PublicState<T>,
-  f?: (value: T) => ReactNode,
-): ReactElement => {
-  return useMemo(() => {
-    return createElement(() => {
-      const res = useStatx<T>(state)
-      if (!res) {
-        return null
-      }
-      if (f) {
-        const mappedResult = f(res)
-        return createElement(Fragment, {}, mappedResult)
-      }
-      if (typeof res === 'object') {
-        return createElement(Fragment, {}, JSON.stringify(res))
-      }
-      return createElement(Fragment, {}, res.toString())
-    })
-  }, [])
+class StatxComponent<P extends {fn: () => Computed<unknown>}, S = Props> extends PureComponent<P, S> {
+  private unsub?: () => void
+  componentWillUnmount(): void {
+    this.unsub?.()
+  }
+  componentDidMount(): void {
+    this.unsub = this.props.fn?.().subscribe(() => this.forceUpdate())
+  }
+  render() {
+    return this.props.fn()()
+  }
 }
 
-export class StatxComponent<P = {}, S = {}> extends PureComponent {
-  _unsub: () => void 
-  constructor(props: P) {
-    super(props)
-    const computedRender = computed(currentRender, {name: `${this.constructor.name}.render`})
-
-    if (isComputed(this.render)) {
-      return
+const setStateProps = (newProps: Props, stateProps: PropsX) => {
+  Object.entries(newProps).map((item) => {
+    if (item[0] in stateProps) {
+      stateProps[item[0]].set(item[1])
+    } else {
+      stateProps[item[0]] = state(item[1])
     }
-    const currentRender = this.render.bind(this)
+  })
+}
 
-    this._unsub = computedRender.subscribe(() => {
-      this.forceUpdate()
-    })
+export const statxComponent = <T extends Props, K = ConvertedRecord<T>>(
+  initFn: (state: K) => () => ReactNode,
+  name?: string,
+) => {
+  let computedFn: Computed<unknown>
+  let inited = false
+  const stateProps = {} as K
+  const statxElement = createElement(StatxComponent as any, {
+    fn: () => computedFn,
+  })
 
-    Object.defineProperty(this, 'render', {
-      value: computedRender,
-    })
+  return (props: Props) => {
+    setStateProps(props, stateProps as PropsX)
+
+    if (!inited) {
+      computedFn = computed(initFn(stateProps), {name: `${name}.render`})
+      inited = true
+    }
+
+    return statxElement
   }
 }
