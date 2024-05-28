@@ -60,7 +60,7 @@ export interface IState extends CommonInternal {
 }
 export type NodeType = 'state' | 'list' | 'async' | 'computed'
 export type DependencyType = 'listener' | 'child' | 'parent'
-;[].splice
+
 export interface IList extends CommonInternal {
   currentValue: Array<IState>
   prevValue: Array<IState> | undefined

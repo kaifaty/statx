@@ -67,11 +67,8 @@ export class NodesMap {
         if (isAsyncComputed(value)) {
           value.onDepsChange(sourceNode.name)
         } else {
-          if (value.listenersCount > 0) {
-            this.nodes2notify.add(value)
-          }
           value.needRecompute = 1
-          this.reCalcChildren(value, true)
+          this.nodes2notify.add(value)
         }
       }
       current = current.next
@@ -83,19 +80,23 @@ export class NodesMap {
       this.isNotifying = true
 
       Promise.resolve().then(() => {
-        while (this.nodes2notify.size) {
-          const node: CommonInternal = this.nodes2notify.values().next().value
+        const values = this.nodes2notify.values()
+        let node = values.next().value
+
+        while (node) {
           const value = node.get()
           let current = node.deps?.head
           while (current) {
             if (current.type === dependencyTypes.listener) {
               ;(current.value as ListenerInternal)(value)
             }
+
             current = current.next
           }
 
-          this.nodes2notify.delete(node)
+          node = values.next().value
         }
+        this.nodes2notify.clear()
         this.isNotifying = false
       })
     }

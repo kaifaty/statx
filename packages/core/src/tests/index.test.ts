@@ -526,7 +526,7 @@ test('Remove listener', async () => {
   assert.is(a.deps, undefined, '4')
 })
 
-test.skip('Child computation must not to be trigger if value not change', async () => {
+test('Child computation must not to be trigger if value not change', async () => {
   let res = 0
   const a = state(1)
   const b = computed(() => {
@@ -548,16 +548,16 @@ test.skip('Child computation must not to be trigger if value not change', async 
   a.set(4)
   await 1
 
-  assert.is(res, 0, '1')
-  assert.is(b(), 1, '2')
-  assert.is(c(), 2, '3')
+  assert.is(res, 0, 'b not changes, no recompute')
+  assert.is(b(), 1, 'b is same')
+  assert.is(c(), 2, 'c is same')
   a.set(14)
   await 1
 
-  assert.is(res, 1, '4')
-  assert.is(b(), 2, '5')
+  assert.is(res, 1, 'b has changed, was recompute')
+  assert.is(b(), 2, 'b is changed')
 
-  assert.is(c(), 3, '6')
+  assert.is(c(), 3, 'c is changed')
 })
 
 test.run()
