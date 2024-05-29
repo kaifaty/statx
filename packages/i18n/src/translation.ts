@@ -16,7 +16,7 @@ export const createI18n = <const T extends TransStore, L extends Lang>(data: T, 
   ): I18nResult<T, K, L, V> => {
     const value = data[key]?.[langState()]
 
-    if (!value) {
+    if (value === undefined) {
       return key as I18nResult<T, K, L, V>
     }
     if (!values) {
