@@ -1,6 +1,6 @@
 {
   "name": "@statx/visualizer",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "private": false,
   "description": "Extry tiny smart statx manager",
   "keywords": [
@@ -67,8 +67,8 @@
   ],
   "dependencies": {
     "@alenaksu/json-viewer": "2.0.1",
-    "@statx/core": "^1.15.1",
-    "@statx/element": "^1.15.1",
+    "@statx/core": "^1.15.2",
+    "@statx/element": "^1.15.2",
     "@statx/utils": "^1.13.0"
   },
   "gitHead": "da95edb27868b75d90f52484e72553ab29e703db"
