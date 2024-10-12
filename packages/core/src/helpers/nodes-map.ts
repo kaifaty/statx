@@ -43,7 +43,7 @@ export class NodesMap {
 
       while (currentChild) {
         if (currentChild.type === dependencyTypes.child && currentChild.value === sourceNode) {
-          value.deps.remove(currentChild)
+          value.deps?.remove(currentChild)
         }
         currentChild = currentChild.next
       }
