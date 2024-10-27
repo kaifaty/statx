@@ -17,10 +17,6 @@ export class XLitElement extends LitElement {
     this._subs.length = 0
   }
   private _updater = () => this.requestUpdate()
-  connectedCallback() {
-    //@ts-ignore
-    super.connectedCallback?.()
-  }
 
   updated(_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
