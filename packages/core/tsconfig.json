@@ -5,6 +5,11 @@
     "rootDir": "./src",
     "baseUrl": "."
   },
-  "exclude": ["node_modules", "build", "demo", "dist"],
+  "exclude": [
+    "node_modules",
+    "build",
+    "demo",
+    "dist"
+  ],
   "extends": "../../tsconfig.json"
 }
